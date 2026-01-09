@@ -38,6 +38,7 @@
    "default": "0",
    "fieldname": "published",
    "fieldtype": "Check",
+   "in_list_view": 1,
    "label": "Published"
   },
   {
@@ -73,6 +74,7 @@
    "default": "1",
    "fieldname": "allow_guest",
    "fieldtype": "Check",
+   "in_list_view": 1,
    "label": "Allow Guest"
   },
   {
@@ -120,6 +122,7 @@
  "name": "Wiki Page",
  "naming_rule": "Random",
  "owner": "Administrator",
+ "search_fields": "title",
  "permissions": [
   {
    "create": 1,
