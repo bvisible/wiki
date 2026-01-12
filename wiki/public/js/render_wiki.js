@@ -557,7 +557,7 @@ window.RenderWiki = class RenderWiki extends Wiki {
 
       if (e.key === "/") {
         e.preventDefault();
-        $("#searchModal").modal();
+        $("#searchModal").modal("show");
       }
     });
 
@@ -610,7 +610,7 @@ window.RenderWiki = class RenderWiki extends Wiki {
     );
 
     $("#dropdownMenuSearch, .mobile-search-icon").on("click", () => {
-      $("#searchModal").modal();
+      $("#searchModal").modal("show");
     });
 
     searchInput.on("keydown", function (e) {
