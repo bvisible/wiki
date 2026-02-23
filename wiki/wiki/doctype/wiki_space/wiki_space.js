@@ -37,6 +37,33 @@ frappe.ui.form.on("Wiki Space", {
   },
 });
 
+frappe.ui.form.on("Wiki Group Item", {
+  published: function (frm, cdt, cdn) {
+    let row = locals[cdt][cdn];
+    if (row.wiki_page) {
+      frappe.call({
+        method: "frappe.client.set_value",
+        args: { doctype: "Wiki Page", name: row.wiki_page, fieldname: "published", value: row.published },
+        callback: function () {
+          frappe.show_alert({ message: __("Wiki Page updated"), indicator: "green" });
+        },
+      });
+    }
+  },
+  allow_guest: function (frm, cdt, cdn) {
+    let row = locals[cdt][cdn];
+    if (row.wiki_page) {
+      frappe.call({
+        method: "frappe.client.set_value",
+        args: { doctype: "Wiki Page", name: row.wiki_page, fieldname: "allow_guest", value: row.allow_guest },
+        callback: function () {
+          frappe.show_alert({ message: __("Wiki Page updated"), indicator: "green" });
+        },
+      });
+    }
+  },
+});
+
 frappe.ui.form.on("Top Bar Item", {
   navbar_delete(frm) {
     frm.events.set_parent_label_options(frm);

@@ -9,6 +9,8 @@
  "field_order": [
   "parent_label",
   "wiki_page",
+  "published",
+  "allow_guest",
   "hide_on_sidebar"
  ],
  "fields": [
@@ -29,6 +31,24 @@
   },
   {
    "default": "0",
+   "fetch_from": "wiki_page.published",
+   "fetch_if_empty": 1,
+   "fieldname": "published",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Published"
+  },
+  {
+   "default": "0",
+   "fetch_from": "wiki_page.allow_guest",
+   "fetch_if_empty": 1,
+   "fieldname": "allow_guest",
+   "fieldtype": "Check",
+   "in_list_view": 1,
+   "label": "Allow Guest"
+  },
+  {
+   "default": "0",
    "fieldname": "hide_on_sidebar",
    "fieldtype": "Check",
    "label": "Hide on sidebar"
@@ -37,7 +57,7 @@
  "index_web_pages_for_search": 1,
  "istable": 1,
  "links": [],
- "modified": "2024-04-16 12:06:18.398870",
+ "modified": "2026-02-23 15:00:00.000000",
  "modified_by": "Administrator",
  "module": "Wiki",
  "name": "Wiki Group Item",
