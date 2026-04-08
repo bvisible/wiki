@@ -1,0 +1,780 @@
+# Translations template for Wiki.
+# Copyright (C) 2026 Frappe
+# This file is distributed under the same license as the Wiki project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Wiki VERSION\n"
+"Report-Msgid-Bugs-To: developers@frappe.io\n"
+"POT-Creation-Date: 2026-02-12 10:57+0034\n"
+"PO-Revision-Date: 2026-02-12 10:57+0034\n"
+"Last-Translator: developers@frappe.io\n"
+"Language-Team: developers@frappe.io\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.13.1\n"
+
+#. Content of the 'Compare' (HTML) field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid ""
+"<div class=\"mt-6\">\n"
+"\t<div class=\"wiki-diff like-disabled-input\">\n"
+"\t</div>\n"
+"</div>"
+msgstr ""
+
+#. Header text in the Wiki Workspace
+#: wiki/wiki/workspace/wiki/wiki.json
+msgid "<span class=\"h4\"><b>Reports</b></span>"
+msgstr ""
+
+#. Header text in the Wiki Workspace
+#: wiki/wiki/workspace/wiki/wiki.json
+msgid "<span class=\"h4\">Wiki</span>"
+msgstr ""
+
+#. Label of a Check field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Add Search Bar"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/templates/web_sidebar.html:71
+msgid "Add a new page"
+msgstr ""
+
+#. Name of a role
+#: wiki/wiki/doctype/wiki_feedback/wiki_feedback.json
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "All"
+msgstr ""
+
+#. Label of a Check field in DocType 'Wiki Page'
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+msgid "Allow Guest"
+msgstr ""
+
+#. Label of a Link field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "Amended From"
+msgstr ""
+
+#. Label of a Data field in DocType 'Migrate To Wiki'
+#: wiki/wiki/doctype/migrate_to_wiki/migrate_to_wiki.json
+msgid "App Name"
+msgstr ""
+
+#. Label of a Table field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "App Switcher List"
+msgstr ""
+
+#. Label of a Attach Image field in DocType 'Wiki Space'
+#: wiki/wiki/doctype/wiki_space/wiki_space.json
+msgid "App Switcher Logo"
+msgstr ""
+
+#. Label of a Data field in DocType 'Wiki App Switcher List Table'
+#: wiki/wiki/doctype/wiki_app_switcher_list_table/wiki_app_switcher_list_table.json
+msgid "App Title"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "Approved"
+msgstr ""
+
+#. Label of a Link field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "Approved By"
+msgstr ""
+
+#: wiki/public/js/render_wiki.js:345
+msgid "Are you sure you want to <b>delete</b> the Wiki Page <b>${title}</b>?"
+msgstr ""
+
+#: wiki/public/js/render_wiki.js:237
+msgid "Are you sure you want to <b>discard</b> the changes?"
+msgstr ""
+
+#. Label of a Check field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Ask for contact details"
+msgstr ""
+
+#. Label of a Data field in DocType 'Migrate To Wiki'
+#: wiki/wiki/doctype/migrate_to_wiki/migrate_to_wiki.json
+msgid "Assets Directory"
+msgstr ""
+
+#. Label of a Data field in DocType 'Migrate To Wiki'
+#: wiki/wiki/doctype/migrate_to_wiki/migrate_to_wiki.json
+msgid "Assets Prepend"
+msgstr ""
+
+#: wiki/wiki/report/wiki_broken_links/wiki_broken_links.py:37
+msgid "Broken Link"
+msgstr ""
+
+#. Label of a shortcut in the Wiki Workspace
+#: wiki/wiki/workspace/wiki/wiki.json
+msgid "Broken Links Report"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "Changes Requested"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Wiki Feedback'
+#: wiki/wiki/doctype/wiki_feedback/wiki_feedback.json
+msgid "Closed"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "Code"
+msgstr ""
+
+#. Label of a Check field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Collapse Sidebar Groups"
+msgstr ""
+
+#. Label of a HTML field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "Compare"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "Compare Changes"
+msgstr ""
+
+#. Label of a Markdown Editor field in DocType 'Wiki Page'
+#. Label of a Code field in DocType 'Wiki Page Revision'
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+#: wiki/wiki/doctype/wiki_page_revision/wiki_page_revision.json
+msgid "Content"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/wiki_page.py:534
+msgid "Content is required"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/wiki_page.py:327
+msgid "Contributions "
+msgstr ""
+
+#. Label of a Check field in DocType 'Migrate To Wiki'
+#: wiki/wiki/doctype/migrate_to_wiki/migrate_to_wiki.json
+msgid "Create New Assets "
+msgstr ""
+
+#. Description of the 'Create New Assets ' (Check) field in DocType 'Migrate To
+#. Wiki'
+#: wiki/wiki/doctype/migrate_to_wiki/migrate_to_wiki.json
+msgid "Create New Images if they exist on Disk"
+msgstr ""
+
+#. Label of a Attach Image field in DocType 'Wiki Settings'
+#. Label of a Attach Image field in DocType 'Wiki Space'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+#: wiki/wiki/doctype/wiki_space/wiki_space.json
+msgid "Dark Mode Logo"
+msgstr ""
+
+#. Label of a Autocomplete field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Default Wiki Space"
+msgstr ""
+
+#: wiki/public/js/render_wiki.js:343
+msgid "Delete Wiki Page"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'Wiki Page'
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+msgid "Description"
+msgstr ""
+
+#. Label of a Check field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Disable guest access"
+msgstr ""
+
+#: wiki/public/js/render_wiki.js:235
+msgid "Discard edits"
+msgstr ""
+
+#. Label of a Data field in DocType 'Migrate To Wiki'
+#: wiki/wiki/doctype/migrate_to_wiki/migrate_to_wiki.json
+msgid "Docs Base Utl"
+msgstr ""
+
+#. Label of a Data field in DocType 'Migrate To Wiki'
+#: wiki/wiki/doctype/migrate_to_wiki/migrate_to_wiki.json
+msgid "Docs Directory"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "Draft"
+msgstr ""
+
+#. Label of a Data field in DocType 'Wiki Feedback'
+#: wiki/wiki/doctype/wiki_feedback/wiki_feedback.json
+msgid "Email Id"
+msgstr ""
+
+#. Label of a Check field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Enable Feedback"
+msgstr ""
+
+#. Label of a Check field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Enable Table of Contents"
+msgstr ""
+
+#. Label of a Attach Image field in DocType 'Wiki Space'
+#: wiki/wiki/doctype/wiki_space/wiki_space.json
+msgid "Favicon"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'Wiki Feedback'
+#. Label of a Section Break field in DocType 'Wiki Settings'
+#. Label of a Tab Break field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_feedback/wiki_feedback.json
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Feedback"
+msgstr ""
+
+#. Label of a Int field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Feedback Submission Limit"
+msgstr ""
+
+#: wiki/wiki/doctype/migrate_to_wiki/migrate_to_wiki.py:250
+msgid "File {0} does not exist"
+msgstr ""
+
+#. Label of a Tab Break field in DocType 'Wiki Settings'
+#. Label of a Tab Break field in DocType 'Wiki Space'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+#: wiki/wiki/doctype/wiki_space/wiki_space.json
+msgid "General"
+msgstr ""
+
+#. Name of a role
+#: wiki/wiki/doctype/wiki_feedback/wiki_feedback.json
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "Guest"
+msgstr ""
+
+#. Label of a Check field in DocType 'Wiki Group Item'
+#: wiki/wiki/doctype/wiki_group_item/wiki_group_item.json
+msgid "Hide on sidebar"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/templates/wiki_navbar.html:12
+msgid "Home"
+msgstr ""
+
+#. Description of the 'Feedback Submission Limit' (Int) field in DocType 'Wiki
+#. Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Hourly rate limit on submitting feedbacks"
+msgstr ""
+
+#. Description of the 'Image' (Attach Image) field in DocType 'Wiki Page'
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+msgid "Ideally should be 1200 x 630 pixels."
+msgstr ""
+
+#. Label of a Attach Image field in DocType 'Wiki Page'
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+msgid "Image"
+msgstr ""
+
+#: wiki/wiki/report/wiki_broken_links/wiki_broken_links.js:14
+msgid "Include images?"
+msgstr ""
+
+#: wiki/wiki/report/wiki_broken_links/wiki_broken_links.js:20
+msgid "Include internal links?"
+msgstr ""
+
+#. Description of the 'Content' (Markdown Editor) field in DocType 'Wiki Page'
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+msgid "It is recommended that you start your first heading with h2, as the title will be the h1."
+msgstr ""
+
+#. Description of the 'Enable Feedback' (Check) field in DocType 'Wiki
+#. Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "It will show a feedback widget on every Wiki Page when enabled. It will collect the rating, email and related info about the Wiki Page."
+msgstr ""
+
+#. Label of a Code field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Javascript"
+msgstr ""
+
+#. Label of a Small Text field in DocType 'Wiki Page'
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+msgid "Keywords"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/templates/wiki_doc.html:104
+#: wiki/www/contributions.html:26 wiki/www/drafts.html:27
+msgid "Last update on"
+msgstr ""
+
+#. Label of a Attach Image field in DocType 'Wiki Settings'
+#. Label of a Attach Image field in DocType 'Wiki Space'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+#: wiki/wiki/doctype/wiki_space/wiki_space.json
+msgid "Light Mode Logo"
+msgstr ""
+
+#: wiki/www/contributions.html:27 wiki/www/drafts.html:28
+msgid "Link"
+msgstr ""
+
+#. Group in Wiki Page's connections
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+msgid "Linked Documents"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Wiki Space'
+#: wiki/wiki/doctype/wiki_space/wiki_space.json
+msgid "Logo"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/wiki_page.py:325 wiki/www/contributions.py:24
+#: wiki/www/drafts.py:17
+msgid "Logout"
+msgstr ""
+
+#. Label of a Text field in DocType 'Wiki Page Patch'
+#. Label of a Text field in DocType 'Wiki Page Revision'
+#: wiki/wiki/doctype/wiki_page/templates/wiki_doc.html:100
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+#: wiki/wiki/doctype/wiki_page_revision/wiki_page_revision.json
+#: wiki/www/contributions.html:25 wiki/www/drafts.html:26
+msgid "Message"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Wiki Page'
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+msgid "Meta Tags"
+msgstr ""
+
+#. Name of a DocType
+#: wiki/wiki/doctype/migrate_to_wiki/migrate_to_wiki.json
+msgid "Migrate To Wiki"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/wiki_page.py:324 wiki/www/contributions.py:23
+#: wiki/www/drafts.py:16
+msgid "My Account"
+msgstr ""
+
+#: wiki/www/drafts.py:19
+msgid "My Contributions "
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/wiki_page.py:331 wiki/www/contributions.py:26
+msgid "My Drafts "
+msgstr ""
+
+#. Label of a Tab Break field in DocType 'Wiki Settings'
+#. Label of a Column Break field in DocType 'Wiki Settings'
+#. Label of a Tab Break field in DocType 'Wiki Space'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+#: wiki/wiki/doctype/wiki_space/wiki_space.json
+msgid "Navbar"
+msgstr ""
+
+#. Label of a Table field in DocType 'Wiki Settings'
+#. Label of a Table field in DocType 'Wiki Space'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+#: wiki/wiki/doctype/wiki_space/wiki_space.json
+msgid "Navbar Items"
+msgstr ""
+
+#. Label of a Check field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "New"
+msgstr ""
+
+#. Label of a Data field in DocType 'Migrate To Wiki'
+#: wiki/wiki/doctype/migrate_to_wiki/migrate_to_wiki.json
+msgid "New Documentation Route"
+msgstr ""
+
+#. Label of a Code field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "New HTML"
+msgstr ""
+
+#. Label of a Data field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "New Sidebar Group"
+msgstr ""
+
+#. Label of a Data field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "New Title"
+msgstr ""
+
+#: wiki/www/contributions.html:46
+msgid "No Contributions Made"
+msgstr ""
+
+#: wiki/www/drafts.html:47
+msgid "No Drafts Made"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Wiki Feedback'
+#: wiki/wiki/doctype/wiki_feedback/wiki_feedback.json
+msgid "Open"
+msgstr ""
+
+#. Label of a Code field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "Original HTML"
+msgstr ""
+
+#: wiki/public/js/render_wiki.js:724
+msgid "Page settings updated successfully"
+msgstr ""
+
+#. Label of a Data field in DocType 'Wiki Group Item'
+#. Label of a Data field in DocType 'Wiki Sidebar'
+#: wiki/wiki/doctype/wiki_group_item/wiki_group_item.json
+#: wiki/wiki/doctype/wiki_sidebar/wiki_sidebar.json
+msgid "Parent Label"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/templates/wiki_doc.html:178
+msgid "Patch approved successfully"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/templates/wiki_doc.html:196
+msgid "Patch rejected successfully"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.py:31
+msgid "Please approve/ reject the request before submitting"
+msgstr ""
+
+#. Label of a Check field in DocType 'Wiki Page'
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+msgid "Published"
+msgstr ""
+
+#. Label of a Link field in DocType 'Wiki Page Patch'
+#. Label of a Link field in DocType 'Wiki Page Revision'
+#: wiki/wiki/doctype/wiki_page/templates/wiki_doc.html:103
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+#: wiki/wiki/doctype/wiki_page_revision/wiki_page_revision.json
+msgid "Raised By"
+msgstr ""
+
+#. Label of a Data field in DocType 'Wiki Page Revision'
+#: wiki/wiki/doctype/wiki_page_revision/wiki_page_revision.json
+msgid "Raised By Username"
+msgstr ""
+
+#. Label of a Rating field in DocType 'Wiki Feedback'
+#: wiki/wiki/doctype/wiki_feedback/wiki_feedback.json
+msgid "Rating"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "Rejected"
+msgstr ""
+
+#. Label of a Data field in DocType 'Wiki Page'
+#. Label of a Data field in DocType 'Wiki Space'
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+#: wiki/wiki/doctype/wiki_space/wiki_space.json
+msgid "Route"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Search"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.js:6
+#: wiki/wiki/doctype/wiki_space/wiki_space.js:6
+msgid "See on website"
+msgstr ""
+
+#. Description of the 'Keywords' (Small Text) field in DocType 'Wiki Page'
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+msgid "Should be a comma separated list"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/templates/wiki_doc.html:102
+msgid "Space"
+msgstr ""
+
+#. Label of a Data field in DocType 'Wiki Space'
+#: wiki/wiki/doctype/wiki_space/wiki_space.json
+msgid "Space Name"
+msgstr ""
+
+#. Label of a Select field in DocType 'Wiki Feedback'
+#. Label of a Select field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_feedback/wiki_feedback.json
+#: wiki/wiki/doctype/wiki_page/templates/wiki_doc.html:101
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+#: wiki/www/contributions.html:24 wiki/www/drafts.html:25
+msgid "Status"
+msgstr ""
+
+#. Name of a role
+#: wiki/wiki/doctype/migrate_to_wiki/migrate_to_wiki.json
+#: wiki/wiki/doctype/wiki_feedback/wiki_feedback.json
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+#: wiki/wiki/doctype/wiki_page_revision/wiki_page_revision.json
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+#: wiki/wiki/doctype/wiki_space/wiki_space.json
+msgid "System Manager"
+msgstr ""
+
+#: wiki/public/js/render_wiki.js:688
+msgid "Thank you for submitting your feedback!"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/wiki_page.py:650
+msgid "The Wiki Page you are trying to delete doesn't exist"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Theme"
+msgstr ""
+
+#: wiki/public/js/editor.js:168
+msgid "This will replace your current draft with the latest page content. Continue?"
+msgstr ""
+
+#. Label of a Data field in DocType 'Wiki Page'
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+msgid "Title"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Wiki Page'
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+msgid "Title & Content"
+msgstr ""
+
+#. Option for the 'Status' (Select) field in DocType 'Wiki Page Patch'
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "Under Review"
+msgstr ""
+
+#: wiki/public/js/editor.js:156
+msgid "Unsaved draft '{0}' restored"
+msgstr ""
+
+#: wiki/public/js/editor.js:179
+msgid "Updated with latest changes"
+msgstr ""
+
+#. Label of a Check field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Use Redisearch for Search"
+msgstr ""
+
+#. Description of the 'Use Redisearch for Search' (Check) field in DocType
+#. 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Use Redisearch instead of Frappe Web Search for faster, accurate results"
+msgstr ""
+
+#. Label of a Check field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Use SQLite for Search"
+msgstr ""
+
+#. Description of the 'Use SQLite for Search' (Check) field in DocType 'Wiki
+#. Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid ""
+"Uses SQLite FTS for  searching. This takes precedence over Redis search if enabled.\n"
+"<br>\n"
+"SQLite based search is experimental."
+msgstr ""
+
+#. Name of a Workspace
+#: wiki/config/desktop.py:11 wiki/wiki/workspace/wiki/wiki.json
+msgid "Wiki"
+msgstr ""
+
+#. Name of a DocType
+#: wiki/wiki/doctype/wiki_app_switcher_list_table/wiki_app_switcher_list_table.json
+msgid "Wiki App Switcher List Table"
+msgstr ""
+
+#. Name of a role
+#: wiki/wiki/doctype/wiki_feedback/wiki_feedback.json
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+#: wiki/wiki/doctype/wiki_page_revision/wiki_page_revision.json
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+#: wiki/wiki/doctype/wiki_space/wiki_space.json
+msgid "Wiki Approver"
+msgstr ""
+
+#. Name of a report
+#: wiki/wiki/report/wiki_broken_links/wiki_broken_links.json
+msgid "Wiki Broken Links"
+msgstr ""
+
+#. Name of a DocType
+#. Label of a shortcut in the Wiki Workspace
+#: wiki/wiki/doctype/wiki_feedback/wiki_feedback.json
+#: wiki/wiki/workspace/wiki/wiki.json
+msgid "Wiki Feedback"
+msgstr ""
+
+#. Name of a DocType
+#: wiki/wiki/doctype/wiki_group_item/wiki_group_item.json
+msgid "Wiki Group Item"
+msgstr ""
+
+#. Label of a Link field in DocType 'Wiki Feedback'
+#. Label of a Link field in DocType 'Wiki Group Item'
+#. Name of a DocType
+#. Label of a Link field in DocType 'Wiki Page Patch'
+#. Label of a Link field in DocType 'Wiki Page Revision Item'
+#. Label of a Link field in DocType 'Wiki Sidebar'
+#: wiki/wiki/doctype/wiki_feedback/wiki_feedback.json
+#: wiki/wiki/doctype/wiki_group_item/wiki_group_item.json
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+#: wiki/wiki/doctype/wiki_page_revision_item/wiki_page_revision_item.json
+#: wiki/wiki/doctype/wiki_sidebar/wiki_sidebar.json
+#: wiki/wiki/report/wiki_broken_links/wiki_broken_links.py:30
+msgid "Wiki Page"
+msgstr ""
+
+#. Label of a Section Break field in DocType 'Wiki Settings'
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+msgid "Wiki Page Configurations"
+msgstr ""
+
+#. Linked DocType in Wiki Page's connections
+#. Name of a DocType
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+#: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json
+msgid "Wiki Page Patch"
+msgstr ""
+
+#. Label of a shortcut in the Wiki Workspace
+#: wiki/wiki/workspace/wiki/wiki.json
+msgid "Wiki Page Patches"
+msgstr ""
+
+#. Linked DocType in Wiki Page's connections
+#. Name of a DocType
+#: wiki/wiki/doctype/wiki_page/wiki_page.json
+#: wiki/wiki/doctype/wiki_page_revision/wiki_page_revision.json
+msgid "Wiki Page Revision"
+msgstr ""
+
+#. Name of a DocType
+#: wiki/wiki/doctype/wiki_page_revision_item/wiki_page_revision_item.json
+msgid "Wiki Page Revision Item"
+msgstr ""
+
+#. Label of a shortcut in the Wiki Workspace
+#: wiki/wiki/workspace/wiki/wiki.json
+msgid "Wiki Page Revisions"
+msgstr ""
+
+#. Label of a Table field in DocType 'Wiki Page Revision'
+#. Label of a shortcut in the Wiki Workspace
+#: wiki/wiki/doctype/wiki_page_revision/wiki_page_revision.json
+#: wiki/wiki/workspace/wiki/wiki.json
+msgid "Wiki Pages"
+msgstr ""
+
+#. Name of a DocType
+#. Label of a shortcut in the Wiki Workspace
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+#: wiki/wiki/workspace/wiki/wiki.json
+msgid "Wiki Settings"
+msgstr ""
+
+#. Name of a DocType
+#: wiki/wiki/doctype/wiki_sidebar/wiki_sidebar.json
+msgid "Wiki Sidebar"
+msgstr ""
+
+#. Label of a Table field in DocType 'Wiki Space'
+#: wiki/wiki/doctype/wiki_space/wiki_space.json
+msgid "Wiki Sidebars"
+msgstr ""
+
+#. Label of a Link field in DocType 'Wiki App Switcher List Table'
+#. Label of a Section Break field in DocType 'Wiki Settings'
+#. Name of a DocType
+#. Label of a shortcut in the Wiki Workspace
+#: wiki/wiki/doctype/wiki_app_switcher_list_table/wiki_app_switcher_list_table.json
+#: wiki/wiki/doctype/wiki_settings/wiki_settings.json
+#: wiki/wiki/doctype/wiki_space/wiki_space.json
+#: wiki/wiki/report/wiki_broken_links/wiki_broken_links.js:8
+#: wiki/wiki/workspace/wiki/wiki.json
+msgid "Wiki Space"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/wiki_page.py:701
+msgid "You are not permitted to access this page"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/wiki_page.py:628
+msgid "You are not permitted to approve, Please wait for a moderator to respond"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/wiki_page.py:642
+msgid "You are not permitted to delete a Wiki Page"
+msgstr ""
+
+#: wiki/public/js/editor.js:283
+msgid "You can only {0} images, videos and GIFs in Markdown fields. Invalid file(s): {1}"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/review_contributions.py:50
+msgid "You don't have permission to update patch status"
+msgstr ""
+
+#: wiki/wiki/doctype/wiki_page/review_contributions.py:67
+msgid "You don't have permission to view this patch"
+msgstr ""
+
+#. Description of the 'Assets Prepend' (Data) field in DocType 'Migrate To
+#. Wiki'
+#: wiki/wiki/doctype/migrate_to_wiki/migrate_to_wiki.json
+msgid "with docs base url"
+msgstr ""
+
+#. Count format of shortcut in the Wiki Workspace
+#: wiki/wiki/workspace/wiki/wiki.json
+msgid "{} Published"
+msgstr ""
+
+#. Count format of shortcut in the Wiki Workspace
+#: wiki/wiki/workspace/wiki/wiki.json
+msgid "{} Under Review"
+msgstr ""
+
