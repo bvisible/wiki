@@ -22,4 +22,10 @@ def check_app_permission():
 
 
 def add_wiki_user_role(doc, event=None):
+	# Wiki User role has desk_access=1, which would convert a Website User
+	# into a System User (see frappe.core.doctype.user.user.set_system_user).
+	# Only grant this role to actual desk users — website users browsing the
+	# public wiki do not need it.
+	if doc.user_type != "System User":
+		return
 	doc.add_roles("Wiki User")
