@@ -9,7 +9,9 @@
   "status",
   "rating",
   "feedback",
-  "email_id"
+  "email_id",
+  "type",
+  "wiki_document"
  ],
  "fields": [
   {
@@ -17,8 +19,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Wiki Page",
-   "options": "Wiki Page",
-   "reqd": 1
+   "options": "Wiki Page"
   },
   {
    "fieldname": "rating",
@@ -43,11 +44,25 @@
    "fieldtype": "Select",
    "label": "Status",
    "options": "Open\nClosed"
+  },
+  {
+   "default": "Ok",
+   "fieldname": "type",
+   "fieldtype": "Select",
+   "label": "Type",
+   "options": "Good\nBad\nOk"
+  },
+  {
+   "fieldname": "wiki_document",
+   "fieldtype": "Link",
+   "label": "Wiki Document",
+   "options": "Wiki Document",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2024-06-03 16:29:53.387846",
+ "modified": "2025-12-24 14:24:39.671501",
  "modified_by": "Administrator",
  "module": "Wiki",
  "name": "Wiki Feedback",
@@ -98,6 +113,7 @@
    "write": 1
   }
  ],
+ "row_format": "Dynamic",
  "sort_field": "modified",
  "sort_order": "DESC",
  "states": [],

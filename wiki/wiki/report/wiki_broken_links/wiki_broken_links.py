@@ -27,10 +27,10 @@ def get_columns() -> list[dict]:
 	"""
 	return [
 		{
-			"label": _("Wiki Page"),
-			"fieldname": "wiki_page",
+			"label": _("Wiki Document"),
+			"fieldname": "wiki_document",
 			"fieldtype": "Link",
-			"options": "Wiki Page",
+			"options": "Wiki Document",
 			"width": 200,
 		},
 		{
@@ -48,24 +48,35 @@ def get_data(filters: dict | None = None) -> list[list]:
 
 	The report data is a list of rows, with each row being a list of cell values.
 	"""
+	from frappe.utils.nestedset import get_descendants_of
+
 	data = []
 
-	wiki_pages = frappe.db.get_all("Wiki Page", fields=["name", "content"])
+	wiki_documents = frappe.db.get_all("Wiki Document", fields=["name", "content"])
 
 	if filters and filters.get("wiki_space"):
 		wiki_space = filters.get("wiki_space")
-		wiki_pages = frappe.db.get_all(
-			"Wiki Group Item",
-			fields=["wiki_page as name", "wiki_page.content as content"],
-			filters={"parent": wiki_space, "parenttype": "Wiki Space"},
-		)
+		space_doc = frappe.get_cached_doc("Wiki Space", wiki_space)
+		if space_doc.root_group:
+			# Get all descendants of the root group
+			descendants = get_descendants_of("Wiki Document", space_doc.root_group, ignore_permissions=True)
+			if descendants:
+				wiki_documents = frappe.db.get_all(
+					"Wiki Document",
+					fields=["name", "content"],
+					filters={"name": ("in", descendants)},
+				)
+			else:
+				wiki_documents = []
+		else:
+			wiki_documents = []
 
 	include_images = filters and bool(filters.get("check_images"))
 	check_internal_links = filters and bool(filters.get("check_internal_links"))
 
-	for page in wiki_pages:
-		broken_links_for_page = get_broken_links(page.content, include_images, check_internal_links)
-		rows = [{"broken_link": link, "wiki_page": page["name"]} for link in broken_links_for_page]
+	for doc in wiki_documents:
+		broken_links_for_doc = get_broken_links(doc.content, include_images, check_internal_links)
+		rows = [{"broken_link": link, "wiki_document": doc["name"]} for link in broken_links_for_doc]
 		data.extend(rows)
 
 	return data
@@ -128,5 +139,11 @@ def is_broken_link(url: str) -> bool:
 
 
 def get_request_status_code(url: str) -> int:
-	response = requests.head(url, verify=False, timeout=5)
+	# Try HEAD first (faster), fall back to GET if HEAD fails
+	# Many sites block HEAD requests or return 403/405
+	response = requests.head(url, verify=False, timeout=5, allow_redirects=True)
+	if response.status_code >= 400:
+		# HEAD failed, try GET request
+		response = requests.get(url, verify=False, timeout=5, allow_redirects=True, stream=True)
+		response.close()  # Close connection immediately, we only need status code
 	return response.status_code

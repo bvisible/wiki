@@ -4,9 +4,12 @@ authors = [
     { name = "Frappe Technologies Pvt Ltd", email = "developers@frappe.io"}
 ]
 description = "Simple Wiki App"
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.14"
 readme = "README.md"
 dynamic = ["version"]
+dependencies = [
+    "mistune>=3.0",
+]
 
 [project.urls]
 Homepage = "https://frappe.io/wiki"
@@ -53,4 +56,7 @@ typing-modules = ["frappe.types.DF"]
 [tool.ruff.format]
 quote-style = "double"
 indent-style = "tab"
-docstring-code-format = true
+# docstring-code-format = true
+
+[tool.bench.frappe-dependencies]
+frappe = ">=16.0.0-dev,<=17.0.0-dev"

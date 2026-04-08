@@ -1,16 +1,34 @@
-# Copyright (c) 2020, Frappe Technologies Pvt. Ltd. and Contributors
-# MIT License. See license.txt
-
+# Copyright (c) 2022, Frappe Technologies Pvt. Ltd. and Contributors
+# See license.txt
 
 import frappe
+from frappe.utils import get_system_timezone
+
+no_cache = 1
 
 
-def get_context(context):
-	"""Find and route to the default wiki space's route, which will further route to it's first wiki page"""
+def get_context():
+	csrf_token = frappe.sessions.get_csrf_token()
+	frappe.db.commit()  # nosemgrep
+	context = frappe._dict()
+	context.boot = get_boot()
+	context.boot.csrf_token = csrf_token
+	return context
 
-	default_space_route = frappe.get_single("Wiki Settings").default_wiki_space
 
-	if default_space_route:
-		frappe.response.location = f"/{default_space_route}"
-		frappe.response.type = "redirect"
-		raise frappe.Redirect
+@frappe.whitelist(methods=["POST"], allow_guest=True)
+def get_context_for_dev():
+	if not frappe.conf.developer_mode:
+		frappe.throw(frappe._("This method is only meant for developer mode"))
+	return get_boot()
+
+
+def get_boot():
+	return frappe._dict(
+		{
+			"frappe_version": frappe.__version__,
+			"site_name": frappe.local.site,
+			"read_only_mode": frappe.flags.read_only,
+			"system_timezone": get_system_timezone(),
+		}
+	)

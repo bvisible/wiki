@@ -12,18 +12,19 @@ add_to_apps_screen = [
 		"name": "wiki",
 		"logo": "/assets/wiki/images/wiki-logo.png",
 		"title": "Wiki",
-		"route": "/app/wiki",
+		"route": "/wiki",
 		"has_permission": "wiki.utils.check_app_permission",
 	}
 ]
 
-page_renderer = "wiki.wiki.doctype.wiki_page.wiki_renderer.WikiPageRenderer"
+page_renderer = "wiki.frappe_wiki.doctype.wiki_document.wiki_document.WikiDocumentRenderer"
+export_python_type_annotations = True
 
-website_route_rules = [
-	{"from_route": "/<path:wiki_page>/edit-wiki", "to_route": "/edit"},
-	{"from_route": "/<path:wiki_page>/new-wiki", "to_route": "/new"},
-	{"from_route": "/<path:wiki_page>/revisions", "to_route": "/revisions"},
-]
+# SQLite Search
+sqlite_search = ["wiki.frappe_wiki.doctype.wiki_document.wiki_sqlite_search.WikiSQLiteSearch"]
+
+
+jinja = {"methods": ["wiki.utils.get_tailwindcss_hash"]}
 
 # Includes in <head>
 # ------------------
@@ -75,7 +76,7 @@ website_route_rules = [
 # before_install = "wiki.install.before_install"
 after_install = "wiki.install.after_install"
 
-after_migrate = ["wiki.wiki.doctype.wiki_page.search.build_index_in_background"]
+# after_migrate = ["wiki.wiki.doctype.wiki_page.search.build_index_in_background"]
 
 # Desk Notifications
 # ------------------
@@ -107,22 +108,22 @@ after_migrate = ["wiki.wiki.doctype.wiki_page.search.build_index_in_background"]
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+	"User": {"after_insert": "wiki.utils.add_wiki_user_role"},
+	"Wiki Document": {
+		"on_update": "wiki.frappe_wiki.doctype.wiki_document.wiki_document.on_wiki_document_update",
+		"on_trash": "wiki.frappe_wiki.doctype.wiki_document.wiki_document.on_wiki_document_trash",
+	},
+}
 
 # Scheduled Tasks
 # ---------------
 
-scheduler_events = {
-	"cron": {
-		"*/15 * * * *": ["wiki.wiki.doctype.wiki_page.search.build_index_in_background"],
-	},
-}
+# scheduler_events = {
+# 	"cron": {
+# 		"*/15 * * * *": ["wiki.wiki.doctype.wiki_page.search.build_index_in_background"],
+# 	},
+# }
 
 # scheduler_events = {
 # 	"all": [
@@ -171,3 +172,7 @@ scheduler_events = {
 # exempt linked doctypes from being automatically cancelled
 #
 # auto_cancel_exempted_doctypes = ["Auto Repeat"]
+
+website_route_rules = [
+	{"from_route": "/wiki/<path:app_path>", "to_route": "wiki"},
+]
