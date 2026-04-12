@@ -62,7 +62,7 @@
       <div v-if="spaces.hasNextPage" class="flex px-2 py-2">
         <Button
           @click="() => spaces.next()"
-          :loading="spaces.list.loading"
+          :loading="spaces.list?.loading || spaces.loading"
           :label="__('Load more')"
           icon-left="refresh-cw"
         />
@@ -114,6 +114,7 @@ import { useRouter } from "vue-router";
 import {
   ListView,
   createListResource,
+  createResource,
   Button,
   Dialog,
   FormControl,
@@ -128,6 +129,7 @@ import { useUserStore } from "@/stores/user";
 const router = useRouter();
 const userStore = useUserStore();
 const isManager = computed(() => userStore.isWikiManager);
+const isGuest = computed(() => !userStore.data?.is_logged_in);
 
 const showCreateDialog = ref(false);
 const routeManuallyEdited = ref(false);
@@ -163,47 +165,51 @@ function handleRouteInput(value) {
   newSpace.route = value;
 }
 
-const columns = [
-  {
-    label: __("Name"),
-    key: "space_name",
-    width: 2,
-  },
-  {
-    label: __("Status"),
-    key: "is_published",
-    width: 1,
-  },
-  {
-    label: __("Route"),
-    key: "route",
-    width: 2,
-  },
-];
-
-const spaces = createListResource({
-  doctype: "Wiki Space",
-  fields: ["name", "space_name", "route", "root_group", "is_published"],
-  orderBy: "creation desc",
-  pageLength: 25,
-  auto: true,
-  insert: {
-    onSuccess: (doc) => {
-      showCreateDialog.value = false;
-      newSpace.space_name = "";
-      newSpace.route = "";
-      routeManuallyEdited.value = false;
-      toast.success(__('Wiki Space "{0}" created successfully.', [doc.space_name]));
-      router.push({ name: "SpaceDetails", params: { spaceId: doc.name } });
-    },
-  },
+const columns = computed(() => {
+  const base = [
+    { label: __("Name"), key: "space_name", width: 2 },
+  ];
+  if (!isGuest.value) {
+    base.push({ label: __("Status"), key: "is_published", width: 1 });
+  }
+  base.push({ label: __("Route"), key: "route", width: 2 });
+  return base;
 });
+
+// For guests we use a custom whitelisted endpoint that returns only published spaces.
+// For logged-in users we keep the full createListResource so admins can see everything + insert.
+const spaces = isGuest.value
+  ? createResource({
+      url: "wiki.api.list_public_spaces",
+      auto: true,
+      transform: (data) => {
+        // Mimic createListResource shape used by <ListView>
+        return data || [];
+      },
+    })
+  : createListResource({
+      doctype: "Wiki Space",
+      fields: ["name", "space_name", "route", "root_group", "is_published"],
+      orderBy: "creation desc",
+      pageLength: 25,
+      auto: true,
+      insert: {
+        onSuccess: (doc) => {
+          showCreateDialog.value = false;
+          newSpace.space_name = "";
+          newSpace.route = "";
+          routeManuallyEdited.value = false;
+          toast.success(__('Wiki Space "{0}" created successfully.', [doc.space_name]));
+          router.push({ name: "SpaceDetails", params: { spaceId: doc.name } });
+        },
+      },
+    });
 
 let searchDebounceTimer = null;
 watch(searchQuery, (value) => {
   clearTimeout(searchDebounceTimer);
   searchDebounceTimer = setTimeout(() => {
-    spaces.update({
+    if (spaces.update) spaces.update({
       filters: {},
       orFilters: value
         ? [
@@ -213,7 +219,7 @@ watch(searchQuery, (value) => {
         : [],
       start: 0,
     });
-    spaces.reload();
+    spaces.reload?.() || spaces.fetch?.();
   }, 300);
 });
 

@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<div class="flex items-center justify-end mb-4">
+		<div v-if="!isGuest" class="flex items-center justify-end mb-4">
 			<div class="flex gap-2">
 				<Button :title="__('New Group')" icon="folder-plus" variant="subtle" @click="openCreateDialog(rootNode, true)" />
 				<Button :title="__('New Page')" icon="file-plus" variant="subtle" @click="openCreateDialog(rootNode, false)" />
@@ -17,7 +17,7 @@
 			<LucideFileText class="size-12 text-ink-gray-4 mb-4" />
 			<h3 class="text-lg font-medium text-ink-gray-7 mb-2">{{ __('No pages yet') }}</h3>
 			<p class="text-sm text-ink-gray-5 mb-6">{{ __('Create your first page to get started') }}</p>
-			<Button variant="solid" @click="openCreateDialog(rootNode, false)">
+			<Button v-if="!isGuest" variant="solid" @click="openCreateDialog(rootNode, false)">
 				<template #prefix>
 					<LucideFilePlus class="size-4" />
 				</template>
@@ -180,6 +180,12 @@
 </template>
 
 <script setup>
+import { useUserStore as __useUserStore } from "@/stores/user";
+import { computed as __computed } from "vue";
+import { useRoute as __useRoute } from "vue-router";
+const __userStoreGuest = __useUserStore();
+const __routeGuest = __useRoute();
+const isGuest = __computed(() => !__userStoreGuest.data?.is_logged_in || __routeGuest.query.preview === "1");
 import { ref, computed, watch, toRef, onBeforeUnmount } from 'vue';
 import { useStorage } from '@vueuse/core';
 import { toast, FormControl } from 'frappe-ui';

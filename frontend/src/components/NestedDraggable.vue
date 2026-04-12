@@ -24,6 +24,7 @@
                 >
                     <div class="flex items-center gap-1.5 flex-1 min-w-0">
                         <button 
+                            v-if="!isGuest"
                             class="drag-handle p-0.5 hover:bg-surface-gray-3 rounded cursor-grab active:cursor-grabbing opacity-0 group-hover:opacity-100 transition-opacity"
                             @click.stop
                         >
@@ -70,7 +71,7 @@
 						</Badge>
                     </div>
 
-                    <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity" @click.stop>
+                    <div v-if="!isGuest" class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity" @click.stop>
                         <Dropdown :options="getDropdownOptions(element)">
                             <Button variant="ghost" size="sm">
                                 <LucideMoreHorizontal class="size-4" />
@@ -124,6 +125,12 @@
 </template>
 
 <script setup>
+import { useUserStore as __useUserStore } from "@/stores/user";
+import { computed as __computed2 } from "vue";
+import { useRoute as __useRoute2 } from "vue-router";
+const __userStoreG = __useUserStore();
+const __routeG = __useRoute2();
+const isGuest = __computed2(() => !__userStoreG.data?.is_logged_in || __routeG.query.preview === "1");
 import { ref, watch, computed, onBeforeUnmount } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStorage } from '@vueuse/core';

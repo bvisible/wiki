@@ -14,6 +14,7 @@
 import { Sidebar } from "frappe-ui";
 
 import { onMounted, computed } from "vue";
+import { useUserStore } from "@/stores/user";
 import { useRoute, useRouter } from "vue-router";
 import { useStorage } from "@vueuse/core";
 import LucideMoon from "~icons/lucide/moon";
@@ -22,6 +23,8 @@ import LucideRocket from "~icons/lucide/rocket";
 import LucideGitBranch from "~icons/lucide/git-branch";
 
 const route = useRoute();
+const userStore = useUserStore();
+const isGuest = computed(() => !userStore.data?.is_logged_in);
 const router = useRouter();
 
 const userTheme = useStorage("wiki-theme", "dark");
@@ -32,15 +35,18 @@ const themeIcon = computed(() => {
 
 const isSidebarCollapsed  = useStorage("is-sidebar-collapsed", false);
 
-const navItems = [
-	{ label: __("Spaces"), icon: LucideRocket, to: { name: "SpaceList" } },
-	{ label: __("Change Requests"), icon: LucideGitBranch, to: { name: "ChangeRequests" } },
-];
+const navItems = computed(() => {
+	const items = [{ label: __("Spaces"), icon: LucideRocket, to: { name: "SpaceList" } }];
+	if (!isGuest.value) {
+		items.push({ label: __("Change Requests"), icon: LucideGitBranch, to: { name: "ChangeRequests" } });
+	}
+	return items;
+});
 
 const sections = computed(() => [
 	{
 		label: "",
-		items: navItems.map((item) => ({
+		items: navItems.value.map((item) => ({
 			...item,
 			isActive: route.path.startsWith(router.resolve(item.to).path),
 		})),

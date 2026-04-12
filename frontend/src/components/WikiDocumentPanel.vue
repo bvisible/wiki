@@ -1,6 +1,6 @@
 <template>
 	<div class="h-full flex flex-col">
-		<div v-if="wikiDoc.doc" class="h-full flex flex-col">
+		<div v-if="activeDoc" class="h-full flex flex-col">
 			<div class="flex items-center justify-between p-6 pb-4 bg-surface-white shrink-0 border-b-2 border-b-gray-500/20">
 				<div class="flex items-center gap-2 min-w-0 flex-1">
 					<div class="flex flex-col gap-1 min-w-0 flex-1">
@@ -8,21 +8,22 @@
 							<input
 								type="text"
 								v-model="editableTitle"
+								:readonly="isGuestPanel"
 								class="text-2xl font-semibold text-ink-gray-9 bg-transparent border-none outline-none w-full focus:ring-0 p-0 placeholder:text-ink-gray-4"
 								:placeholder="__('Page title')"
 								@blur="saveTitleIfChanged"
 								@keydown.enter="$event.target.blur()"
 							/>
-							<LucideLock v-if="wikiDoc.doc.is_private" class="size-4 text-ink-gray-5 shrink-0" :title="__('Private')" />
+							<LucideLock v-if="activeDoc.is_private" class="size-4 text-ink-gray-5 shrink-0" :title="__('Private')" />
 						</div>
 						<div
-							class="flex items-center gap-1 text-sm text-ink-gray-5 cursor-pointer hover:text-ink-gray-7 group/route"
-							@click="openRouteDialog"
+							:class="isGuestPanel ? 'flex items-center gap-1 text-sm text-ink-gray-5 group/route' : 'flex items-center gap-1 text-sm text-ink-gray-5 cursor-pointer hover:text-ink-gray-7 group/route'"
+							@click="!isGuestPanel && openRouteDialog()"
 						>
 							<span class="font-mono truncate">/{{ displayRoute }}</span>
-							<LucidePencil class="size-3 shrink-0 opacity-0 group-hover/route:opacity-100" />
+							<LucidePencil v-if="!isGuestPanel" class="size-3 shrink-0 opacity-0 group-hover/route:opacity-100" />
 						</div>
-						<div class="flex items-center gap-2 mt-1">
+						<div v-if="!isGuestPanel" class="flex items-center gap-2 mt-1">
 							<Badge v-if="displayPublished" variant="subtle" theme="green" size="sm">
 								{{ __('Published') }}
 							</Badge>
@@ -38,7 +39,7 @@
 
 				<div class="flex items-center gap-2">
 					<Button
-						v-if="wikiDoc.doc?.is_published"
+						v-if="activeDoc?.is_published"
 						variant="outline"
 						@click="openPage"
 					>
@@ -48,6 +49,7 @@
 						{{ __('View Page') }}
 					</Button>
 					<Button
+						v-if="!isGuestPanel"
 						variant="solid"
 						:loading="isSaving"
 						@click="saveFromHeader"
@@ -59,7 +61,7 @@
 							</kbd>
 						</span>
 					</Button>
-					<Dropdown :options="menuOptions">
+					<Dropdown v-if="!isGuestPanel" :options="menuOptions">
 						<Button variant="outline">
 							<LucideMoreVertical class="size-4" />
 						</Button>
@@ -68,7 +70,7 @@
 			</div>
 
 			<div class="flex-1 overflow-auto px-6 pb-6 mt-4">
-				<WikiEditor v-if="editorKey" :key="editorKey" ref="editorRef" :content="editorContent" :saving="isSaving" @save="saveContent" />
+				<WikiEditor v-if="editorKey" :key="editorKey" ref="editorRef" :content="editorContent" :saving="isSaving" :editable="!isGuestPanel" @save="saveContent" />
 			</div>
 		</div>
 
@@ -126,6 +128,8 @@ import { ref, computed, watch } from 'vue';
 import { createDocumentResource, Badge, Button, Dropdown, Dialog, FormControl, createResource, toast } from "frappe-ui";
 import WikiEditor from './WikiEditor.vue';
 import { useChangeRequestStore } from '@/stores/changeRequest';
+import { useUserStore } from '@/stores/user';
+import { useRoute } from 'vue-router';
 import LucideMoreVertical from '~icons/lucide/more-vertical';
 import LucideLock from '~icons/lucide/lock';
 import LucideExternalLink from '~icons/lucide/external-link';
@@ -153,10 +157,28 @@ const isSavingRoute = ref(false);
 
 const crStore = useChangeRequestStore();
 
+const userStoreForPanel = useUserStore();
+const currentRoute = useRoute();
+const isGuestPanel = computed(() => !userStoreForPanel.data?.is_logged_in || currentRoute.query.preview === '1');
+
+// Guest-safe resource using allow_guest endpoint
+const guestWikiDoc = createResource({
+	url: 'wiki.api.wiki_space.get_public_document',
+	makeParams() { return { doc_key: props.pageId }; },
+	auto: isGuestPanel.value,
+});
+
 const wikiDoc = createDocumentResource({
 	doctype: "Wiki Document",
 	name: props.pageId,
-	auto: true,
+	auto: !isGuestPanel.value,
+});
+
+// Reload guest doc when pageId changes
+watch(() => props.pageId, (nid) => {
+	if (nid && isGuestPanel.value) {
+		guestWikiDoc.submit();
+	}
 });
 
 const crPageResource = createResource({
@@ -167,6 +189,9 @@ const crPageResource = createResource({
 });
 
 const currentCrPage = ref(null);
+
+// Unified doc accessor: prefer wikiDoc.doc when logged in, else guest data
+const activeDoc = computed(() => wikiDoc.doc || guestWikiDoc.data);
 
 watch(() => props.pageId, (newPageId) => {
 	if (newPageId) {
@@ -213,22 +238,22 @@ const editorContent = computed(() => {
 	if (currentCrPage.value?.content != null) {
 		return currentCrPage.value.content;
 	}
-	return wikiDoc.doc?.content || '';
+	return activeDoc.value?.content || '';
 });
 
 const displayTitle = computed(() => {
-	return currentCrPage.value?.title || wikiDoc.doc?.title || '';
+	return currentCrPage.value?.title || activeDoc.value?.title || '';
 });
 
 const displayPublished = computed(() => {
 	if (currentCrPage.value?.is_published != null) {
 		return Boolean(currentCrPage.value.is_published);
 	}
-	return Boolean(wikiDoc.doc?.is_published);
+	return Boolean(activeDoc.value?.is_published);
 });
 
 const displayRoute = computed(() => {
-	return currentCrPage.value?.route || wikiDoc.doc?.route || '';
+	return currentCrPage.value?.route || activeDoc.value?.route || '';
 });
 
 watch(displayTitle, (newTitle) => {
@@ -240,7 +265,7 @@ const isSaving = computed(() => {
 });
 
 const editorKey = computed(() => {
-	if (wikiDoc.doc?.name === props.pageId && !crPageResource.loading) {
+	if (activeDoc.value?.name === props.pageId && !crPageResource.loading) {
 		return props.pageId;
 	}
 	return null;
@@ -319,7 +344,20 @@ async function togglePublish() {
 }
 
 function openPage() {
-	window.open(`/${wikiDoc.doc.route}`, '_blank');
+	// Prefer the pretty URL based on the document's route field
+	const docRoute = activeDoc.value?.route || wikiDoc.doc?.route;
+	if (docRoute) {
+		// docRoute is like 'wiki/rh/configuration-assurances' - open as pretty URL with ?preview=1
+		const cleanRoute = docRoute.replace(/^\//, '');
+		window.open(`/${cleanRoute}?preview=1`, '_blank');
+		return;
+	}
+	// Fallback to ID-based URL if no route
+	const spaceId = currentRoute.params.spaceId;
+	const pageId = activeDoc.value?.name || wikiDoc.doc?.name || props.pageId;
+	if (spaceId && pageId) {
+		window.open(`/wiki/spaces/${spaceId}/page/${pageId}?preview=1`, '_blank');
+	}
 }
 
 function saveFromHeader() {

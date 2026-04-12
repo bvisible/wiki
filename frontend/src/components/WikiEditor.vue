@@ -1,8 +1,8 @@
 <template>
     <div class="wiki-editor-container">
         <div v-if="editor">
-            <WikiToolbar :editor="editor" @uploadImage="handleImageUpload" />
-            <WikiBubbleMenu :editor="editor" />
+            <WikiToolbar v-if="editable" :editor="editor" @uploadImage="handleImageUpload" />
+            <WikiBubbleMenu v-if="editable" :editor="editor" />
             <EditorContent :editor="editor" />
         </div>
         <div v-else class="wiki-editor-loading">
@@ -89,6 +89,10 @@ const props = defineProps({
 	saving: {
 		type: Boolean,
 		default: false,
+	},
+	editable: {
+		type: Boolean,
+		default: true,
 	},
 });
 
@@ -458,6 +462,7 @@ function initEditor() {
 			}),
 		],
 		content: props.content || '',
+		editable: props.editable,
 		contentType: 'markdown',
 		editorProps: {
 			handlePaste,

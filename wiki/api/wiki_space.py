@@ -3,7 +3,7 @@ from frappe import _
 from frappe.utils.nestedset import get_descendants_of
 
 
-@frappe.whitelist()
+@frappe.whitelist(allow_guest=True)
 def get_wiki_tree(space_id: str) -> dict:
 	"""Get the tree structure of Wiki Documents for a given Wiki Space."""
 	space = frappe.get_cached_doc("Wiki Space", space_id)
@@ -226,3 +226,66 @@ def _rebuild_wiki_node(doctype: str, name: str, left: int, parent_field: str) ->
 	frappe.db.set_value(doctype, name, {"lft": left, "rgt": right}, update_modified=False)
 
 	return right + 1
+
+
+
+@frappe.whitelist(allow_guest=True)
+def get_public_space_info(space_id: str) -> dict:
+	"""Return Wiki Space info + tree for guest/public access. Only published spaces."""
+	space = frappe.db.get_value(
+		"Wiki Space",
+		{"name": space_id, "is_published": 1},
+		["name", "space_name", "route", "root_group", "is_published", "show_in_switcher"],
+		as_dict=True,
+	)
+	if not space:
+		frappe.throw(frappe._("Space not found or not published"), frappe.DoesNotExistError)
+
+	from frappe.utils.nestedset import get_descendants_of
+
+	if not space.root_group:
+		return {"space": space, "tree": {"children": [], "root_group": None}}
+
+	descendants = get_descendants_of("Wiki Document", space.root_group, ignore_permissions=True)
+	if not descendants:
+		return {"space": space, "tree": {"children": [], "root_group": space.root_group}}
+
+	wiki_documents = frappe.db.get_all(
+		"Wiki Document",
+		fields=["name", "doc_key", "title", "is_group", "parent_wiki_document", "route", "is_published", "is_private", "sort_order"],
+		filters={"name": ("in", descendants), "is_published": 1, "is_private": 0},
+		order_by="lft asc",
+	)
+
+	# document_name is set = name so tree node clicks work the same as in CR mode
+	doc_map = {d["name"]: {**d, "label": d["title"], "document_name": d["name"], "children": []} for d in wiki_documents}
+	root_nodes = []
+	for d in wiki_documents:
+		parent_name = d["parent_wiki_document"]
+		if parent_name and parent_name in doc_map:
+			doc_map[parent_name]["children"].append(doc_map[d["name"]])
+		else:
+			root_nodes.append(doc_map[d["name"]])
+
+	def sort_children(nodes):
+		nodes.sort(key=lambda x: (x.get("sort_order") or 0, x["name"]))
+		for node in nodes:
+			if node["children"]:
+				sort_children(node["children"])
+	sort_children(root_nodes)
+
+	return {"space": space, "tree": {"children": root_nodes, "root_group": space.root_group}}
+
+
+@frappe.whitelist(allow_guest=True)
+def get_public_document(doc_key: str) -> dict:
+	"""Return a single Wiki Document if public + published (guest-safe)."""
+	doc = frappe.db.get_value(
+		"Wiki Document",
+		{"name": doc_key, "is_published": 1, "is_private": 0},
+		["name", "title", "route", "content", "parent_wiki_document", "is_group", "sort_order"],
+		as_dict=True,
+	)
+	if not doc:
+		frappe.throw(frappe._("Document not found"), frappe.DoesNotExistError)
+	return doc

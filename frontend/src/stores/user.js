@@ -27,7 +27,10 @@ export const useUserStore = defineStore('user', () => {
 
 	const canAccessWiki = computed(() => {
 		const user = userResource.data;
-		if (!user || !user.roles) return false;
+		if (!user) return false;
+		// Allow guests to access public wikis (permissions enforced on API side)
+		if (!user.is_logged_in) return true;
+		if (!user.roles) return false;
 		return user.roles.some(
 			(role) =>
 				role.role === 'Wiki User' ||

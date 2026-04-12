@@ -67,6 +67,43 @@ const routes = [
 			},
 		],
 	},
+	{
+		// Pretty URL routing. Catches anything not matched by /spaces, /change-requests, etc.
+		// Examples:
+		//   /wiki/rh                            -> space "RH" (first page auto-opened)
+		//   /wiki/rh/configuration-assurances   -> specific page in RH space
+		//   /wiki/Web-Domaines                  -> space "Web & Domaines"
+		path: '/:wikiPath(.+)',
+		name: 'WikiPrettyPath',
+		component: () => import('@/pages/SpaceDetails.vue'),
+		beforeEnter: async (to, from, next) => {
+			try {
+				const resp = await fetch(`/api/method/wiki.api.resolve_wiki_path?path=${encodeURIComponent(to.params.wikiPath)}`);
+				const data = await resp.json();
+				const spaceId = data?.message?.space_id;
+				const pageId = data?.message?.page_id;
+				if (spaceId && pageId) {
+					next({
+						name: 'SpacePage',
+						params: { spaceId, pageId },
+						query: to.query,
+						replace: true,
+					});
+					return;
+				}
+				if (spaceId) {
+					next({
+						name: 'SpaceDetails',
+						params: { spaceId },
+						query: to.query,
+						replace: true,
+					});
+					return;
+				}
+			} catch (e) { /* fallthrough */ }
+			next({ name: 'SpaceList', replace: true });
+		},
+	},
 ];
 
 const router = createRouter({
@@ -89,13 +126,34 @@ router.beforeEach(async (to, from, next) => {
 		isLoggedIn = false;
 	}
 
-	if (!isLoggedIn) {
-		window.location.href = `/login?redirect-to=/wiki${encodeURIComponent(
-			to.fullPath,
-		)}`;
-	} else {
-		next();
+	// Routes that require login (editing / reviewing)
+	const AUTH_REQUIRED = new Set([
+		'ChangeRequests',
+		'ChangeRequestReview',
+		'DraftChangeRequest',
+	]);
+
+	if (!isLoggedIn && AUTH_REQUIRED.has(to.name)) {
+		window.location.href = `/login?redirect-to=/wiki${encodeURIComponent(to.fullPath)}`;
+		return;
 	}
+
+	// Guests land directly in the first public space instead of the intermediate Space List
+	if (!isLoggedIn && to.name === 'SpaceList') {
+		try {
+			const { createResource } = await import('frappe-ui');
+			const res = createResource({ url: 'wiki.api.list_public_spaces' });
+			const list = await res.fetch();
+			if (Array.isArray(list) && list.length > 0) {
+				next({ path: `/spaces/${list[0].name}` });
+				return;
+			}
+		} catch (e) {
+			// fall through to normal navigation
+		}
+	}
+
+	next();
 });
 
 export default router;
