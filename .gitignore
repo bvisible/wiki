@@ -13,8 +13,10 @@ cypress/screenshots
 cypress/videos
 __pycache__/
 CLAUDE.md
-wiki/public/frontend/
-wiki/www/wiki.html
+# 2026-05-07 (NORA #28) — frontend build outputs are committed on this branch.
+# See docs/COMMIT-BUILD-PATTERN.md in neoffice-devops.
+# wiki/public/frontend/
+# wiki/www/wiki.html
 wiki/public/css/tailwind.css
 playwright-report/
 test-results/
