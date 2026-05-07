@@ -12,7 +12,7 @@ node_modules/*
 cypress/screenshots
 cypress/videos
 __pycache__/
-CLAUDE.md
+# CLAUDE.md  # 2026-05-07 unshipped to document commit-the-build pipeline
 # 2026-05-07 (NORA #28) — frontend build outputs are committed on this branch.
 # See docs/COMMIT-BUILD-PATTERN.md in neoffice-devops.
 # wiki/public/frontend/
