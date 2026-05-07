@@ -15,7 +15,8 @@
   "scripts": {
     "postinstall": "cd frontend && yarn install",
     "dev": "cd frontend && yarn dev",
-    "build": "yarn tailwind:build && cd frontend && yarn build",
+    "build": "if [ -d 'wiki/public/frontend/assets' ] && [ -z \"$FORCE_REBUILD\" ]; then echo '[skip-build] pre-built artifacts present at wiki/public/frontend/assets (set FORCE_REBUILD=1 to force rebuild)'; else yarn build:force; fi",
+    "build:force": "yarn tailwind:build && cd frontend && yarn build",
     "tailwind:watch": "npx @tailwindcss/cli -i ./wiki/public/css/main.css -o ./wiki/public/css/tailwind.css --watch",
     "tailwind:build": "npx @tailwindcss/cli -i ./wiki/public/css/main.css -o ./wiki/public/css/tailwind.css",
     "test:e2e": "playwright test",
