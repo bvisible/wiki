@@ -156,6 +156,7 @@ const showRouteDialog = ref(false);
 const isSavingRoute = ref(false);
 
 const crStore = useChangeRequestStore();
+const userStore = useUserStore();
 
 const userStoreForPanel = useUserStore();
 const currentRoute = useRoute();
@@ -272,13 +273,21 @@ const editorKey = computed(() => {
 });
 
 const menuOptions = computed(() => {
-		return [
-			{
+	const options = [
+		{
 			label: displayPublished.value ? __('Unpublish') : __('Publish'),
 			icon: 'upload-cloud',
 			onClick: togglePublish,
 		},
 	];
+	if (userStore.isWikiManager && wikiDoc.doc?.name) {
+		options.push({
+			label: __('View in Desk'),
+			icon: 'external-link',
+			onClick: () => window.open(`/app/wiki-document/${encodeURIComponent(wikiDoc.doc.name)}`, '_blank'),
+		});
+	}
+	return options;
 });
 
 async function saveTitleIfChanged() {

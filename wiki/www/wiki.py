@@ -6,9 +6,13 @@ from frappe.utils import get_system_timezone
 
 no_cache = 1
 allow_guest = 1
+sitemap = 0
+
+ROBOTS_DIRECTIVE = "noindex, nofollow"
 
 
 def get_context():
+	frappe.local.response_headers.set("X-Robots-Tag", ROBOTS_DIRECTIVE)
 	csrf_token = frappe.sessions.get_csrf_token()
 	frappe.db.commit()  # nosemgrep
 	context = frappe._dict()

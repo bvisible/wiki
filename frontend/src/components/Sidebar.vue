@@ -4,7 +4,10 @@
 	:header="{
 		title: __('Frappe Wiki'),
 		logo: '/assets/wiki/images/wiki-logo.png',
-		menuItems: [{ label: __('Toggle Theme'), icon: themeIcon, onClick: toggleTheme }]
+		menuItems: [
+			{ label: __('Toggle Theme'), icon: themeIcon, onClick: toggleTheme },
+			{ label: __('Log out'), icon: LucideLogOut, onClick: logout },
+		],
 	}"
 	:sections="sections"
 />
@@ -21,11 +24,14 @@ import LucideMoon from "~icons/lucide/moon";
 import LucideSun from "~icons/lucide/sun";
 import LucideRocket from "~icons/lucide/rocket";
 import LucideGitBranch from "~icons/lucide/git-branch";
+import LucideLogOut from "~icons/lucide/log-out";
+import { useSessionStore } from "@/stores/session";
 
 const route = useRoute();
 const userStore = useUserStore();
 const isGuest = computed(() => !userStore.data?.is_logged_in);
 const router = useRouter();
+const sessionStore = useSessionStore();
 
 const userTheme = useStorage("wiki-theme", "dark");
 
@@ -62,5 +68,9 @@ function toggleTheme() {
 	const newTheme = currentTheme === "dark" ? "light" : "dark";
 	document.documentElement.setAttribute("data-theme", newTheme);
 	userTheme.value = newTheme;
+}
+
+function logout() {
+	sessionStore.logout.submit();
 }
 </script>
