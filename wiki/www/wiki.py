@@ -12,7 +12,11 @@ ROBOTS_DIRECTIVE = "noindex, nofollow"
 
 
 def get_context():
-	frappe.local.response_headers.set("X-Robots-Tag", ROBOTS_DIRECTIVE)
+	# Set noindex header only if the running Frappe exposes response_headers
+	# (API absent on Frappe < ~15.9x); keep wiki working on older versions.
+	response_headers = getattr(frappe.local, "response_headers", None)
+	if response_headers is not None:
+		response_headers.set("X-Robots-Tag", ROBOTS_DIRECTIVE)
 	csrf_token = frappe.sessions.get_csrf_token()
 	frappe.db.commit()  # nosemgrep
 	context = frappe._dict()
