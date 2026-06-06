@@ -111,7 +111,8 @@ const imageStyle = computed(() => {
     if (w) {
         return { width: `${w}px`, maxWidth: '100%', height: 'auto' };
     }
-    return { maxWidth: '860px', maxHeight: '600px', height: 'auto', objectFit: 'contain' };
+    // min(860px, 100%): cap width on desktop but never overflow a narrow (mobile) container.
+    return { maxWidth: 'min(860px, 100%)', maxHeight: '600px', height: 'auto', objectFit: 'contain' };
 });
 
 const containerStyle = computed(() => {
