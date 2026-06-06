@@ -39,7 +39,7 @@
 
 				<div class="flex items-center gap-2">
 					<Button
-						v-if="activeDoc?.is_published"
+						v-if="activeDoc?.route && !activeDoc?.is_group"
 						variant="outline"
 						@click="downloadPdf"
 					>
