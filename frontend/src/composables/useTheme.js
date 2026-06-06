@@ -8,7 +8,17 @@ import { ref, computed } from 'vue';
 // Applied via `data-theme` on <html>. Singleton module state so every component
 // (Sidebar, SpaceDetails, DiffViewer…) shares the same reactive value.
 
-const STORAGE_KEY = 'wiki-theme';
+// New key: the old 'wiki-theme' was auto-written to 'dark' by useStorage's
+// writeDefaults on every visit (NOT a real user choice), which would pin
+// everyone to dark forever. 'wiki-theme-pref' is written ONLY on an explicit
+// toggle, so an untouched browser falls back to the OS theme.
+const STORAGE_KEY = 'wiki-theme-pref';
+const LEGACY_KEY = 'wiki-theme';
+try {
+	if (typeof localStorage !== 'undefined') localStorage.removeItem(LEGACY_KEY);
+} catch (_) {
+	/* ignore */
+}
 const media =
 	typeof window !== 'undefined' && window.matchMedia
 		? window.matchMedia('(prefers-color-scheme: dark)')

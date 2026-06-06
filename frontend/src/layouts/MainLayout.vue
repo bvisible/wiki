@@ -40,9 +40,8 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { useStorage } from '@vueuse/core';
 import Sidebar from '../components/Sidebar.vue';
 import { useUserStore } from '@/stores/user';
 
@@ -53,9 +52,5 @@ const isLoading = computed(() => userStore.isLoading);
 const hasAccess = computed(() => userStore.canAccessWiki);
 const isGuest = computed(() => !userStore.data?.is_logged_in || route.query.preview === '1');
 
-// Persistent theme: apply on every mount so dark mode works even when Sidebar is hidden (guest mode)
-const userTheme = useStorage("wiki-theme", "dark");
-onMounted(() => {
-	document.documentElement.setAttribute("data-theme", userTheme.value);
-});
+// Theme is applied globally by useTheme() in App.vue (follows the OS by default).
 </script>
