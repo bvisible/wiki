@@ -46,7 +46,7 @@
 						<template #prefix>
 							<LucideDownload class="size-4" />
 						</template>
-						{{ __('Download PDF') }}
+						{{ __('PDF') }}
 					</Button>
 					<Button
 						v-if="activeDoc?.is_published"

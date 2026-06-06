@@ -2,7 +2,8 @@
     <div class="flex h-full">
         <aside
             ref="sidebarRef"
-            class="border-r border-outline-gray-2 flex flex-col bg-surface-gray-1 relative flex-shrink-0"
+            class="border-r border-outline-gray-2 flex flex-col bg-surface-gray-1 flex-shrink-0 fixed inset-y-0 left-0 z-40 transition-transform duration-200 md:relative md:inset-auto md:z-auto md:translate-x-0"
+            :class="mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'"
             :style="{ width: `${sidebarWidth}px` }"
         >
             <!-- Header -->
@@ -99,13 +100,29 @@
             </div>
 
             <div
-                class="absolute top-0 right-0 w-1 h-full cursor-col-resize z-10"
+                class="absolute top-0 right-0 w-1 h-full cursor-col-resize z-10 hidden md:block"
                 :class="sidebarResizing ? 'bg-surface-gray-4' : 'hover:bg-surface-gray-4'"
                 @mousedown="startResize"
             />
         </aside>
 
+        <!-- Mobile drawer backdrop (below md only) -->
+        <div
+            v-if="mobileSidebarOpen"
+            class="fixed inset-0 bg-black/40 z-30 md:hidden"
+            @click="mobileSidebarOpen = false"
+        />
+
         <main class="flex-1 flex flex-col bg-surface-white min-w-0">
+            <!-- Mobile top bar with hamburger (desktop hides this) -->
+            <div class="md:hidden flex items-center gap-2 px-3 py-2 border-b border-outline-gray-2 bg-surface-white shrink-0">
+                <Button variant="ghost" :title="__('Menu')" @click="mobileSidebarOpen = true">
+                    <LucideMenu class="size-5 text-ink-gray-7" />
+                </Button>
+                <span class="text-sm font-semibold text-ink-gray-9 truncate">
+                    {{ space.doc?.space_name || guestSpaceInfo.data?.space?.space_name || '' }}
+                </span>
+            </div>
             <ContributionBanner
                 v-if="!isGuest"
                 :mergeDisabled="isTreeReordering"
@@ -277,6 +294,7 @@ import { createDocumentResource, createResource, Button, Dropdown, Dialog, Switc
 import { useStorage } from '@vueuse/core';
 import LucideChevronDown from '~icons/lucide/chevron-down';
 import LucideSearch from '~icons/lucide/search';
+import LucideMenu from '~icons/lucide/menu';
 import LucideSun from '~icons/lucide/sun';
 import LucideMoon from '~icons/lucide/moon';
 import WikiDocumentList from '../components/WikiDocumentList.vue';
@@ -300,6 +318,12 @@ const userStore = useUserStore();
 
 const isManager = computed(() => userStore.isWikiManager);
 const isGuest = computed(() => !userStore.data?.is_logged_in || route.query.preview === '1');
+
+// --- Mobile sidebar drawer ---
+// On phones the px-width sidebar crushes the article into an unreadable column.
+// Render it as an off-canvas drawer below md; md:* resets keep desktop untouched.
+const mobileSidebarOpen = ref(false);
+watch(() => route.fullPath, () => { mobileSidebarOpen.value = false; });
 
 // --- Search ---
 const searchQuery = ref('');
