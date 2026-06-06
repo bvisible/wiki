@@ -1,2 +1,0 @@
-import{S as o,T as t,U as c,V as r}from"./index-CpDgYf37.js";const n={class:"lucide lucide-search",xmlns:"http://www.w3.org/2000/svg",width:"24",height:"24",viewBox:"0 0 24 24",fill:"none",stroke:"currentColor","stroke-width":"1.5","stroke-linecap":"round","stroke-linejoin":"round"};function s(l,e){return t(),c("svg",n,e[0]||(e[0]=[r("path",{d:"m21 21-4.34-4.34"},null,-1),r("circle",{cx:"11",cy:"11",r:"8"},null,-1)]))}const i=o({name:"lucide-search",render:s});export{i as L};
-//# sourceMappingURL=search-GOxNFZlk.js.map

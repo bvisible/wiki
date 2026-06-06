@@ -606,6 +606,9 @@ def download_pdf(route: str):
 			doc=doc,
 			as_pdf=True,
 			no_letterhead=1,
+			# Neoffice renders every PDF with headless Chrome (Oslo print stack).
+			# wkhtmltopdf segfaults (-11) on this content/server, so force Chrome here too.
+			pdf_generator="chrome",
 		)
 	finally:
 		frappe.local.flags.ignore_print_permissions = False

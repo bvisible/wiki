@@ -41,6 +41,16 @@
 					<Button
 						v-if="activeDoc?.is_published"
 						variant="outline"
+						@click="downloadPdf"
+					>
+						<template #prefix>
+							<LucideDownload class="size-4" />
+						</template>
+						{{ __('Download PDF') }}
+					</Button>
+					<Button
+						v-if="activeDoc?.is_published"
+						variant="outline"
 						@click="openPage"
 					>
 						<template #prefix>
@@ -134,6 +144,7 @@ import LucideMoreVertical from '~icons/lucide/more-vertical';
 import LucideLock from '~icons/lucide/lock';
 import LucideExternalLink from '~icons/lucide/external-link';
 import LucidePencil from '~icons/lucide/pencil';
+import LucideDownload from '~icons/lucide/download';
 
 const isMac = computed(() => /Mac|iPhone|iPad|iPod/i.test(navigator.userAgent));
 
@@ -367,6 +378,15 @@ function openPage() {
 	if (spaceId && pageId) {
 		window.open(`/wiki/spaces/${spaceId}/page/${pageId}?preview=1`, '_blank');
 	}
+}
+
+function downloadPdf() {
+	// Public PDF export of this article (rendered server-side by headless Chrome).
+	const docRoute = activeDoc.value?.route || wikiDoc.doc?.route;
+	if (!docRoute) return;
+	const cleanRoute = docRoute.replace(/^\//, '');
+	const url = `/api/method/wiki.frappe_wiki.doctype.wiki_document.wiki_document.download_pdf?route=${encodeURIComponent(cleanRoute)}`;
+	window.open(url, '_blank');
 }
 
 function saveFromHeader() {
