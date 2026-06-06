@@ -16,10 +16,11 @@
 <script setup>
 import { Sidebar } from "frappe-ui";
 
-import { onMounted, computed } from "vue";
+import { computed } from "vue";
 import { useUserStore } from "@/stores/user";
 import { useRoute, useRouter } from "vue-router";
 import { useStorage } from "@vueuse/core";
+import { useTheme } from "../composables/useTheme";
 import LucideMoon from "~icons/lucide/moon";
 import LucideSun from "~icons/lucide/sun";
 import LucideRocket from "~icons/lucide/rocket";
@@ -33,10 +34,10 @@ const isGuest = computed(() => !userStore.data?.is_logged_in);
 const router = useRouter();
 const sessionStore = useSessionStore();
 
-const userTheme = useStorage("wiki-theme", "dark");
+const { isDark, toggleTheme } = useTheme();
 
 const themeIcon = computed(() => {
-	return userTheme.value === "dark" ? LucideSun : LucideMoon;
+	return isDark.value ? LucideSun : LucideMoon;
 });
 
 const isSidebarCollapsed  = useStorage("is-sidebar-collapsed", false);
@@ -58,17 +59,6 @@ const sections = computed(() => [
 		})),
 	},
 ]);
-
-onMounted(() => {
-	document.documentElement.setAttribute("data-theme", userTheme.value);
-});
-
-function toggleTheme() {
-	const currentTheme = userTheme.value;
-	const newTheme = currentTheme === "dark" ? "light" : "dark";
-	document.documentElement.setAttribute("data-theme", newTheme);
-	userTheme.value = newTheme;
-}
 
 function logout() {
 	sessionStore.logout.submit();

@@ -291,7 +291,7 @@
 import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { createDocumentResource, createResource, Button, Dropdown, Dialog, Switch, FormControl, toast } from 'frappe-ui';
-import { useStorage } from '@vueuse/core';
+import { useTheme } from '../composables/useTheme';
 import LucideChevronDown from '~icons/lucide/chevron-down';
 import LucideSearch from '~icons/lucide/search';
 import LucideMenu from '~icons/lucide/menu';
@@ -369,14 +369,9 @@ function openSearchResult(result) {
     });
 }
 
-// Theme toggle (persist in localStorage, shared with MainLayout)
-const userTheme = useStorage('wiki-theme', 'dark');
-const themeIcon = computed(() => userTheme.value === 'dark' ? LucideSun : LucideMoon);
-function toggleTheme() {
-	const next = userTheme.value === 'dark' ? 'light' : 'dark';
-	document.documentElement.setAttribute('data-theme', next);
-	userTheme.value = next;
-}
+// Theme: follows the OS by default; the toggle persists a manual choice.
+const { isDark, toggleTheme } = useTheme();
+const themeIcon = computed(() => isDark.value ? LucideSun : LucideMoon);
 
 // Space switcher: list public spaces for guests, all spaces for logged-in users
 const allSpacesForSwitcher = createResource({
