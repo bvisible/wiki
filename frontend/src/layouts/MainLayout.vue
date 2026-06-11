@@ -2,7 +2,7 @@
 	<div class="flex h-screen w-full flex-row shadow">
 		<template v-if="isLoading"></template>
 		<template v-else-if="hasAccess">
-			<Sidebar v-if="!isGuest" />
+			<NeoCockpitWikiSidebar v-if="!isGuest" />
 			<div class="flex-1 h-full min-w-0">
 				<slot></slot>
 			</div>
@@ -42,7 +42,7 @@
 <script setup>
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
-import Sidebar from '../components/Sidebar.vue';
+import NeoCockpitWikiSidebar from '../components/NeoCockpitWikiSidebar.vue';
 import { useUserStore } from '@/stores/user';
 
 const userStore = useUserStore();
