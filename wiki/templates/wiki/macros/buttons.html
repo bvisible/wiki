@@ -25,7 +25,7 @@
                {% if edit_external %}target="_blank" rel="noopener"{% endif %}
                class="wiki-edit-link {{ split_segment }} px-2.5">
                 {{ render_icon("edit", "w-4 h-4") }}
-                <span>{{ edit_text }}</span>
+                <span>{{ _(edit_text) }}</span>
             </a>
             {% else %}
             <!-- Contributions off: Copy as Markdown is the primary action -->
