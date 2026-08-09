@@ -372,7 +372,19 @@ def get_public_document(doc_key: str) -> dict:
 	doc = frappe.db.get_value(
 		"Wiki Document",
 		{"name": doc_key, "is_published": 1, "is_private": 0},
-		["name", "title", "route", "content", "parent_wiki_document", "is_group", "sort_order"],
+		[
+			"name",
+			"title",
+			"route",
+			"content",
+			"parent_wiki_document",
+			"is_group",
+			"sort_order",
+			# Always 1 given the filter above, but the reader renders a
+			# publication badge from it — omitting it labelled every public
+			# page "Not Published" to guests.
+			"is_published",
+		],
 		as_dict=True,
 	)
 	if not doc:
