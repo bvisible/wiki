@@ -204,16 +204,9 @@ website_route_rules = [
 	{"from_route": "/wiki-app/<path:app_path>", "to_route": "wiki-app"},
 ]
 
-# v3 moved the editor SPA from /wiki to /wiki-app. Bare /wiki was a live entry
-# point on Neoffice instances — the desk help panel, neoffice_theme's
-# `neoffice_wiki_url` boot value and users' own bookmarks all point at it — so
-# it is redirected rather than left to 404.
-#
-# Frappe matches these as `re.match(source.strip("/ ") + "$", path)` against a
-# slash-less path, so "/wiki" becomes the pattern "wiki$": it matches /wiki
-# exactly and leaves the published spaces (/wiki/utilisateur, /wiki/rh, …)
-# alone. Do NOT write an explicit ^…$ anchor — the appended "$" would make it
-# "^/wiki$$", which never matches.
-website_redirects = [
-	{"source": "/wiki", "target": "/wiki-app"},
-]
+# v3 moved the editor SPA from /wiki to /wiki-app, which would 404 the bare
+# /wiki that Neoffice instances publish. That redirect is NOT declared here on
+# purpose: a hook applies fleet-wide, and on some instances a Wiki Space owns
+# the route "wiki" — redirecting would hide its public reader. It is posted
+# per-instance, only when /wiki is free, by
+# wiki.frappe_wiki.patches.redirect_bare_wiki_route_to_app.
