@@ -1,5 +1,14 @@
 import { expect, test } from '@playwright/test';
 import { getList } from '../helpers/frappe';
+import {
+	APP_BASE,
+	CHANGE_REQUEST_URL_RE,
+	spaceLinkSelector,
+} from '../helpers/routes';
+import {
+	openNewPageDialog,
+	publishChangeRequestFromReview,
+} from '../helpers/wiki';
 
 interface WikiDocumentRoute {
 	route: string;
@@ -29,32 +38,36 @@ async function createAndPublishPage(
 	markdownContent: string,
 ): Promise<string> {
 	await page.setViewportSize({ width: 1100, height: 900 });
-	await page.goto('/wiki');
+	await page.goto(APP_BASE);
 	await page.waitForLoadState('networkidle');
 
-	const spaceLink = page.locator('a[href*="/wiki/spaces/"]').first();
+	const spaceLink = page.locator(spaceLinkSelector()).first();
 	await expect(spaceLink).toBeVisible({ timeout: 5000 });
 	await spaceLink.click();
 	await page.waitForLoadState('networkidle');
 
-	const createFirstPage = page.locator('button:has-text("Create First Page")');
-	const newPageButton = page.locator('button[title="New Page"]');
-
-	if (await createFirstPage.isVisible({ timeout: 2000 }).catch(() => false)) {
-		await createFirstPage.click();
-	} else {
-		await newPageButton.click();
-	}
+	await openNewPageDialog(page);
 
 	await page.getByLabel('Title').fill(title);
-	await page
-		.getByRole('dialog')
-		.getByRole('button', { name: 'Save Draft' })
-		.click();
+	const createDialog = page.getByRole('dialog');
+	await createDialog.getByRole('button', { name: 'Save' }).click();
+	await expect(createDialog).toBeHidden();
+	await expect(page.locator('.dialog-overlay')).toBeHidden();
 	await page.waitForLoadState('networkidle');
 
-	await page.locator('aside').getByText(title, { exact: true }).click();
-	await page.waitForURL(/\/draft\/[^/?#]+/);
+	const pageTitleInput = page.getByRole('textbox', { name: 'Page title' });
+	const openedCreatedPage = await pageTitleInput
+		.inputValue({ timeout: 2000 })
+		.then((value) => value === title)
+		.catch(() => false);
+	if (!openedCreatedPage) {
+		await page.locator('aside').getByText(title, { exact: true }).click();
+	}
+	await expect(pageTitleInput).toHaveValue(title, { timeout: 10000 });
+	await page.waitForFunction(() => {
+		const match = window.location.pathname.match(/\/draft\/([^/?#]+)/);
+		return match && !decodeURIComponent(match[1]).startsWith('tmp_');
+	});
 	const draftMatch = page.url().match(/\/draft\/([^/?#]+)/);
 	expect(draftMatch).toBeTruthy();
 	const docKey = decodeURIComponent(draftMatch?.[1] ?? '');
@@ -74,19 +87,17 @@ async function createAndPublishPage(
 	await editor.click();
 	await page.waitForTimeout(500);
 
-	await page.click('button:has-text("Save Draft")');
+	await page.getByRole('button', { name: 'Save', exact: true }).click();
 	await page.waitForLoadState('networkidle');
-	await page.waitForTimeout(2000);
 
-	await page.getByRole('button', { name: 'Submit for Review' }).click();
+	const submitButton = page.getByRole('button', { name: 'Submit for Review' });
+	await expect(submitButton).toBeEnabled({ timeout: 10000 });
+	await submitButton.click();
 	await page.getByRole('button', { name: 'Submit' }).click();
-	await expect(page).toHaveURL(/\/wiki\/change-requests\//, {
+	await expect(page).toHaveURL(CHANGE_REQUEST_URL_RE, {
 		timeout: 10000,
 	});
-	await page.getByRole('button', { name: 'Merge' }).click();
-	await expect(page.locator('text=Change request merged').first()).toBeVisible({
-		timeout: 15000,
-	});
+	await publishChangeRequestFromReview(page);
 
 	const routes = await getList<WikiDocumentRoute>(request, 'Wiki Document', {
 		fields: ['route', 'doc_key'],

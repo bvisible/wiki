@@ -12,19 +12,30 @@ add_to_apps_screen = [
 		"name": "wiki",
 		"logo": "/assets/wiki/images/wiki-logo.png",
 		"title": "Wiki",
-		"route": "/wiki",
+		"route": "/wiki-app",
 		"has_permission": "wiki.utils.check_app_permission",
 	}
 ]
 
-page_renderer = "wiki.frappe_wiki.doctype.wiki_document.wiki_document.WikiDocumentRenderer"
+page_renderer = [
+	# Crawler routes (.md, llms.txt, sitemap.xml) resolve first — they take over
+	# paths that would otherwise fall through to the reader or the framework.
+	"wiki.wiki.crawler_renderer.CrawlerRenderer",
+	"wiki.frappe_wiki.doctype.wiki_document.wiki_document.WikiDocumentRenderer",
+]
 export_python_type_annotations = True
 
 # SQLite Search
 sqlite_search = ["wiki.frappe_wiki.doctype.wiki_document.wiki_sqlite_search.WikiSQLiteSearch"]
 
 
-jinja = {"methods": ["wiki.utils.get_tailwindcss_hash"]}
+jinja = {
+	"methods": [
+		"wiki.utils.get_tailwindcss_hash",
+		"wiki.utils.get_asset_hash",
+		"wiki.utils.lucide_svg",
+	]
+}
 
 # Includes in <head>
 # ------------------
@@ -88,13 +99,17 @@ after_install = "wiki.install.after_install"
 # -----------
 # Permissions evaluated in scripted ways
 
-# permission_query_conditions = {
-# 	"Event": "frappe.desk.doctype.event.event.get_permission_query_conditions",
-# }
-#
-# has_permission = {
-# 	"Event": "frappe.desk.doctype.event.event.has_permission",
-# }
+permission_query_conditions = {
+	"Wiki Space": "wiki.permissions.wiki_space_query_conditions",
+	"Wiki Document": "wiki.permissions.wiki_document_query_conditions",
+	"Wiki Change Request": "wiki.permissions.wiki_cr_query_conditions",
+}
+
+has_permission = {
+	"Wiki Space": "wiki.permissions.wiki_space_has_permission",
+	"Wiki Document": "wiki.permissions.wiki_document_has_permission",
+	"Wiki Change Request": "wiki.permissions.wiki_cr_has_permission",
+}
 
 # DocType Class
 # ---------------
@@ -114,6 +129,18 @@ doc_events = {
 		"on_update": "wiki.frappe_wiki.doctype.wiki_document.wiki_document.on_wiki_document_update",
 		"on_trash": "wiki.frappe_wiki.doctype.wiki_document.wiki_document.on_wiki_document_trash",
 	},
+	# A space's roles, route and publish state decide what the crawler indexes
+	# list, and none of them touch a Wiki Document.
+	"Wiki Space": {
+		"on_update": "wiki.wiki.crawler_cache.clear_crawler_cache",
+		"on_trash": "wiki.wiki.crawler_cache.clear_crawler_cache",
+	},
+}
+
+# Auto-prune the webhook delivery log (Frappe's daily log-clearing runs each
+# doctype's `clear_old_logs`).
+default_log_clearing_doctypes = {
+	"Wiki GitHub Webhook Log": 30,
 }
 
 # Scheduled Tasks
@@ -174,5 +201,5 @@ doc_events = {
 # auto_cancel_exempted_doctypes = ["Auto Repeat"]
 
 website_route_rules = [
-	{"from_route": "/wiki/<path:app_path>", "to_route": "wiki"},
+	{"from_route": "/wiki-app/<path:app_path>", "to_route": "wiki-app"},
 ]

@@ -14,7 +14,6 @@ import {
 	Dialog,
 	ErrorMessage,
 	FormControl,
-	Input,
 	TextInput,
 	frappeRequest,
 	pageMetaPlugin,
@@ -23,11 +22,11 @@ import {
 } from 'frappe-ui';
 
 import './index.css';
+import './wiki-editor-content.css';
 
 const globalComponents = {
 	Button,
 	TextInput,
-	Input,
 	FormControl,
 	ErrorMessage,
 	Dialog,

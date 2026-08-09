@@ -1,0 +1,212 @@
+/* Generated from frappe-ui CodeBlockComponent.css (scope .ProseMirror → .prose)
+   by scripts/generate-public-prose.mjs — do not edit. */
+/* CodeBlock styles
+ *
+ * Layout (container/toolbar/gutter/copy button) lives as Tailwind utilities in
+ * CodeBlockComponent.vue. Only the `pre` shell + highlight.js theme stay here —
+ * they target ProseMirror-rendered descendants (`.hljs-*` spans) and theme
+ * variants that can't be expressed as element-level utility classes. */
+
+/* ── pre shell ────────────────────────────────────────────────── */
+.prose pre {
+  background: #f6f8fa;
+  color: #24292e;
+  font-family:
+    ui-monospace, Menlo, Monaco, 'Cascadia Mono', 'Segoe UI Mono',
+    'Roboto Mono', 'Oxygen Mono', 'Ubuntu Mono', 'Source Code Pro', 'Fira Mono',
+    'Droid Sans Mono', 'Consolas', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--outline-gray-2);
+  caret-color: #24292e;
+}
+
+.prose pre code {
+  color: inherit;
+  padding: 0;
+  background: none;
+  font-size: inherit;
+}
+
+/* The line-number gutter inherits the `pre` line-height, but the node view wraps
+   the code text in `[data-node-view-content]` divs that fall back to
+   `line-height: normal`, so the code and the numbers drift apart. Pin the code
+   column to the same line-height as the gutter (kept in sync with `pre` above). */
+.prose pre code,
+.prose pre code [data-node-view-content],
+.prose pre code [data-node-view-content] > * {
+  line-height: 1.7;
+}
+
+/* ── highlight.js — GitHub light ─────────────────────────────── */
+.prose pre .hljs-doctag,
+.prose pre .hljs-keyword,
+.prose pre .hljs-meta .hljs-keyword,
+.prose pre .hljs-template-tag,
+.prose pre .hljs-template-variable,
+.prose pre .hljs-type,
+.prose pre .hljs-variable.language_ {
+  color: #d73a49;
+}
+
+.prose pre .hljs-title,
+.prose pre .hljs-title.class_,
+.prose pre .hljs-title.class_.inherited__,
+.prose pre .hljs-title.function_ {
+  color: #6f42c1;
+}
+
+.prose pre .hljs-attr,
+.prose pre .hljs-attribute,
+.prose pre .hljs-literal,
+.prose pre .hljs-meta,
+.prose pre .hljs-number,
+.prose pre .hljs-operator,
+.prose pre .hljs-variable,
+.prose pre .hljs-selector-attr,
+.prose pre .hljs-selector-class,
+.prose pre .hljs-selector-id {
+  color: #005cc5;
+}
+
+.prose pre .hljs-regexp,
+.prose pre .hljs-string,
+.prose pre .hljs-meta .hljs-string {
+  color: #032f62;
+}
+
+.prose pre .hljs-built_in,
+.prose pre .hljs-symbol {
+  color: #e36209;
+}
+
+.prose pre .hljs-comment,
+.prose pre .hljs-code,
+.prose pre .hljs-formula {
+  color: #6a737d;
+}
+
+.prose pre .hljs-name,
+.prose pre .hljs-quote,
+.prose pre .hljs-selector-tag,
+.prose pre .hljs-selector-pseudo {
+  color: #22863a;
+}
+
+.prose pre .hljs-subst {
+  color: #24292e;
+}
+.prose pre .hljs-section {
+  color: #005cc5;
+  font-weight: bold;
+}
+.prose pre .hljs-bullet {
+  color: #735c0f;
+}
+.prose pre .hljs-emphasis {
+  color: #24292e;
+  font-style: italic;
+}
+.prose pre .hljs-strong {
+  color: #24292e;
+  font-weight: 700;
+}
+.prose pre .hljs-addition {
+  color: #22863a;
+  background-color: #f0fff4;
+}
+.prose pre .hljs-deletion {
+  color: #b31d28;
+  background-color: #ffeef0;
+}
+
+/* ── pre shell — dark mode ───────────────────────────────────── */
+[data-theme='dark'] .prose pre {
+  background: #0d1117;
+  color: #c9d1d9;
+  caret-color: #c9d1d9;
+}
+
+/* ── highlight.js — GitHub dark ──────────────────────────────── */
+[data-theme='dark'] .prose pre .hljs-doctag,
+[data-theme='dark'] .prose pre .hljs-keyword,
+[data-theme='dark'] .prose pre .hljs-meta .hljs-keyword,
+[data-theme='dark'] .prose pre .hljs-template-tag,
+[data-theme='dark'] .prose pre .hljs-template-variable,
+[data-theme='dark'] .prose pre .hljs-type,
+[data-theme='dark'] .prose pre .hljs-variable.language_ {
+  color: #ff7b72;
+}
+
+[data-theme='dark'] .prose pre .hljs-title,
+[data-theme='dark'] .prose pre .hljs-title.class_,
+[data-theme='dark'] .prose pre .hljs-title.class_.inherited__,
+[data-theme='dark'] .prose pre .hljs-title.function_ {
+  color: #d2a8ff;
+}
+
+[data-theme='dark'] .prose pre .hljs-attr,
+[data-theme='dark'] .prose pre .hljs-attribute,
+[data-theme='dark'] .prose pre .hljs-literal,
+[data-theme='dark'] .prose pre .hljs-meta,
+[data-theme='dark'] .prose pre .hljs-number,
+[data-theme='dark'] .prose pre .hljs-operator,
+[data-theme='dark'] .prose pre .hljs-variable,
+[data-theme='dark'] .prose pre .hljs-selector-attr,
+[data-theme='dark'] .prose pre .hljs-selector-class,
+[data-theme='dark'] .prose pre .hljs-selector-id {
+  color: #79c0ff;
+}
+
+[data-theme='dark'] .prose pre .hljs-regexp,
+[data-theme='dark'] .prose pre .hljs-string,
+[data-theme='dark'] .prose pre .hljs-meta .hljs-string {
+  color: #a5d6ff;
+}
+
+[data-theme='dark'] .prose pre .hljs-built_in,
+[data-theme='dark'] .prose pre .hljs-symbol {
+  color: #ffa657;
+}
+
+[data-theme='dark'] .prose pre .hljs-comment,
+[data-theme='dark'] .prose pre .hljs-code,
+[data-theme='dark'] .prose pre .hljs-formula {
+  color: #8b949e;
+}
+
+[data-theme='dark'] .prose pre .hljs-name,
+[data-theme='dark'] .prose pre .hljs-quote,
+[data-theme='dark'] .prose pre .hljs-selector-tag,
+[data-theme='dark'] .prose pre .hljs-selector-pseudo {
+  color: #7ee787;
+}
+
+[data-theme='dark'] .prose pre .hljs-subst {
+  color: #c9d1d9;
+}
+[data-theme='dark'] .prose pre .hljs-section {
+  color: #1f6feb;
+  font-weight: bold;
+}
+[data-theme='dark'] .prose pre .hljs-bullet {
+  color: #f2cc60;
+}
+[data-theme='dark'] .prose pre .hljs-emphasis {
+  color: #c9d1d9;
+  font-style: italic;
+}
+[data-theme='dark'] .prose pre .hljs-strong {
+  color: #c9d1d9;
+  font-weight: 700;
+}
+[data-theme='dark'] .prose pre .hljs-addition {
+  color: #aff5b4;
+  background-color: #033a16;
+}
+[data-theme='dark'] .prose pre .hljs-deletion {
+  color: #ffdcd7;
+  background-color: #67060c;
+}

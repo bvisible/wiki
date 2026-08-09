@@ -1,119 +1,134 @@
 <template>
 	<div class="h-full flex flex-col">
-		<div v-if="activeDoc" class="h-full flex flex-col">
-			<div class="flex items-center justify-between p-6 pb-4 bg-surface-white shrink-0 border-b-2 border-b-gray-500/20">
-				<div class="flex items-center gap-2 min-w-0 flex-1">
-					<div class="flex flex-col gap-1 min-w-0 flex-1">
-						<div class="flex items-center gap-2">
-							<input
-								type="text"
-								v-model="editableTitle"
-								:readonly="isGuestPanel"
-								class="text-2xl font-semibold text-ink-gray-9 bg-transparent border-none outline-none w-full focus:ring-0 p-0 placeholder:text-ink-gray-4"
-								:placeholder="__('Page title')"
-								@blur="saveTitleIfChanged"
-								@keydown.enter="$event.target.blur()"
-							/>
-							<LucideLock v-if="activeDoc.is_private" class="size-4 text-ink-gray-5 shrink-0" :title="__('Private')" />
-						</div>
-						<div
-							:class="isGuestPanel ? 'flex items-center gap-1 text-sm text-ink-gray-5 group/route' : 'flex items-center gap-1 text-sm text-ink-gray-5 cursor-pointer hover:text-ink-gray-7 group/route'"
-							@click="!isGuestPanel && openRouteDialog()"
-						>
-							<span class="font-mono truncate">/{{ displayRoute }}</span>
-							<LucidePencil v-if="!isGuestPanel" class="size-3 shrink-0 opacity-0 group-hover/route:opacity-100" />
-						</div>
-						<div v-if="!isGuestPanel" class="flex items-center gap-2 mt-1">
-							<Badge v-if="displayPublished" variant="subtle" theme="green" size="sm">
-								{{ __('Published') }}
-							</Badge>
-							<Badge v-else variant="subtle" theme="orange" size="sm">
-								{{ __('Not Published') }}
-							</Badge>
-							<Badge v-if="hasChangeForCurrentPage" variant="subtle" theme="blue" size="sm">
-								{{ __('Has Draft Changes') }}
-							</Badge>
-						</div>
-					</div>
-				</div>
+		<DefineActions>
+			<!-- Server-side PDF of this article (headless Chrome). Offered on any
+			     real page, including to guests reading a published space. -->
+			<Button
+				v-if="wikiDoc.doc?.route && !wikiDoc.doc?.is_group"
+				variant="ghost"
+				@click="downloadPdf"
+			>
+				<template #prefix>
+					<span class="lucide-download size-4" aria-hidden="true" />
+				</template>
+				{{ __('PDF') }}
+			</Button>
+			<Button
+				v-if="wikiDoc.doc?.is_published"
+				variant="ghost"
+				@click="openPage"
+			>
+				<template #prefix>
+					<span class="lucide-external-link size-4" aria-hidden="true" />
+				</template>
+				{{ __('View Page') }}
+			</Button>
+			<Button
+				v-if="!readonly"
+				variant="solid"
+				:loading="isSaving"
+				:title="isMac ? '⌘S' : 'Ctrl+S'"
+				@click="saveFromHeader"
+			>
+				{{ __('Save') }}
+			</Button>
+			<Dropdown v-if="!readonly" :options="menuOptions">
+				<Button variant="ghost" :title="__('More actions')">
+					<span class="lucide-more-vertical size-4" aria-hidden="true" />
+				</Button>
+			</Dropdown>
+		</DefineActions>
 
-				<div class="flex items-center gap-2">
-					<Button
-						v-if="activeDoc?.route && !activeDoc?.is_group"
-						variant="outline"
-						@click="downloadPdf"
-					>
-						<template #prefix>
-							<LucideDownload class="size-4" />
-						</template>
-						{{ __('PDF') }}
-					</Button>
-					<Button
-						v-if="activeDoc?.is_published"
-						variant="outline"
-						@click="openPage"
-					>
-						<template #prefix>
-							<LucideExternalLink class="size-4" />
-						</template>
-						{{ __('View Page') }}
-					</Button>
-					<Button
-						v-if="!isGuestPanel"
-						variant="solid"
-						:loading="isSaving"
-						@click="saveFromHeader"
-					>
-						<span class="flex items-center gap-2">
-							{{ __('Save Draft') }}
-							<kbd class="inline-flex items-center gap-1 rounded bg-white/25 px-1.5 py-0.5 text-[11px] font-medium opacity-80">
-								<span class="text-sm">{{ isMac ? '⌘' : 'Ctrl+' }}</span><span>S</span>
-							</kbd>
-						</span>
-					</Button>
-					<Dropdown v-if="!isGuestPanel" :options="menuOptions">
-						<Button variant="outline">
-							<LucideMoreVertical class="size-4" />
-						</Button>
-					</Dropdown>
-				</div>
-			</div>
+		<!-- Page actions live in the space's tab row (SpaceDetails). `defer` lets
+		     that target mount first when tabs load async. -->
+		<Teleport defer to="#wiki-page-actions">
+			<ReuseActions />
+		</Teleport>
 
-			<div class="flex-1 overflow-auto px-6 pb-6 mt-4">
-				<WikiEditor v-if="editorKey" :key="editorKey" ref="editorRef" :content="editorContent" :saving="isSaving" :editable="!isGuestPanel" @save="saveContent" />
+		<div v-if="wikiDoc.doc" class="h-full flex flex-col">
+			<div class="flex-1 overflow-auto pb-10">
+				<WikiEditor v-if="editorKey" :key="editorKey" ref="editorRef" :content="editorContent" :document-key="wikiDoc.doc?.doc_key" :saved-content="savedContent" :readonly="readonly" @save="saveContent" @save-all="flushOtherDirtyPages" @content-change="onEditorContentChange" @content-ready="onEditorContentReady">
+					<template #title>
+						<div class="pt-8">
+							<div class="flex items-start gap-3">
+								<input
+									type="text"
+									v-model="editableTitle"
+									:readonly="readonly"
+									class="text-3xl-semibold text-ink-gray-9 bg-transparent border-none outline-none w-full min-w-0 flex-1 focus:ring-0 p-0 placeholder:text-ink-gray-4"
+									:placeholder="__('Page title')"
+									@blur="saveTitleIfChanged"
+									@keydown.enter="$event.target.blur()"
+								/>
+								<div class="flex shrink-0 items-center gap-2 pt-2">
+									<Badge v-if="displayPublished" variant="subtle" theme="green" size="sm">
+										{{ __('Published') }}
+									</Badge>
+									<Badge v-else variant="subtle" theme="orange" size="sm">
+										{{ __('Not Published') }}
+									</Badge>
+									<Badge v-if="!readonly && hasChangeForCurrentPage" variant="subtle" theme="blue" size="sm">
+										{{ __('Has Draft Changes') }}
+									</Badge>
+								</div>
+							</div>
+
+							<!-- Route under the title; click-to-edit unless read-only. -->
+							<div
+								class="mt-2 flex items-center gap-1 text-sm text-ink-gray-5"
+								:class="readonly ? '' : 'cursor-pointer hover:text-ink-gray-7 group/route w-fit'"
+								@click="readonly ? null : openRouteDialog()"
+							>
+								<span class="font-mono truncate">/{{ displayRoute }}</span>
+								<span v-if="!readonly" class="lucide-pencil size-3 shrink-0 opacity-0 group-hover/route:opacity-100" aria-hidden="true" />
+							</div>
+						</div>
+					</template>
+				</WikiEditor>
+				<!-- Editor body skeleton while the CR page overlay loads -->
+				<div v-else class="mx-auto w-full max-w-[770px] space-y-4 px-6 pt-8">
+					<Skeleton class="h-4 w-3/4 rounded" />
+					<Skeleton class="h-4 w-full rounded" />
+					<Skeleton class="h-4 w-5/6 rounded" />
+					<Skeleton class="h-4 w-full rounded" />
+					<Skeleton class="h-4 w-2/3 rounded" />
+					<Skeleton class="h-4 w-full rounded mt-6" />
+					<Skeleton class="h-4 w-4/5 rounded" />
+					<Skeleton class="h-4 w-full rounded" />
+					<Skeleton class="h-4 w-3/4 rounded" />
+				</div>
 			</div>
 		</div>
 
 		<!-- Content skeleton -->
-		<div v-else class="h-full flex flex-col animate-pulse">
-			<div class="flex items-center justify-between p-6 pb-4 shrink-0 border-b-2 border-b-gray-500/20">
+		<div v-else class="h-full flex flex-col">
+			<div class="flex min-h-12 shrink-0 items-center justify-between border-b border-outline-gray-2 px-3 sm:px-5">
+				<Skeleton class="h-4 w-40 rounded" />
 				<div class="flex items-center gap-2">
-					<div class="h-7 w-48 rounded bg-surface-gray-3" />
-					<div class="h-5 w-16 rounded-full bg-surface-gray-3" />
-				</div>
-				<div class="flex items-center gap-2">
-					<div class="h-8 w-24 rounded bg-surface-gray-3" />
-					<div class="h-8 w-28 rounded bg-surface-gray-3" />
-					<div class="size-8 rounded bg-surface-gray-3" />
+					<Skeleton class="h-8 w-24 rounded" />
+					<Skeleton class="h-8 w-16 rounded" />
+					<Skeleton class="size-8 rounded" />
 				</div>
 			</div>
-			<div class="flex-1 px-6 pb-6 mt-4 space-y-4">
-				<div class="h-4 w-3/4 rounded bg-surface-gray-3" />
-				<div class="h-4 w-full rounded bg-surface-gray-3" />
-				<div class="h-4 w-5/6 rounded bg-surface-gray-3" />
-				<div class="h-4 w-full rounded bg-surface-gray-3" />
-				<div class="h-4 w-2/3 rounded bg-surface-gray-3" />
-				<div class="h-4 w-full rounded bg-surface-gray-3 mt-6" />
-				<div class="h-4 w-4/5 rounded bg-surface-gray-3" />
-				<div class="h-4 w-full rounded bg-surface-gray-3" />
-				<div class="h-4 w-3/4 rounded bg-surface-gray-3" />
+			<div class="mx-auto w-full max-w-[770px] flex-1 px-6 pb-6 pt-8 space-y-4">
+				<Skeleton class="h-8 w-64 rounded" />
+				<Skeleton class="h-5 w-24 rounded-full" />
+				<Skeleton class="h-4 w-3/4 rounded" />
+				<Skeleton class="h-4 w-full rounded" />
+				<Skeleton class="h-4 w-5/6 rounded" />
+				<Skeleton class="h-4 w-full rounded" />
+				<Skeleton class="h-4 w-2/3 rounded" />
+				<Skeleton class="h-4 w-full rounded mt-6" />
+				<Skeleton class="h-4 w-4/5 rounded" />
+				<Skeleton class="h-4 w-full rounded" />
+				<Skeleton class="h-4 w-3/4 rounded" />
 			</div>
 		</div>
-		<Dialog v-model="showRouteDialog" :options="{ size: 'sm' }">
-			<template #body-title>
-				<h3 class="text-xl font-semibold text-ink-gray-9">{{ __('Edit Route') }}</h3>
+		<Dialog v-model:open="showRouteDialog" size="sm">
+			<template #title>
+				<h3 class="text-2xl-semibold text-ink-gray-9">{{ __('Edit Route') }}</h3>
 			</template>
-			<template #body-content>
+			<template #default>
 				<FormControl
 					v-model="editableRoute"
 					:label="__('Route')"
@@ -130,188 +145,370 @@
 				</div>
 			</template>
 		</Dialog>
+		<PageSettings v-if="wikiDoc.doc" v-model="showPageSettingsDialog" :doc-resource="wikiDoc" />
 	</div>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { createDocumentResource, Badge, Button, Dropdown, Dialog, FormControl, createResource, toast } from "frappe-ui";
-import WikiEditor from './WikiEditor.vue';
+import { buildGithubEditUrl } from '@/lib/github';
 import { useChangeRequestStore } from '@/stores/changeRequest';
+import { useDraftWorkspaceStore } from '@/stores/draftWorkspace';
 import { useUserStore } from '@/stores/user';
-import { useRoute } from 'vue-router';
-import LucideMoreVertical from '~icons/lucide/more-vertical';
-import LucideLock from '~icons/lucide/lock';
-import LucideExternalLink from '~icons/lucide/external-link';
-import LucidePencil from '~icons/lucide/pencil';
-import LucideDownload from '~icons/lucide/download';
+import {
+	Badge,
+	Button,
+	Dialog,
+	Dropdown,
+	FormControl,
+	Skeleton,
+	createDocumentResource,
+	createResource,
+	getCachedDocumentResource,
+	toast,
+	usePageMeta,
+} from 'frappe-ui';
+import { createReusableTemplate } from '@vueuse/core';
+import { computed, ref, shallowRef, watch } from 'vue';
+import PageSettings from './PageSettings.vue';
+import WikiEditor from './WikiEditor.vue';
 
 const isMac = computed(() => /Mac|iPhone|iPad|iPod/i.test(navigator.userAgent));
+
+const [DefineActions, ReuseActions] = createReusableTemplate();
 
 const props = defineProps({
 	pageId: {
 		type: String,
-		required: true
+		required: true,
 	},
 	spaceId: {
 		type: String,
-		required: false
-	}
+		required: false,
+	},
+	// Git-synced space: the page is owned by the repo. Render it for reading
+	// only — no change request, no editing affordances, no save path.
+	readonly: {
+		type: Boolean,
+		default: false,
+	},
 });
 
 const emit = defineEmits(['refresh']);
+
 const editorRef = ref(null);
 const editableTitle = ref('');
 const editableRoute = ref('');
 const showRouteDialog = ref(false);
 const isSavingRoute = ref(false);
+const showPageSettingsDialog = ref(false);
 
 const crStore = useChangeRequestStore();
+const draftStore = useDraftWorkspaceStore();
 const userStore = useUserStore();
+const isGuest = computed(() => !userStore.data?.is_logged_in);
 
-const userStoreForPanel = useUserStore();
-const currentRoute = useRoute();
-const isGuestPanel = computed(() => !userStoreForPanel.data?.is_logged_in || currentRoute.query.preview === '1');
-
-// Guest-safe resource using allow_guest endpoint
-const guestWikiDoc = createResource({
-	url: 'wiki.api.wiki_space.get_public_document',
-	makeParams() { return { doc_key: props.pageId }; },
-	auto: isGuestPanel.value,
-});
-
-const wikiDoc = createDocumentResource({
-	doctype: "Wiki Document",
-	name: props.pageId,
-	auto: !isGuestPanel.value,
-});
-
-// Reload guest doc when pageId changes
-watch(() => props.pageId, (nid) => {
-	if (nid && isGuestPanel.value) {
-		guestWikiDoc.submit();
+// frappe-ui caches document resources by (doctype, name), so revisiting an
+// already-opened page renders instantly from the cached doc while `auto`
+// kicks off a background revalidation (stale-while-revalidate). One resource
+// per page — mutating a shared resource's `name` would block on the refetch.
+function makeWikiDocResource(pageId) {
+	if (isGuest.value) {
+		// Guests can't read Wiki Document through frappe.client.get. The
+		// published-only endpoint returns the same document shape; exposing it
+		// as `.doc` keeps the rest of this component source-agnostic.
+		const res = createResource({
+			url: 'wiki.api.wiki_space.get_public_document',
+			makeParams: () => ({ doc_key: pageId }),
+			auto: true,
+		});
+		return {
+			get doc() {
+				return res.data;
+			},
+			get loading() {
+				return res.loading;
+			},
+			reload: () => res.reload(),
+		};
 	}
-});
+	return createDocumentResource({
+		doctype: 'Wiki Document',
+		name: pageId,
+		auto: true,
+	});
+}
 
-const crPageResource = createResource({
-	url: 'wiki.frappe_wiki.doctype.wiki_change_request.wiki_change_request.get_cr_page',
-	onSuccess(data) {
-		currentCrPage.value = data;
-	},
-});
+// Public PDF export of this article, rendered server-side by headless Chrome.
+function downloadPdf() {
+	const docRoute = wikiDoc.value?.doc?.route;
+	if (!docRoute) return;
+	const url = `/api/method/wiki.frappe_wiki.doctype.wiki_document.wiki_document.download_pdf?route=${encodeURIComponent(
+		docRoute.replace(/^\//, ''),
+	)}`;
+	window.open(url, '_blank');
+}
+
+const wikiDoc = shallowRef(makeWikiDocResource(props.pageId));
 
 const currentCrPage = ref(null);
-
-// Unified doc accessor: prefer wikiDoc.doc when logged in, else guest data
-const activeDoc = computed(() => wikiDoc.doc || guestWikiDoc.data);
-
-watch(() => props.pageId, (newPageId) => {
-	if (newPageId) {
-		currentCrPage.value = null;
-		wikiDoc.name = newPageId;
-		wikiDoc.reload();
-	}
-});
+const loadedDocKey = ref(null);
+let latestPageLoad = 0;
 
 watch(
-	[() => crStore.currentChangeRequest?.name, () => wikiDoc.doc?.doc_key],
+	() => props.pageId,
+	(newPageId) => {
+		if (newPageId) {
+			latestPageLoad += 1;
+			currentCrPage.value = null;
+			loadedDocKey.value = null;
+			wikiDoc.value = makeWikiDocResource(newPageId);
+		}
+	},
+);
+
+watch(
+	[() => crStore.currentChangeRequest?.name, () => wikiDoc.value.doc?.doc_key],
 	async ([crName, docKey], [oldCrName]) => {
-		if (crName && docKey) {
+		// Read-only (git-synced) pages render straight from the published doc —
+		// no change request overlay, so skip the CR-page load entirely.
+		if (props.readonly) return;
+		if (docKey) {
+			// Navigation cancels the previous page's debounced autosave;
+			// flush its buffer now. Failures surface via the sync pill.
+			draftStore.flushDirtyPages(docKey).catch(() => {});
 			await loadCrPage();
 		} else {
 			currentCrPage.value = null;
+			loadedDocKey.value = null;
 		}
 		// After merge/archive, the CR name changes — reload wikiDoc to get updated route etc.
 		if (oldCrName && crName !== oldCrName) {
-			wikiDoc.reload();
+			wikiDoc.value.reload();
 		}
 	},
 	{ immediate: true },
 );
 
-async function loadCrPage() {
-	if (!crStore.currentChangeRequest || !wikiDoc.doc?.doc_key) {
-		currentCrPage.value = null;
-		return;
-	}
-	await crPageResource.submit({
-		name: crStore.currentChangeRequest.name,
-		doc_key: wikiDoc.doc.doc_key,
-	});
+function onEditorContentChange(
+	content,
+	docKey = wikiDoc.value.doc?.doc_key,
+	options = {},
+) {
+	if (props.readonly) return;
+	if (!docKey) return;
+	const title = draftStore.pagesByKey[docKey]?.title ?? editableTitle.value;
+	draftStore.recordEditorContent(docKey, content, title, options);
 }
 
+function onEditorContentReady(
+	content,
+	savedContent,
+	docKey = wikiDoc.value.doc?.doc_key,
+) {
+	if (props.readonly) return;
+	if (!docKey) return;
+	const title = draftStore.pagesByKey[docKey]?.title ?? editableTitle.value;
+	draftStore.reconcileEditorContent(docKey, content, savedContent, title);
+}
+
+async function loadCrPage() {
+	const docKey = wikiDoc.value.doc?.doc_key;
+	const pageLoad = ++latestPageLoad;
+	if (!docKey) {
+		currentCrPage.value = null;
+		loadedDocKey.value = null;
+		return;
+	}
+	if (
+		props.spaceId &&
+		draftStore.isEnabled &&
+		(draftStore.spaceId !== props.spaceId ||
+			draftStore.isHydrating ||
+			!crStore.currentChangeRequest)
+	) {
+		await draftStore.hydrate(props.spaceId);
+	}
+	const page = crStore.currentChangeRequest
+		? await draftStore.loadCrPage(docKey)
+		: null;
+	if (pageLoad === latestPageLoad && wikiDoc.value.doc?.doc_key === docKey) {
+		currentCrPage.value = page;
+		loadedDocKey.value = docKey;
+	}
+}
+
+const activePage = computed(() => {
+	const docKey = wikiDoc.value.doc?.doc_key;
+	return docKey ? draftStore.pagesByKey[docKey] : null;
+});
+
 const hasChangeForCurrentPage = computed(() => {
-	const docKey = wikiDoc.doc?.doc_key;
+	const docKey = wikiDoc.value.doc?.doc_key;
 	if (!docKey) return false;
 	return Boolean(crStore.changes.some((change) => change.doc_key === docKey));
 });
 
 const editorContent = computed(() => {
+	if (activePage.value?.localContent != null) {
+		return activePage.value.localContent;
+	}
+	if (activePage.value?.content != null) {
+		return activePage.value.content;
+	}
 	if (currentCrPage.value?.content != null) {
 		return currentCrPage.value.content;
 	}
-	return activeDoc.value?.content || '';
+	return wikiDoc.value.doc?.content || '';
 });
 
 const displayTitle = computed(() => {
-	return currentCrPage.value?.title || activeDoc.value?.title || '';
+	return (
+		activePage.value?.title ||
+		currentCrPage.value?.title ||
+		wikiDoc.value.doc?.title ||
+		''
+	);
 });
 
 const displayPublished = computed(() => {
+	if (activePage.value?.isPublished != null) {
+		return Boolean(activePage.value.isPublished);
+	}
 	if (currentCrPage.value?.is_published != null) {
 		return Boolean(currentCrPage.value.is_published);
 	}
-	return Boolean(activeDoc.value?.is_published);
+	return Boolean(wikiDoc.value.doc?.is_published);
 });
 
 const displayRoute = computed(() => {
-	return currentCrPage.value?.route || activeDoc.value?.route || '';
+	return (
+		activePage.value?.route ||
+		currentCrPage.value?.route ||
+		wikiDoc.value.doc?.route ||
+		''
+	);
 });
 
-watch(displayTitle, (newTitle) => {
-	editableTitle.value = newTitle;
-}, { immediate: true });
+// Browser tab title: "{page} | {space}". Returning undefined while the doc
+// is still loading keeps the previous title instead of flashing a blank one.
+usePageMeta(() => {
+	const title = displayTitle.value;
+	if (!title) return;
+	const space = props.spaceId
+		? getCachedDocumentResource('Wiki Space', props.spaceId)
+		: null;
+	return { title: [title, space?.doc?.space_name].filter(Boolean).join(' | ') };
+});
 
-const isSaving = computed(() => {
-	return crStore.isUpdatingPage;
+watch(
+	displayTitle,
+	(newTitle) => {
+		editableTitle.value = newTitle;
+	},
+	{ immediate: true },
+);
+
+// Save state lives on the workspace store entry keyed by
+// the published doc's CR overlay key. Until the user saves once, no entry
+// exists and we report 'idle'.
+const pageSaveStatus = computed(() => {
+	const docKey = wikiDoc.value.doc?.doc_key;
+	if (!docKey) return 'idle';
+	return draftStore.pagesByKey[docKey]?.saveStatus || 'idle';
+});
+const isSaving = computed(() => pageSaveStatus.value === 'saving');
+// Confirmed content the editor normalizes before handing both snapshots back
+// to the store. Falls back to editorContent before an overlay entry exists.
+const savedContent = computed(() => {
+	const stored = activePage.value?.content;
+	if (stored != null) return stored;
+	return editorContent.value;
 });
 
 const editorKey = computed(() => {
-	if (activeDoc.value?.name === props.pageId && !crPageResource.loading) {
+	// Read-only pages have no CR overlay to wait for: mount the viewer as soon
+	// as the published doc for this page is loaded.
+	if (props.readonly) {
+		return wikiDoc.value.doc?.name === props.pageId ? props.pageId : null;
+	}
+	// Gate on the loaded overlay matching the current doc — NOT on
+	// `isLoadingCrPage`. A background revalidation (after a save / title /
+	// route / publish edit) flips that flag without changing the page, and
+	// keying off it would tear down and remount the live editor mid-edit.
+	// `loadedDocKey` is reset on a real page switch, which is what should
+	// actually remount the editor.
+	if (
+		wikiDoc.value.doc?.name === props.pageId &&
+		wikiDoc.value.doc?.doc_key === loadedDocKey.value
+	) {
 		return props.pageId;
 	}
 	return null;
 });
 
+// "Edit on GitHub" target for a synced page — built from the space's repo/branch
+// and the document's source_path. Null for non-synced spaces or folder-only
+// groups (no editable source file). The space resource is the one SpaceDetails
+// already loaded, so this reads from cache.
+const githubEditUrl = computed(() => {
+	const space = props.spaceId
+		? getCachedDocumentResource('Wiki Space', props.spaceId)
+		: null;
+	if (!space?.doc?.git_synced) return null;
+	return buildGithubEditUrl({
+		repoFullName: space.doc.repo_full_name,
+		branch: space.doc.branch,
+		sourcePath: wikiDoc.value.doc?.source_path,
+	});
+});
+
 const menuOptions = computed(() => {
-	const options = [
-		{
-			label: displayPublished.value ? __('Unpublish') : __('Publish'),
-			icon: 'upload-cloud',
-			onClick: togglePublish,
-		},
-	];
-	if (userStore.isWikiManager && wikiDoc.doc?.name) {
+	// Read-only spaces can't change publish state — only offer the desk link.
+	const options = props.readonly
+		? []
+		: [
+				{
+					label: displayPublished.value ? __('Unpublish') : __('Publish'),
+					icon: 'upload-cloud',
+					onClick: togglePublish,
+				},
+				{
+					label: __('Page settings'),
+					icon: 'settings',
+					onClick: () => {
+						showPageSettingsDialog.value = true;
+					},
+				},
+			];
+	if (githubEditUrl.value) {
+		options.push({
+			label: __('Edit on GitHub'),
+			icon: 'github',
+			onClick: () => window.open(githubEditUrl.value, '_blank', 'noopener'),
+		});
+	}
+	if (userStore.isWikiManager && wikiDoc.value.doc?.name) {
 		options.push({
 			label: __('View in Desk'),
 			icon: 'external-link',
-			onClick: () => window.open(`/app/wiki-document/${encodeURIComponent(wikiDoc.doc.name)}`, '_blank'),
+			onClick: () =>
+				window.open(
+					`/app/wiki-document/${encodeURIComponent(wikiDoc.value.doc.name)}`,
+					'_blank',
+				),
 		});
 	}
 	return options;
 });
 
 async function saveTitleIfChanged() {
+	if (props.readonly) return;
 	const newTitle = editableTitle.value.trim();
 	if (!newTitle || newTitle === displayTitle.value) return;
-	if (!crStore.currentChangeRequest || !wikiDoc.doc?.doc_key) return;
+	if (!wikiDoc.value.doc?.doc_key) return;
 	try {
-		await crStore.updatePage(crStore.currentChangeRequest.name, wikiDoc.doc.doc_key, {
-			title: newTitle,
-		});
-		await crStore.loadChanges();
+		await draftStore.updateNode(wikiDoc.value.doc.doc_key, { title: newTitle });
 		await loadCrPage();
-		emit('refresh');
 	} catch (error) {
 		toast.error(error.messages?.[0] || __('Error updating title'));
 	}
@@ -328,15 +525,11 @@ async function saveRoute(close) {
 		close();
 		return;
 	}
-	if (!crStore.currentChangeRequest || !wikiDoc.doc?.doc_key) return;
+	if (!wikiDoc.value.doc?.doc_key) return;
 	isSavingRoute.value = true;
 	try {
-		await crStore.updatePage(crStore.currentChangeRequest.name, wikiDoc.doc.doc_key, {
-			route: newRoute,
-		});
-		await crStore.loadChanges();
+		await draftStore.updateNode(wikiDoc.value.doc.doc_key, { route: newRoute });
 		await loadCrPage();
-		emit('refresh');
 		close();
 	} catch (error) {
 		toast.error(error.messages?.[0] || __('Error updating route'));
@@ -346,71 +539,61 @@ async function saveRoute(close) {
 }
 
 async function togglePublish() {
-	if (!crStore.currentChangeRequest || !wikiDoc.doc?.doc_key) return;
+	if (!wikiDoc.value.doc?.doc_key) return;
 	const newStatus = displayPublished.value ? 0 : 1;
-	const action = newStatus ? __('published') : __('unpublished');
-
 	try {
-		await crStore.updatePage(crStore.currentChangeRequest.name, wikiDoc.doc.doc_key, {
+		await draftStore.updateNode(wikiDoc.value.doc.doc_key, {
 			is_published: newStatus,
 		});
-		toast.success(__('Page {0}', [action]));
-		await crStore.loadChanges();
 		await loadCrPage();
-		emit('refresh');
 	} catch (error) {
 		toast.error(error.messages?.[0] || __('Error updating publish status'));
 	}
 }
 
 function openPage() {
-	// Prefer the pretty URL based on the document's route field
-	const docRoute = activeDoc.value?.route || wikiDoc.doc?.route;
-	if (docRoute) {
-		// docRoute is like 'wiki/rh/configuration-assurances' - open as pretty URL with ?preview=1
-		const cleanRoute = docRoute.replace(/^\//, '');
-		window.open(`/${cleanRoute}?preview=1`, '_blank');
-		return;
-	}
-	// Fallback to ID-based URL if no route
-	const spaceId = currentRoute.params.spaceId;
-	const pageId = activeDoc.value?.name || wikiDoc.doc?.name || props.pageId;
-	if (spaceId && pageId) {
-		window.open(`/wiki/spaces/${spaceId}/page/${pageId}?preview=1`, '_blank');
-	}
-}
-
-function downloadPdf() {
-	// Public PDF export of this article (rendered server-side by headless Chrome).
-	const docRoute = activeDoc.value?.route || wikiDoc.doc?.route;
-	if (!docRoute) return;
-	const cleanRoute = docRoute.replace(/^\//, '');
-	const url = `/api/method/wiki.frappe_wiki.doctype.wiki_document.wiki_document.download_pdf?route=${encodeURIComponent(cleanRoute)}`;
-	window.open(url, '_blank');
+	window.open(`/${wikiDoc.value.doc.route}`, '_blank');
 }
 
 function saveFromHeader() {
 	editorRef.value?.saveToDB();
 }
 
+// Drain dirty buffers for pages other than the one on screen; the open
+// page's saves go through the editor instead.
+async function flushOtherDirtyPages() {
+	if (props.readonly) return;
+	const failures = await draftStore.flushDirtyPages(wikiDoc.value.doc?.doc_key);
+	if (failures.length) {
+		const error = failures[0];
+		toast.error(
+			error?.messages?.[0] || error?.message || __('Error saving draft'),
+		);
+	}
+}
+
 async function saveContent(content) {
-	if (!crStore.currentChangeRequest || !wikiDoc.doc?.doc_key) {
+	if (props.readonly) return;
+	if (!wikiDoc.value.doc?.doc_key) {
 		toast.error(__('No active change request'));
 		return;
 	}
 
 	try {
-		await crStore.updatePage(crStore.currentChangeRequest.name, wikiDoc.doc.doc_key, {
+		await draftStore.saveContent(
+			wikiDoc.value.doc.doc_key,
 			content,
-			title: editableTitle.value,
-		});
-		toast.success(__('Draft updated'));
-		await crStore.loadChanges();
-		emit('refresh');
+			editableTitle.value,
+		);
+		// Refresh the CR overlay snapshot so the panel's title/route/etc.
+		// stay in sync with the change we just wrote. Inline failure UX
+		// lands in task #7.
+		await loadCrPage();
 	} catch (error) {
 		console.error('Error saving change request:', error);
-		toast.error(error.messages?.[0] || __('Error saving draft'));
+		toast.error(
+			error.messages?.[0] || error.message || __('Error saving draft'),
+		);
 	}
 }
-
 </script>

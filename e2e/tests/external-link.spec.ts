@@ -1,4 +1,13 @@
 import { expect, test } from '@playwright/test';
+import {
+	APP_BASE,
+	CHANGE_REQUEST_URL_RE,
+	spaceLinkSelector,
+} from '../helpers/routes';
+import {
+	clickSidebarAddOption,
+	publishChangeRequestFromReview,
+} from '../helpers/wiki';
 
 /**
  * Tests for the external link feature in wiki.
@@ -12,18 +21,16 @@ test.describe('External Links', () => {
 		await page.setViewportSize({ width: 1100, height: 900 });
 
 		// Navigate to wiki and click first space
-		await page.goto('/wiki');
+		await page.goto(APP_BASE);
 		await page.waitForLoadState('networkidle');
 
-		const spaceLink = page.locator('a[href*="/wiki/spaces/"]').first();
+		const spaceLink = page.locator(spaceLinkSelector()).first();
 		await expect(spaceLink).toBeVisible({ timeout: 5000 });
 		await spaceLink.click();
 		await page.waitForLoadState('networkidle');
 
 		// Click the External Link button in the toolbar
-		const externalLinkButton = page.locator('button[title="External Link"]');
-		await expect(externalLinkButton).toBeVisible({ timeout: 5000 });
-		await externalLinkButton.click();
+		await clickSidebarAddOption(page, 'External Link');
 
 		// Fill in the external link dialog
 		const externalLinkTitle = `external-link-${Date.now()}`;
@@ -33,7 +40,7 @@ test.describe('External Links', () => {
 		await page.getByLabel('URL').fill(externalLinkUrl);
 		await page
 			.getByRole('dialog')
-			.getByRole('button', { name: 'Save Draft' })
+			.getByRole('button', { name: 'Save' })
 			.click();
 		await page.waitForLoadState('networkidle');
 
@@ -54,19 +61,17 @@ test.describe('External Links', () => {
 		await page.setViewportSize({ width: 1100, height: 900 });
 
 		// Navigate to wiki and click first space
-		await page.goto('/wiki');
+		await page.goto(APP_BASE);
 		await page.waitForLoadState('networkidle');
 
-		const spaceLink = page.locator('a[href*="/wiki/spaces/"]').first();
+		const spaceLink = page.locator(spaceLinkSelector()).first();
 		await expect(spaceLink).toBeVisible({ timeout: 5000 });
 		const spaceHref = await spaceLink.getAttribute('href');
 		await spaceLink.click();
 		await page.waitForLoadState('networkidle');
 
 		// Create an external link
-		const externalLinkButton = page.locator('button[title="External Link"]');
-		await expect(externalLinkButton).toBeVisible({ timeout: 5000 });
-		await externalLinkButton.click();
+		await clickSidebarAddOption(page, 'External Link');
 
 		const externalLinkTitle = `merged-external-link-${Date.now()}`;
 		const externalLinkUrl = 'https://frappe.io/docs';
@@ -75,20 +80,17 @@ test.describe('External Links', () => {
 		await page.getByLabel('URL').fill(externalLinkUrl);
 		await page
 			.getByRole('dialog')
-			.getByRole('button', { name: 'Save Draft' })
+			.getByRole('button', { name: 'Save' })
 			.click();
 		await page.waitForLoadState('networkidle');
 
 		// Submit for review and merge
 		await page.getByRole('button', { name: 'Submit for Review' }).click();
 		await page.getByRole('button', { name: 'Submit' }).click();
-		await expect(page).toHaveURL(/\/wiki\/change-requests\//, {
+		await expect(page).toHaveURL(CHANGE_REQUEST_URL_RE, {
 			timeout: 10000,
 		});
-		await page.getByRole('button', { name: 'Merge' }).click();
-		await expect(
-			page.locator('text=Change request merged').first(),
-		).toBeVisible({ timeout: 15000 });
+		await publishChangeRequestFromReview(page);
 
 		// Navigate back to space to verify the external link is in the tree after merge
 		if (spaceHref) {
@@ -133,19 +135,17 @@ test.describe('External Links', () => {
 		await page.setViewportSize({ width: 1100, height: 900 });
 
 		// Navigate to wiki and click first space
-		await page.goto('/wiki');
+		await page.goto(APP_BASE);
 		await page.waitForLoadState('networkidle');
 
-		const spaceLink = page.locator('a[href*="/wiki/spaces/"]').first();
+		const spaceLink = page.locator(spaceLinkSelector()).first();
 		await expect(spaceLink).toBeVisible({ timeout: 5000 });
 		const spaceHref = await spaceLink.getAttribute('href');
 		await spaceLink.click();
 		await page.waitForLoadState('networkidle');
 
 		// Create an external link
-		const externalLinkButton = page.locator('button[title="External Link"]');
-		await expect(externalLinkButton).toBeVisible({ timeout: 5000 });
-		await externalLinkButton.click();
+		await clickSidebarAddOption(page, 'External Link');
 
 		const externalLinkTitle = `public-external-link-${Date.now()}`;
 		const externalLinkUrl = 'https://docs.frappe.io';
@@ -154,19 +154,18 @@ test.describe('External Links', () => {
 		await page.getByLabel('URL').fill(externalLinkUrl);
 		await page
 			.getByRole('dialog')
-			.getByRole('button', { name: 'Save Draft' })
+			.getByRole('button', { name: 'Save' })
 			.click();
 		await page.waitForLoadState('networkidle');
 
 		// Also create a regular page so we can access the public view
-		const newPageButton = page.locator('button[title="New Page"]');
-		await newPageButton.click();
+		await clickSidebarAddOption(page, 'New Page');
 
 		const pageTitle = `test-page-${Date.now()}`;
 		await page.getByLabel('Title').fill(pageTitle);
 		await page
 			.getByRole('dialog')
-			.getByRole('button', { name: 'Save Draft' })
+			.getByRole('button', { name: 'Save' })
 			.click();
 		await page.waitForLoadState('networkidle');
 
@@ -178,19 +177,16 @@ test.describe('External Links', () => {
 		await expect(editor).toBeVisible({ timeout: 10000 });
 		await editor.click();
 		await page.keyboard.type('Test page content.');
-		await page.click('button:has-text("Save Draft")');
+		await page.click('button:has-text("Save")');
 		await page.waitForLoadState('networkidle');
 
 		// Submit and merge both items
 		await page.getByRole('button', { name: 'Submit for Review' }).click();
 		await page.getByRole('button', { name: 'Submit' }).click();
-		await expect(page).toHaveURL(/\/wiki\/change-requests\//, {
+		await expect(page).toHaveURL(CHANGE_REQUEST_URL_RE, {
 			timeout: 10000,
 		});
-		await page.getByRole('button', { name: 'Merge' }).click();
-		await expect(
-			page.locator('text=Change request merged').first(),
-		).toBeVisible({ timeout: 15000 });
+		await publishChangeRequestFromReview(page);
 
 		// Navigate back to space and click on the page to get public view
 		if (spaceHref) {

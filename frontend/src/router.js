@@ -78,7 +78,11 @@ const routes = [
 		component: () => import('@/pages/SpaceDetails.vue'),
 		beforeEnter: async (to, from, next) => {
 			try {
-				const resp = await fetch(`/api/method/wiki.api.resolve_wiki_path?path=${encodeURIComponent(to.params.wikiPath)}`);
+				const resp = await fetch(
+					`/api/method/wiki.api.resolve_wiki_path?path=${encodeURIComponent(
+						to.params.wikiPath,
+					)}`,
+				);
 				const data = await resp.json();
 				const spaceId = data?.message?.space_id;
 				const pageId = data?.message?.page_id;
@@ -100,14 +104,18 @@ const routes = [
 					});
 					return;
 				}
-			} catch (e) { /* fallthrough */ }
+			} catch (e) {
+				/* fallthrough */
+			}
 			next({ name: 'SpaceList', replace: true });
 		},
 	},
 ];
 
+// The app's base path. Kept in sync with APP_ROUTE in wiki_document.py (which
+// also feeds website_route_rules) and APP_BASE in e2e/helpers/routes.ts.
 const router = createRouter({
-	history: createWebHistory('/wiki'),
+	history: createWebHistory('/wiki-app'),
 	routes,
 });
 
@@ -126,7 +134,9 @@ router.beforeEach(async (to, from, next) => {
 		isLoggedIn = false;
 	}
 
-	// Routes that require login (editing / reviewing)
+	// Upstream gates the whole SPA behind a login. Neoffice wikis are
+	// public-facing, so only the authoring/reviewing routes require one —
+	// reading a published space stays open to guests.
 	const AUTH_REQUIRED = new Set([
 		'ChangeRequests',
 		'ChangeRequestReview',
@@ -134,7 +144,9 @@ router.beforeEach(async (to, from, next) => {
 	]);
 
 	if (!isLoggedIn && AUTH_REQUIRED.has(to.name)) {
-		window.location.href = `/login?redirect-to=/wiki${encodeURIComponent(to.fullPath)}`;
+		window.location.href = `/login?redirect-to=/wiki-app${encodeURIComponent(
+			to.fullPath,
+		)}`;
 		return;
 	}
 

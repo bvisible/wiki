@@ -1,17 +1,18 @@
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 
 // Shared light/dark theme for the wiki frontend.
 //
 // Default behaviour = follow the OS (`prefers-color-scheme`). A manual toggle
-// persists an explicit choice in localStorage ('wiki-theme'); as long as the
-// user has NOT toggled, the theme tracks the system and reacts to live changes.
-// Applied via `data-theme` on <html>. Singleton module state so every component
-// (Sidebar, SpaceDetails, DiffViewer…) shares the same reactive value.
-
-// New key: the old 'wiki-theme' was auto-written to 'dark' by useStorage's
-// writeDefaults on every visit (NOT a real user choice), which would pin
-// everyone to dark forever. 'wiki-theme-pref' is written ONLY on an explicit
-// toggle, so an untouched browser falls back to the OS theme.
+// persists an explicit choice in localStorage; as long as the user has NOT
+// toggled, the theme tracks the system and reacts to live changes. Applied via
+// `data-theme` on <html>. Singleton module state so every component (Sidebar,
+// MobileAppMenu, SpaceDetails, DiffViewer, Mermaid blocks…) shares the same
+// reactive value.
+//
+// Upstream stores `useStorage('wiki-theme', 'dark')`, whose writeDefaults pins
+// every fresh browser to dark on the first visit — a default, not a choice.
+// 'wiki-theme-pref' is written ONLY on an explicit toggle, so an untouched
+// browser falls back to the OS theme. The legacy key is cleared on load.
 const STORAGE_KEY = 'wiki-theme-pref';
 const LEGACY_KEY = 'wiki-theme';
 try {
@@ -19,18 +20,22 @@ try {
 } catch (_) {
 	/* ignore */
 }
+
 const media =
 	typeof window !== 'undefined' && window.matchMedia
 		? window.matchMedia('(prefers-color-scheme: dark)')
 		: null;
 
 function savedChoice() {
-	const v = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
+	const v =
+		typeof localStorage !== 'undefined'
+			? localStorage.getItem(STORAGE_KEY)
+			: null;
 	return v === 'dark' || v === 'light' ? v : null;
 }
 
 function systemTheme() {
-	return media && media.matches ? 'dark' : 'light';
+	return media?.matches ? 'dark' : 'light';
 }
 
 const theme = ref(savedChoice() || systemTheme());
@@ -54,6 +59,9 @@ if (media) {
 
 export function useTheme() {
 	const isDark = computed(() => theme.value === 'dark');
+	const themeIcon = computed(() =>
+		isDark.value ? 'lucide-sun' : 'lucide-moon',
+	);
 
 	function toggleTheme() {
 		const next = theme.value === 'dark' ? 'light' : 'dark';
@@ -74,5 +82,21 @@ export function useTheme() {
 		applyTheme(systemTheme());
 	}
 
-	return { theme, isDark, toggleTheme, resetToSystem };
+	// Kept for parity with upstream, which calls it from the always-mounted
+	// shell. The module already applied the theme at import time, so this is a
+	// no-op safety net rather than the real entry point.
+	function initTheme() {
+		applyTheme(theme.value);
+	}
+
+	// `userTheme` is upstream's name for the same ref.
+	return {
+		theme,
+		userTheme: theme,
+		isDark,
+		themeIcon,
+		toggleTheme,
+		resetToSystem,
+		initTheme,
+	};
 }

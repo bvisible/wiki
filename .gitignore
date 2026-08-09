@@ -15,11 +15,22 @@ __pycache__/
 # CLAUDE.md  # 2026-05-07 unshipped to document commit-the-build pipeline
 # 2026-05-07 (NORA #28) — frontend build outputs are committed on this branch.
 # See docs/COMMIT-BUILD-PATTERN.md in neoffice-devops.
+# Instances pull the built artifacts and never run `yarn build`, so every
+# generated asset below stays tracked (upstream ignores them all).
 # wiki/public/frontend/
-# wiki/www/wiki.html
-wiki/public/css/tailwind.css
+# wiki/www/wiki-app.html
+# wiki/public/css/tailwind.css
+# wiki/public/css/frappe-ui-tokens.css
+# wiki/public/css/frappe-ui-prose.css
+# wiki/public/css/frappe-ui-code.css
+# wiki/public/js/wiki-highlight.bundle.js
 playwright-report/
 test-results/
 e2e/.auth/
 .env
 screenshots/
+
+# Local design tool for the generated OG card (/og_playground) — renders the
+# real template with live dials. Handy while iterating, not something to ship.
+wiki/www/og_playground.py
+wiki/www/og_playground.html

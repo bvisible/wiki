@@ -38,6 +38,37 @@ class TestMarkdownRenderer(unittest.TestCase):
 		result = render_markdown(md)
 		self.assertIn("<pre><code>yarn install\nyarn dev\n</code></pre>", result)
 
+	def test_mermaid_code_block_renders_as_diagram_container(self):
+		"""Mermaid fenced code blocks should render as diagram containers."""
+		md = "```mermaid\nflowchart TD\n  A[Start] --> B{Done?}\n```\n"
+		result = render_markdown(md)
+
+		self.assertIn('<pre class="mermaid">', result)
+		self.assertIn("flowchart TD", result)
+		self.assertIn("A[Start] --&gt; B{Done?}", result)
+		self.assertNotIn("<code", result)
+
+	def test_mermaid_source_is_html_escaped(self):
+		"""Mermaid source is untrusted; it must be escaped, never emitted as raw HTML.
+
+		Client-side rendering runs under securityLevel:'strict', but the server must
+		still escape so a malicious diagram can't inject markup into the page.
+		"""
+		md = '```mermaid\nflowchart TD\n  A["<script>alert(1)</script>"]\n```\n'
+		result = render_markdown(md)
+
+		self.assertIn('<pre class="mermaid">', result)
+		self.assertNotIn("<script>alert(1)</script>", result)
+		self.assertIn("&lt;script&gt;", result)
+
+	def test_non_mermaid_fence_still_highlights_as_code(self):
+		"""A regular fenced block must remain a normal code block, not a diagram."""
+		md = "```python\nprint('hello')\n```\n"
+		result = render_markdown(md)
+
+		self.assertIn('<pre><code class="language-python">', result)
+		self.assertNotIn('class="mermaid"', result)
+
 
 class TestHeadingSlugGeneration(unittest.TestCase):
 	"""Tests for heading ID/slug generation."""
@@ -413,6 +444,47 @@ class TestImageUrlSpaceEncoding(unittest.TestCase):
 		self.assertNotIn("%2520", result)
 
 
+class TestImageUrlWithParens(unittest.TestCase):
+	"""Frappe uploads commonly produce names like `image (14).png`. CommonMark
+	allows one level of balanced parens in URLs, so the parser handles them
+	natively; only literal spaces still need pre-encoding."""
+
+	def test_image_with_literal_parens(self):
+		content = "![](/files/image (14).png)"
+		result = render_markdown(content)
+		self.assertIn('<img src="/files/image%20(14).png"', result)
+		self.assertNotIn(".png)</p>", result)
+
+	def test_image_with_encoded_space_and_literal_parens(self):
+		"""The form Frappe actually emits: space encoded, parens literal."""
+		content = "![](/files/image%20(14).png)"
+		result = render_markdown(content)
+		self.assertIn('<img src="/files/image%20(14).png"', result)
+		self.assertNotIn(".png)</p>", result)
+
+	def test_image_with_parens_and_alt_and_title(self):
+		content = '![logo](/files/image (24).png "App Logo")'
+		result = render_markdown(content)
+		self.assertIn('<img src="/files/image%20(24).png"', result)
+		self.assertIn('alt="logo"', result)
+		self.assertIn('title="App Logo"', result)
+
+	def test_image_with_parens_inline_in_paragraph(self):
+		"""Image embedded in a sentence still renders as an inline image."""
+		content = "See ![](/files/image (14).png) for context."
+		result = render_markdown(content)
+		self.assertIn('<img src="/files/image%20(14).png"', result)
+		self.assertNotIn(".png) for", result)
+		self.assertIn("See ", result)
+		self.assertIn(" for context.", result)
+
+	def test_multiple_images_with_parens(self):
+		content = "![](/files/image (14).png)\n\nSome text.\n\n![](/files/image (15).png)"
+		result = render_markdown(content)
+		self.assertIn('<img src="/files/image%20(14).png"', result)
+		self.assertIn('<img src="/files/image%20(15).png"', result)
+
+
 class TestRawHTMLRendering(unittest.TestCase):
 	"""Tests for raw HTML rendering in markdown.
 
@@ -677,6 +749,135 @@ More text."""
 			# Verify each heading ID exists in the HTML
 			expected_tag = f'<h{heading["level"]} id="{heading["id"]}">'
 			self.assertIn(expected_tag, html)
+
+
+class TestTocHeadingText(unittest.TestCase):
+	"""TOC labels must keep inline-code headings (regression: they came back empty)."""
+
+	def _texts(self, content):
+		_, headings = render_markdown_with_toc(content)
+		return [h["text"] for h in headings]
+
+	def test_inline_code_heading_keeps_text(self):
+		"""A heading that is entirely inline code still yields a label."""
+		self.assertEqual(self._texts("## `GET /items`\n"), ["GET /items"])
+
+	def test_mixed_code_and_text_heading(self):
+		"""Inline code mixed with plain text is concatenated in order."""
+		self.assertEqual(self._texts("### `POST` and text\n"), ["POST and text"])
+
+	def test_plain_heading_unchanged(self):
+		"""Plain headings are unaffected by the code-aware extraction."""
+		self.assertEqual(self._texts("## Normal Heading\n"), ["Normal Heading"])
+
+
+class TestBlankLinePreservation(unittest.TestCase):
+	"""
+	prose-v3 zeroes paragraph margins, so author blank lines carry the spacing.
+	Counts mirror the editor: a gap of `g` blank lines yields `(g + 1) // 2 - 1`
+	blank paragraphs, or `g // 2` at the start of the document.
+	"""
+
+	def _gaps(self, content):
+		return render_markdown(content).count('class="wiki-blank-line"')
+
+	def test_single_blank_line_is_a_plain_paragraph_break(self):
+		"""The ordinary paragraph separator must not grow a gap."""
+		result = render_markdown("a\n\nb")
+		self.assertNotIn("wiki-blank-line", result)
+		self.assertIn("<p>a</p>\n<p>b</p>", result)
+
+	def test_extra_blank_lines_become_blank_paragraphs(self):
+		self.assertEqual(self._gaps("a\n\n\nb"), 0)
+		self.assertEqual(self._gaps("a\n\n\n\nb"), 1)
+		self.assertEqual(self._gaps("a\n\n\n\n\nb"), 1)
+		self.assertEqual(self._gaps("a\n\n\n\n\n\nb"), 2)
+
+	def test_gap_after_list(self):
+		"""Regression: markdown-it folds trailing blank lines into the list's map,
+		so the gap has to be measured from the *next* block backwards."""
+		self.assertEqual(self._gaps("- a\n- b\n\n\n\n\np"), 1)
+
+	def test_gap_after_other_block_types(self):
+		self.assertEqual(self._gaps("> quoted\n\n\n\nafter"), 1)
+		self.assertEqual(self._gaps("```\ncode\n```\n\n\n\nafter"), 1)
+		self.assertEqual(self._gaps("---\n\n\n\nafter"), 1)
+		self.assertEqual(self._gaps("| a | b |\n| - | - |\n| 1 | 2 |\n\n\n\nafter"), 1)
+		self.assertEqual(self._gaps("## Heading\n\n\n\nafter"), 1)
+		self.assertEqual(self._gaps("<div>raw</div>\n\n\n\nafter"), 1)
+
+	def test_blank_lines_inside_a_fence_are_untouched(self):
+		result = render_markdown("```\ncode\n\nmore\n```")
+		self.assertNotIn("wiki-blank-line", result)
+		self.assertIn("<pre><code>code\n\nmore\n</code></pre>", result)
+
+	def test_blank_lines_inside_a_table_are_untouched(self):
+		content = "| a | b |\n| - | - |\n| 1 | 2 |\n| 3 | 4 |"
+		self.assertEqual(self._gaps(content), 0)
+
+	def test_callout_does_not_inflate_neighbouring_gaps(self):
+		"""Placeholder substitution used to pad with \\n\\n on both sides."""
+		self.assertEqual(self._gaps("before\n\n:::note\nhi\n:::\n\nafter"), 0)
+		self.assertEqual(self._gaps("before\n\n\n\n:::note\nhi\n:::\n\n\n\nafter"), 2)
+
+	def test_video_does_not_inflate_neighbouring_gaps(self):
+		before = "before\n\n![clip](/files/a.mp4)\n\nafter"
+		wide = "before\n\n\n\n![clip](/files/a.mp4)\n\n\n\nafter"
+		self.assertEqual(self._gaps(before), 0)
+		self.assertEqual(self._gaps(wide), 2)
+		self.assertIn("<video", render_markdown(before))
+
+	def test_pdf_does_not_inflate_neighbouring_gaps(self):
+		before = "before\n\n![doc](/files/a.pdf)\n\nafter"
+		wide = "before\n\n\n\n![doc](/files/a.pdf)\n\n\n\nafter"
+		self.assertEqual(self._gaps(before), 0)
+		self.assertEqual(self._gaps(wide), 2)
+		self.assertIn("wiki-pdf-embed", render_markdown(before))
+
+	def test_adjacent_placeholders_do_not_gain_a_gap(self):
+		"""Two custom blocks one newline apart: each side contributes a newline to
+		break the placeholder out as a block, giving three — still one short of the
+		four an author-typed empty paragraph writes, so no gap."""
+		self.assertEqual(self._gaps("![a](/files/a.mp4)\n![b](/files/b.mp4)"), 0)
+		self.assertEqual(self._gaps("![a](/files/a.mp4)\n![b](/files/b.mp4)\n![c](/files/c.mp4)"), 0)
+		self.assertEqual(self._gaps("![a](/files/a.mp4)\n![b](/files/b.pdf)"), 0)
+		self.assertEqual(self._gaps(":::note\nx\n:::\n![a](/files/a.mp4)"), 0)
+		self.assertEqual(self._gaps("![a](/files/a.mp4)\n:::note\nx\n:::"), 0)
+		self.assertEqual(self._gaps(":::note\nx\n:::\n:::tip\ny\n:::"), 0)
+
+	def test_placeholder_glued_to_surrounding_text(self):
+		"""The placeholder still breaks out of the paragraph it was written inside."""
+		result = render_markdown("text\n![a](/files/a.mp4)\ntext2")
+		self.assertNotIn("wiki-blank-line", result)
+		self.assertIn("<video", result)
+		self.assertNotIn("<p>text\n", result.replace("<br />", ""))
+
+	def test_leading_blank_lines(self):
+		self.assertEqual(self._gaps("\n\ntext"), 1)
+		self.assertEqual(self._gaps("\ntext"), 0)
+
+	def test_trailing_blank_lines_are_dropped(self):
+		"""No block to anchor to, and git-synced files often end in stray newlines."""
+		self.assertEqual(self._gaps("text\n\n\n\n"), 0)
+
+	def test_toc_is_unaffected(self):
+		html, headings = render_markdown_with_toc("## A\n\n\n\ntext\n\n## B")
+		self.assertEqual([h["text"] for h in headings], ["A", "B"])
+		self.assertIn('<h2 id="a">A</h2>', html)
+		self.assertIn('<h2 id="b">B</h2>', html)
+		self.assertEqual(html.count('class="wiki-blank-line"'), 1)
+
+	def test_footnote_definitions_do_not_orphan_a_gap(self):
+		"""footnote_tail moves definitions to the end; a gap anchored there would
+		leave a blank paragraph stranded mid-document."""
+		content = "text[^1]\n\n\n\nmore\n\n\n\n[^1]: the note"
+		html = render_markdown(content)
+		self.assertEqual(html.count('class="wiki-blank-line"'), 1)
+		self.assertIn("footnote", html)
+
+	def test_soft_break_renders_as_line_break(self):
+		"""Matches the editor's marked({ breaks: true })."""
+		self.assertIn("<br", render_markdown("line one\nline two"))
 
 
 if __name__ == "__main__":

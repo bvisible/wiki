@@ -1,0 +1,135 @@
+/* Wiki content & editor styles.
+   Extracted from WikiEditor.vue so the read-only WikiContentViewer (preview,
+   review diffs) gets the same styling as the editor. Imported globally in
+   main.js; all rules are class-scoped under .wiki-editor-content /
+   .wiki-editor-container so global load is safe.
+
+   Baseline styling comes from frappe-ui's editor stylesheet (imported via
+   `frappe-ui/editor`) plus the `prose prose-v3` typography EditorContent
+   applies by default: fonts, headings, lists, inline code, blockquotes, hr,
+   paragraph spacing, code-block shell + highlight.js light/dark theme,
+   table cells/selection/wrapper scrolling, task lists, resize cursor. Only
+   wiki-specific rules that frappe-ui doesn't cover live here. */
+
+/* Tippy theme override for slash commands */
+.tippy-box[data-theme~="none"] {
+	background: transparent;
+	border: none;
+	box-shadow: none;
+}
+
+.tippy-box[data-theme~="none"] > .tippy-content {
+	padding: 0;
+}
+
+/* Hidden file input */
+.hidden-file-input {
+	display: none;
+}
+
+/* Wiki Editor Container Styles */
+.wiki-editor-container {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	isolation: isolate; /* Create new stacking context to contain z-index */
+}
+
+/* Editor Content Styles */
+.wiki-editor-content,
+.wiki-editor-content:focus {
+	outline: none;
+}
+
+/* Editing surface: no bounding box — the flush toolbar divider above and the
+   centered column provide the structure. Horizontal padding comes from the
+   column wrapper in WikiEditor.vue. */
+.wiki-editor-content.is-editable {
+	min-height: 480px;
+	padding: 1.5rem 0;
+}
+
+/* Read-only view (reader, preview, review diffs) has no editing chrome, so the
+   route/title header sits flush against content. Restore the same top gap the
+   editor gets from is-editable's padding. */
+.wiki-editor-content:not(.is-editable) {
+	padding-top: 1.5rem;
+}
+
+/* Table column resize handle (frappe-ui styles cells/selection but not the
+   prosemirror-tables drag handle) */
+.wiki-editor-content .column-resize-handle {
+	position: absolute;
+	right: -2px;
+	top: 0;
+	bottom: 0;
+	width: 4px;
+	background-color: #3b82f6;
+	cursor: col-resize;
+	z-index: 10;
+}
+
+/* Completed task items render struck through (frappe-ui styles the list and
+   checkbox, but not the checked state) */
+.wiki-editor-content ul[data-type="taskList"] li[data-checked="true"] > div {
+	color: var(--ink-gray-5, #6b7280);
+	text-decoration: line-through;
+}
+
+/* Task list checkboxes — restyled to match the frappe-ui Checkbox component
+   (sm size). The editor kit's own rule uses a static gray.900 fill that breaks
+   in dark mode; these tokens follow the theme. The @tailwindcss/forms base and
+   the preset's dark-mode check glyph handle the rest. */
+.wiki-editor-content ul[data-type="taskList"] input[type="checkbox"] {
+	width: 0.875rem;
+	height: 0.875rem;
+	border-radius: var(--radius-sm, 4px);
+	border-color: var(--outline-gray-4);
+	background-color: var(--surface-base);
+	color: var(--ink-gray-9);
+	transition:
+		border-color 0.15s ease,
+		box-shadow 0.15s ease;
+}
+
+.wiki-editor-content ul[data-type="taskList"] input[type="checkbox"]:hover {
+	border-color: var(--outline-gray-7);
+	box-shadow: var(--elevation-sm);
+}
+
+.wiki-editor-content ul[data-type="taskList"] input[type="checkbox"]:checked {
+	background-color: currentColor;
+	border-color: transparent;
+}
+
+/* Image styling */
+.wiki-editor-content img {
+	max-width: 100%;
+	height: auto;
+	border: 1px solid var(--ink-gray-3);
+	border-radius: 0.375rem;
+}
+
+/* Image caption styling using img + em pattern
+   Usage in markdown:
+   ![alt text](image.jpg)
+   *caption text*
+   (no blank line between image and caption)
+*/
+.wiki-editor-content img:has(+ em) {
+	margin-bottom: 0;
+}
+
+.wiki-editor-content img + em {
+	display: block;
+	margin-top: 0.25rem;
+	font-size: 0.875rem;
+	color: var(--ink-gray-6, #4b5563);
+	text-align: center;
+}
+
+/* Selected node */
+.wiki-editor-content .ProseMirror-selectednode {
+	outline: 2px solid var(--primary, #171717);
+	outline-offset: 2px;
+}
