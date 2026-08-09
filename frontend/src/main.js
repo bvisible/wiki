@@ -5,7 +5,7 @@ import router from './router';
 import { initSocket } from './socket';
 import { pinia } from './stores';
 
-import translationPlugin from './translation';
+import translationPlugin, { translationsReady } from './translation';
 
 import {
 	Alert,
@@ -51,4 +51,10 @@ for (const key in globalComponents) {
 	app.component(key, globalComponents[key]);
 }
 
-app.mount('#app');
+//// Neoffice — mount AFTER the translations land. __() is not reactive: any
+//// component rendered before the fetch resolves keeps its English labels for
+//// the life of the page, which is why a fully translated fr.po still showed an
+//// English UI. One round-trip, and the app is actually in French.
+translationsReady().then(() => {
+	app.mount('#app');
+});
