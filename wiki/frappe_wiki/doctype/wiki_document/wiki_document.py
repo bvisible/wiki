@@ -549,8 +549,11 @@ class WikiDocument(NestedSet):
 		Returns a path rather than an absolute URL so MetaTags absolutizes it
 		through get_url() -- that is what keeps it right on custom domains.
 		"""
-		from wiki.api.og_image import _og_context, og_fingerprint
+		from wiki.api.og_image import _og_context, og_fingerprint, og_images_supported
 
+		if not og_images_supported():
+			# Frappe v15 has no frappe.utils.preview; no card can be rendered.
+			return None
 		if self.is_group or self.is_external_link or not self.is_published or not self.route:
 			return None
 		if not frappe.get_cached_value("Wiki Settings", "Wiki Settings", "auto_generate_meta_images"):

@@ -22,8 +22,17 @@ import re
 import frappe
 from frappe import _
 from frappe.rate_limiter import rate_limit
-from frappe.utils.preview import get_preview_from_html
 from werkzeug.wrappers import Response
+
+try:
+	from frappe.utils.preview import get_preview_from_html
+except ImportError:
+	# frappe.utils.preview does not exist on Frappe v15, which the Neoffice
+	# fleet runs. Import failure here used to take down the whole public
+	# reader: get_web_context() -> get_og_image_url() -> this module. Degrade
+	# to "no OG card" instead — pages render, they just don't get a preview
+	# image. `og_images_supported()` is what the rest of the app asks.
+	get_preview_from_html = None
 
 # Bumped whenever the card template or its token block changes; it is part of
 # the cache fingerprint, so a bump invalidates every cached card for free.
@@ -261,7 +270,17 @@ def render_og_html(ctx: dict) -> str:
 	return frappe.render_template("templates/wiki/og_image.html", ctx)
 
 
+def og_images_supported() -> bool:
+	"""Whether this Frappe exposes the headless renderer OG cards need."""
+	return get_preview_from_html is not None
+
+
 def generate_og_bytes(ctx: dict) -> bytes:
+	if not og_images_supported():
+		frappe.throw(
+			_("Generated meta images require a Frappe version with frappe.utils.preview."),
+			frappe.DoesNotExistError,
+		)
 	return get_preview_from_html(render_og_html(ctx), format="jpg", width=OG_WIDTH, height=OG_HEIGHT)
 
 
