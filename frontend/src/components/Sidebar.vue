@@ -42,7 +42,9 @@ const route = useRoute();
 const router = useRouter();
 const sessionStore = useSessionStore();
 const userStore = useUserStore();
-const isGuest = computed(() => !userStore.data?.is_logged_in);
+//// Neoffice — added. Anonymous visitors and signed-in users without a wiki
+//// role read alike.
+const isReader = computed(() => !userStore.isWikiEditor);
 const { open: openWikiSettings } = useWikiSettings();
 
 const { themeIcon, toggleTheme } = useTheme();
@@ -60,16 +62,17 @@ const headerMenuItems = computed(() => [
 			]
 		: []),
 	{ label: __('Toggle Theme'), icon: themeIcon.value, onClick: toggleTheme },
-	// Nothing to log out of when browsing as a guest.
-	...(isGuest.value
+	//// Neoffice — nothing to log out of when browsing anonymously.
+	...(isReader.value
 		? []
 		: [{ label: __('Log out'), icon: 'lucide-log-out', onClick: logout }]),
 ]);
 
-// Change Requests need an account; guests only get the reading entry point.
+//// Neoffice — change requests need a wiki role; readers only get the reading
+//// entry point.
 const navItems = computed(() => [
 	{ label: __('Spaces'), icon: 'lucide-rocket', to: { name: 'SpaceList' } },
-	...(isGuest.value
+	...(isReader.value
 		? []
 		: [
 				{

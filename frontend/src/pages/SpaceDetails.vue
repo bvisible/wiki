@@ -56,10 +56,10 @@
                 </Button>
             </template>
         </SpaceChromeBar>
-        <!-- Guests have nothing to contribute from: no draft, no change
-             request, no settings. -->
+        <!-- //// Neoffice — readers have nothing to contribute from: no draft,
+             no change request, no settings. -->
         <ContributionBanner
-            v-else-if="!isGuest"
+            v-else-if="!isReader"
             :mergeDisabled="isTreeReordering"
             :space-name="space.doc?.space_name || spaceId"
             :space-route="space.doc?.route"
@@ -365,16 +365,19 @@ function openSettings() {
 	showSettingsDialog.value = true;
 }
 
-const isGuest = computed(
-	() => !userStore.data?.is_logged_in || route.query.preview === '1',
+//// Neoffice — added. Readers are anonymous visitors AND signed-in users
+//// without a wiki role (portal customers), plus anyone previewing.
+const isReader = computed(
+	() => !userStore.isWikiEditor || route.query.preview === '1',
 );
 
-// Guests can't read Wiki Space through frappe.client.get, so they go through
-// the published-only endpoint. Exposed as `.doc` so the rest of the component
-// doesn't care which source it came from; the whitelisted methods are all
-// editor actions a guest can never trigger.
+//// Neoffice — added branch. Readers can't read Wiki Space through
+//// frappe.client.get (403), so they go through our published-only endpoint.
+//// Exposed as `.doc` so the rest of the component doesn't care which source it
+//// came from; the whitelisted methods are all editor actions a reader can
+//// never trigger.
 function makeSpaceResource() {
-	if (isGuest.value) {
+	if (isReader.value) {
 		const res = createResource({
 			url: 'wiki.api.wiki_space.get_public_space_info',
 			makeParams: () => ({ space_id: props.spaceId }),
@@ -409,10 +412,11 @@ const space = makeSpaceResource();
 // live tree instead of a CR.
 const isGitSynced = computed(() => Boolean(space.doc?.git_synced));
 
-// Guests read through the very same path: no change request, no editing, tree
-// sourced from the published live tree. Everything downstream keys off this
-// rather than isGitSynced, which stays reserved for GitHub-specific chrome.
-const isReadOnly = computed(() => isGitSynced.value || isGuest.value);
+//// Neoffice — added. Readers go through upstream's very own read-only path:
+//// no change request, no editing, tree sourced from the published live tree.
+//// Everything downstream keys off this rather than isGitSynced, which stays
+//// reserved for GitHub-specific chrome.
+const isReadOnly = computed(() => isGitSynced.value || isReader.value);
 
 // "Pending"/"Running" are transient internal states; show one friendly label.
 function syncStatusLabel(status) {
@@ -438,19 +442,19 @@ const capabilitiesResource = createResource({
 watch(
 	() => props.spaceId,
 	(id) => {
-		// The capabilities endpoint needs a session; a guest can never manage
-		// tabs anyway, so skip the call rather than eat a 403.
-		if (id && !isGuest.value) capabilitiesResource.submit({ space: id });
+		//// Neoffice — the capabilities endpoint needs a session; a reader can
+		//// never manage tabs anyway, so skip the call rather than eat a 403.
+		if (id && !isReader.value) capabilitiesResource.submit({ space: id });
 	},
 	{ immediate: true },
 );
 
-// Guests get 403 on get_wiki_tree — v3 gates it behind the space's read
-// permission — so they read the same tree through the published-only endpoint,
-// which nests it under `.tree`. Both take `space_id`, so the load path below is
-// shared.
+//// Neoffice — readers get 403 on get_wiki_tree (v3 gates it behind the
+//// space's read permission), so they read the same tree through our
+//// published-only endpoint, which nests it under `.tree`. Both take
+//// `space_id`, so the load path below is shared.
 const readonlyTreeResource = createResource({
-	url: isGuest.value
+	url: isReader.value
 		? 'wiki.api.wiki_space.get_public_space_info'
 		: 'wiki.api.wiki_space.get_wiki_tree',
 });
@@ -483,8 +487,8 @@ function adaptReadonlyNode(node) {
 
 const readonlyTreeData = computed(() => {
 	const raw = readonlyTreeResource.data;
-	// get_public_space_info wraps the same payload as {space, tree}.
-	const data = isGuest.value ? raw?.tree : raw;
+	//// Neoffice — get_public_space_info wraps the same payload as {space, tree}.
+	const data = isReader.value ? raw?.tree : raw;
 	if (!data) return null;
 	return {
 		root_group: data.root_group || '',
@@ -843,8 +847,8 @@ watch(
 watch(
 	() => space.doc,
 	async (doc) => {
-		// Guests take the same read-only path — no CR to hydrate a tree from.
-		if (!doc || !(doc.git_synced || isGuest.value)) return;
+		//// Neoffice — readers take the same read-only path: no CR to hydrate from.
+		if (!doc || !(doc.git_synced || isReader.value)) return;
 		await loadReadonlyTree();
 		if (!doc.git_synced) return; // guest: nothing to sync
 		// First-ever sync of a freshly-created space: kick it once, silently —

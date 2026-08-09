@@ -34,10 +34,11 @@
 			</MobileShell>
 			<DesktopShell v-else class="wiki-desktop-shell h-full">
 				<template #sidebar>
-					<!-- Shared Neoffice chrome (ADR-015); it falls back to the native
-					     Sidebar on its own if the cockpit fails to boot. Guests skip it
-					     outright — the cockpit boot endpoint denies them anyway. -->
-					<NeoCockpitWikiSidebar v-if="!isGuest" />
+					<!-- //// Neoffice — added. Shared Neoffice chrome (ADR-015); it falls
+					     back to the native Sidebar on its own if the cockpit fails to
+					     boot. Readers skip it outright — the cockpit boot endpoint
+					     denies them anyway. -->
+					<NeoCockpitWikiSidebar v-if="!isReader" />
 					<Sidebar v-else />
 				</template>
 				<slot></slot>
@@ -101,8 +102,10 @@ const { initTheme } = useTheme();
 
 const isLoading = computed(() => userStore.isLoading);
 const hasAccess = computed(() => userStore.canAccessWiki);
-const isGuest = computed(
-	() => !userStore.data?.is_logged_in || route.query.preview === '1',
+//// Neoffice — added. Readers are anonymous visitors AND signed-in users
+//// without a wiki role (portal customers), plus anyone previewing.
+const isReader = computed(
+	() => !userStore.isWikiEditor || route.query.preview === '1',
 );
 
 // Spaces stays lit across every space route (list + space details).

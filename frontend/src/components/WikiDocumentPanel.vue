@@ -1,8 +1,9 @@
 <template>
 	<div class="h-full flex flex-col">
 		<DefineActions>
-			<!-- Server-side PDF of this article (headless Chrome). Offered on any
-			     real page, including to guests reading a published space. -->
+			<!-- //// Neoffice — added button. Server-side PDF of this article
+			     (headless Chrome). Offered on any real page, including to readers
+			     of a published space. -->
 			<Button
 				v-if="wikiDoc.doc?.route && !wikiDoc.doc?.is_group"
 				variant="ghost"
@@ -205,17 +206,19 @@ const showPageSettingsDialog = ref(false);
 const crStore = useChangeRequestStore();
 const draftStore = useDraftWorkspaceStore();
 const userStore = useUserStore();
-const isGuest = computed(() => !userStore.data?.is_logged_in);
+//// Neoffice — added. Anonymous visitors and signed-in users without a wiki
+//// role read alike.
+const isReader = computed(() => !userStore.isWikiEditor);
 
 // frappe-ui caches document resources by (doctype, name), so revisiting an
 // already-opened page renders instantly from the cached doc while `auto`
 // kicks off a background revalidation (stale-while-revalidate). One resource
 // per page — mutating a shared resource's `name` would block on the refetch.
 function makeWikiDocResource(pageId) {
-	if (isGuest.value) {
-		// Guests can't read Wiki Document through frappe.client.get. The
-		// published-only endpoint returns the same document shape; exposing it
-		// as `.doc` keeps the rest of this component source-agnostic.
+	if (isReader.value) {
+		//// Neoffice — readers can't read Wiki Document through frappe.client.get
+		//// (403). Our published-only endpoint returns the same document shape;
+		//// exposing it as `.doc` keeps the rest of this component source-agnostic.
 		const res = createResource({
 			url: 'wiki.api.wiki_space.get_public_document',
 			makeParams: () => ({ doc_key: pageId }),
@@ -238,7 +241,8 @@ function makeWikiDocResource(pageId) {
 	});
 }
 
-// Public PDF export of this article, rendered server-side by headless Chrome.
+//// Neoffice — added. Public PDF export of this article, rendered server-side
+//// by headless Chrome (see the PDF button in the actions bar above).
 function downloadPdf() {
 	const docRoute = wikiDoc.value?.doc?.route;
 	if (!docRoute) return;

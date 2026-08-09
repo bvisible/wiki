@@ -333,7 +333,10 @@ const router = useRouter();
 const userStore = useUserStore();
 const { isMobile } = useMobile();
 const isManager = computed(() => userStore.isWikiManager);
-const isGuest = computed(() => !userStore.data?.is_logged_in);
+//// Neoffice — added. Readers are anonymous visitors AND signed-in users
+//// without a wiki role (portal customers): same read-only view, same
+//// guest-safe endpoints.
+const isReader = computed(() => !userStore.isWikiEditor);
 
 const showCreateDialog = ref(false);
 const routeManuallyEdited = ref(false);
@@ -581,15 +584,15 @@ function handleRouteInput(value) {
 	if (value) formError.value = '';
 }
 
-// Guests only ever see published spaces, so the Status column carries no
-// information for them — it is dropped rather than shown as a constant.
+//// Neoffice — readers only ever see published spaces, so the Status column
+//// carries no information for them: dropped rather than shown as a constant.
 const columns = computed(() => [
 	{
 		label: __('Name'),
 		key: 'space_name',
 		width: 2,
 	},
-	...(isGuest.value
+	...(isReader.value
 		? []
 		: [
 				{
@@ -627,14 +630,15 @@ function viewSpace(row) {
 	window.open(`/${row.route}`, '_blank', 'noopener');
 }
 
-// Guests can't reach `frappe.client.get_list` on Wiki Space, so they read the
-// published-only whitelisted endpoint instead. It is wrapped in a shim exposing
-// the slice of the list-resource surface this component's template touches
-// (data / list.loading / hasNextPage / next / insert) — guests get everything
-// in one page and never create, so pagination and insert are inert.
+//// Neoffice — readers can't reach `frappe.client.get_list` on Wiki Space
+//// (403), so they read our published-only endpoint instead. It is wrapped in a
+//// shim exposing the slice of the list-resource surface this component's
+//// template touches (data / list.loading / hasNextPage / next / insert):
+//// readers get everything in one page and never create, so pagination and
+//// insert are inert.
 const publicSpaces = createResource({
 	url: 'wiki.api.list_public_spaces',
-	auto: isGuest.value,
+	auto: isReader.value,
 });
 
 const guestSpacesShim = {
@@ -649,7 +653,7 @@ const guestSpacesShim = {
 	reload: () => publicSpaces.reload(),
 };
 
-const spaces = isGuest.value
+const spaces = isReader.value
 	? guestSpacesShim
 	: createListResource({
 	doctype: 'Wiki Space',
@@ -684,7 +688,7 @@ const spaces = isGuest.value
 
 let searchDebounceTimer = null;
 watch(searchQuery, (value) => {
-	if (isGuest.value) return; // guest list is unpaginated and unfiltered
+	if (isReader.value) return; //// Neoffice — reader list is unpaginated
 	clearTimeout(searchDebounceTimer);
 	searchDebounceTimer = setTimeout(() => {
 		spaces.update({

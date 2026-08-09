@@ -58,8 +58,9 @@ def set_space_contributions(space_id: str, allow: int | str | bool) -> bool:
 	return bool(value)
 
 
-# allow_guest: public spaces are browsable without login on Neoffice wikis.
-# check_permission("read") below still gates access to non-public spaces.
+#//// Neoffice — allow_guest added (upstream: @frappe.whitelist()). Neoffice wikis
+#//// are public-facing: a visitor with no account browses published spaces. The
+#//// check_permission("read") below is untouched and still gates private spaces.
 @frappe.whitelist(allow_guest=True)
 def get_wiki_tree(space_id: str) -> dict:
 	"""Get the tree structure of Wiki Documents for a given Wiki Space."""
@@ -318,6 +319,11 @@ def _rebuild_wiki_node(doctype: str, name: str, left: int, parent_field: str) ->
 
 
 
+#//// Neoffice — added (no upstream equivalent). Readers without a wiki role —
+#//// anonymous visitors and portal Website Users alike — cannot go through
+#//// frappe.client.get on Wiki Space nor get_wiki_tree (both 403). This serves
+#//// the same payload restricted to PUBLISHED spaces, so the SPA can render a
+#//// public wiki for them. Keep the is_published filter: it is the whole guard.
 @frappe.whitelist(allow_guest=True)
 def get_public_space_info(space_id: str) -> dict:
 	"""Return Wiki Space info + tree for guest/public access. Only published spaces."""
@@ -366,6 +372,9 @@ def get_public_space_info(space_id: str) -> dict:
 	return {"space": space, "tree": {"children": root_nodes, "root_group": space.root_group}}
 
 
+#//// Neoffice — added (no upstream equivalent). Same reason as
+#//// get_public_space_info: readers can't reach Wiki Document through
+#//// frappe.client.get. Published + non-private only.
 @frappe.whitelist(allow_guest=True)
 def get_public_document(doc_key: str) -> dict:
 	"""Return a single Wiki Document if public + published (guest-safe)."""
@@ -380,9 +389,9 @@ def get_public_document(doc_key: str) -> dict:
 			"parent_wiki_document",
 			"is_group",
 			"sort_order",
-			# Always 1 given the filter above, but the reader renders a
-			# publication badge from it — omitting it labelled every public
-			# page "Not Published" to guests.
+			#//// Neoffice — is_published is always 1 given the filter above, but
+			#//// the reader renders its publication badge from this field:
+			#//// omitting it labelled every public page "Not Published".
 			"is_published",
 		],
 		as_dict=True,

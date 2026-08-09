@@ -47,7 +47,9 @@ const lastGoodSvg = ref('');
 const errorMessage = ref('');
 const isRendering = ref(false);
 
-// Theme is the same signal the rest of the SPA uses (see Sidebar.vue /
+//// Neoffice — was useStorage('wiki-theme', 'dark') read directly here, which
+//// bypassed our OS-following theme and re-pinned this component to dark.
+//// Theme is the same signal the rest of the SPA uses (see Sidebar.vue /
 // DiffViewer.vue): the shared useTheme() ref, mirrored to <html data-theme>.
 // We re-render on flips so the diagram picks up the freshly-resolved Frappe UI
 // tokens (the theme itself comes from getMermaidThemeConfig(), not this value).

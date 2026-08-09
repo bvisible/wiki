@@ -1,3 +1,7 @@
+<!-- //// Neoffice — added file (no upstream equivalent). Mounts the shared
+     Neoffice chrome (NeoCockpit) in place of the native frappe-ui Sidebar, so
+     the wiki carries the same navigation as every other Neoffice surface.
+     ADR-015. -->
 <template>
   <div
     ref="host"

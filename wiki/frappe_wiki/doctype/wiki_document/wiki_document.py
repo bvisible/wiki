@@ -551,8 +551,9 @@ class WikiDocument(NestedSet):
 		"""
 		from wiki.api.og_image import _og_context, og_fingerprint, og_images_supported
 
+		#//// Neoffice — no renderer on Frappe v15 (see wiki/api/og_image.py), so
+		#//// advertise no OG card rather than a URL that cannot be produced.
 		if not og_images_supported():
-			# Frappe v15 has no frappe.utils.preview; no card can be rendered.
 			return None
 		if self.is_group or self.is_external_link or not self.is_published or not self.route:
 			return None

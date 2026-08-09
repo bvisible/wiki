@@ -68,7 +68,10 @@ const routes = [
 		],
 	},
 	{
-		// Pretty URL routing. Catches anything not matched by /spaces, /change-requests, etc.
+		//// Neoffice — added route. Pretty URL routing: our wikis are linked as
+		//// /wiki/<space>/<page> everywhere (docs, NORA, emails), never by
+		//// internal IDs. Catches anything not matched by /spaces,
+		//// /change-requests, etc. and resolves it through resolve_wiki_path().
 		// Examples:
 		//   /wiki/rh                            -> space "RH" (first page auto-opened)
 		//   /wiki/rh/configuration-assurances   -> specific page in RH space
@@ -134,24 +137,35 @@ router.beforeEach(async (to, from, next) => {
 		isLoggedIn = false;
 	}
 
-	// Upstream gates the whole SPA behind a login. Neoffice wikis are
-	// public-facing, so only the authoring/reviewing routes require one —
-	// reading a published space stays open to guests.
-	const AUTH_REQUIRED = new Set([
+	//// Neoffice — rewritten guard. Upstream bounces EVERY route to /login when
+	//// signed out. Neoffice wikis are public-facing, so only the
+	//// authoring/reviewing routes are gated; reading a published space stays
+	//// open to anyone.
+	const EDITOR_ONLY = new Set([
 		'ChangeRequests',
 		'ChangeRequestReview',
 		'DraftChangeRequest',
 	]);
 
-	if (!isLoggedIn && AUTH_REQUIRED.has(to.name)) {
-		window.location.href = `/login?redirect-to=/wiki-app${encodeURIComponent(
-			to.fullPath,
-		)}`;
-		return;
+	if (EDITOR_ONLY.has(to.name)) {
+		if (!isLoggedIn) {
+			window.location.href = `/login?redirect-to=/wiki-app${encodeURIComponent(
+				to.fullPath,
+			)}`;
+			return;
+		}
+		//// Neoffice — signed in but with no wiki role (portal Website User):
+		//// logging in again would not help, so send them to what they can
+		//// actually read instead of bouncing them through /login forever.
+		if (!userStore.isWikiEditor) {
+			next({ name: 'SpaceList', replace: true });
+			return;
+		}
 	}
 
-	// Guests land directly in the first public space instead of the intermediate Space List
-	if (!isLoggedIn && to.name === 'SpaceList') {
+	//// Neoffice — added. Readers land directly in the first public space rather
+	//// than on the Space List, which for them lists that one space anyway.
+	if (!userStore.isWikiEditor && to.name === 'SpaceList') {
 		try {
 			const { createResource } = await import('frappe-ui');
 			const res = createResource({ url: 'wiki.api.list_public_spaces' });

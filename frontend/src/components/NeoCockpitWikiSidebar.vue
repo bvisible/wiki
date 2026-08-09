@@ -1,3 +1,6 @@
+<!-- //// Neoffice — added file (no upstream equivalent). Wiki flavour of the
+     shared Neoffice chrome; falls back to upstream's own Sidebar when the
+     cockpit cannot boot, so the app never loses its navigation. ADR-015. -->
 <template>
 	<Sidebar v-if="failed" />
 	<NeoCockpitBridge

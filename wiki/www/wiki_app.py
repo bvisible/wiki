@@ -5,6 +5,9 @@ import frappe
 from frappe.utils import get_system_timezone
 
 no_cache = 1
+#//// Neoffice — added: the SPA shell itself is served to visitors without an
+#//// account. Neoffice wikis are public-facing; the data behind it is still
+#//// filtered per space by the API.
 allow_guest = 1
 sitemap = 0
 
@@ -12,8 +15,9 @@ ROBOTS_DIRECTIVE = "noindex, nofollow"
 
 
 def get_context():
-	# Set noindex header only if the running Frappe exposes response_headers
-	# (API absent on Frappe < ~15.9x); keep wiki working on older versions.
+	#//// Neoffice — upstream calls frappe.local.response_headers.set() directly.
+	#//// That attribute does not exist before Frappe ~15.9x and raised on older
+	#//// instances of the fleet, so read it defensively.
 	response_headers = getattr(frappe.local, "response_headers", None)
 	if response_headers is not None:
 		response_headers.set("X-Robots-Tag", ROBOTS_DIRECTIVE)

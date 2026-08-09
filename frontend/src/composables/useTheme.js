@@ -1,3 +1,9 @@
+//// Neoffice — rewritten wholesale. Upstream stores useStorage('wiki-theme',
+//// 'dark'), whose writeDefaults writes "dark" on the FIRST visit of every
+//// browser: indistinguishable from a real choice, so everyone was pinned to
+//// dark forever. Ours follows the OS until the user actually toggles.
+//// Upstream's API (userTheme / themeIcon / toggleTheme / initTheme) is kept so
+//// its own components keep working unmodified.
 import { computed, ref } from 'vue';
 
 // Shared light/dark theme for the wiki frontend.

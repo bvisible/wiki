@@ -18,7 +18,8 @@
                     <span class="wiki-image-loading-text">Uploading…</span>
                 </div>
             </div>
-            <!-- Size controls shown when the image is selected and editable -->
+            <!-- //// Neoffice — added. Upstream has no way to resize an image;
+                 authors were pasting screenshots that rendered full-bleed. -->
             <div v-if="selected && isEditable" class="wiki-image-size-controls">
                 <button
                     v-for="opt in sizeOptions"
@@ -59,7 +60,8 @@
             />
         </div>
 
-        <!-- Lightbox overlay (read mode only) -->
+        <!-- //// Neoffice — added. Readers need to enlarge screenshots; the
+             image is capped at 860px in the flow. Read mode only. -->
         <Teleport to="body">
             <div v-if="showLightbox" class="wiki-lightbox-overlay" @click="closeLightbox">
                 <button class="wiki-lightbox-close" @click.stop="closeLightbox">&times;</button>
@@ -106,6 +108,9 @@ const props = defineProps({
 const isEditable = useNodeViewEditable(props.editor);
 const captionInput = ref(null);
 const caption = ref(props.node.attrs.caption || '');
+//// Neoffice — everything from here to setCustomWidth() is ours: image size
+//// presets, a free px width, and a read-mode lightbox. Upstream renders images
+//// at their natural size with no controls.
 const showLightbox = ref(false);
 
 const sizeOptions = [
@@ -313,7 +318,7 @@ function handleKeydown(event) {
     display: none;
 }
 
-/* Size controls */
+/* //// Neoffice — styles for the added size controls */
 .wiki-image-size-controls {
     display: flex;
     align-items: center;
@@ -380,7 +385,8 @@ function handleKeydown(event) {
 </style>
 
 <style>
-/* Lightbox styles — global (not scoped) so the Teleport'd markup is styled. */
+/* //// Neoffice — lightbox styles. Global (not scoped) on purpose: the markup
+   is Teleport'd to <body>, where scoped attributes do not reach it. */
 .wiki-lightbox-overlay {
     position: fixed;
     inset: 0;

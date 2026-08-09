@@ -1,4 +1,6 @@
-"""Keep the bare /wiki URL working after the v3 rename to /wiki-app.
+"""//// Neoffice — added file (no upstream equivalent).
+
+Keep the bare /wiki URL working after the v3 rename to /wiki-app.
 
 v3 moved the editor SPA from /wiki to /wiki-app, so /wiki now 404s. That URL is
 published on Neoffice instances — neoffice_theme boots it as

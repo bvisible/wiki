@@ -24,5 +24,7 @@ wiki.wiki.doctype.wiki_space.patches.set_allow_contributions_default
 wiki.frappe_wiki.doctype.wiki_revision.patches.mark_hashes_stale_for_metadata_hashing
 execute:frappe.db.set_single_value('Wiki Settings', 'auto_generate_meta_images', 1) #2026-07-25
 execute:from wiki.frappe_wiki.doctype.wiki_document.wiki_document import clear_wiki_content_cache; clear_wiki_content_cache() #2026-07-28-blank-lines
+#//// Neoffice — patches below are ours; keep them last so an upstream merge
+#//// appends its own above and this block stays identifiable.
 wiki.frappe_wiki.doctype.wiki_revision_item.patches.add_revision_doc_key_index
 wiki.frappe_wiki.patches.redirect_bare_wiki_route_to_app

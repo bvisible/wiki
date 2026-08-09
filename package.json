@@ -14,6 +14,7 @@
   "scripts": {
     "postinstall": "cd frontend && yarn install",
     "dev": "cd frontend && yarn dev",
+    "_comment_neoffice": "//// Neoffice — `build` is gated: instances pull pre-built artifacts and must NOT rebuild (4 GB RAM = OOM-kill). Upstream `build` is kept verbatim as `build:force`. Set FORCE_REBUILD=1 to force it.",
     "build": "if [ -d 'wiki/public/frontend/assets' ] && [ -z \"$FORCE_REBUILD\" ]; then echo '[skip-build] pre-built artifacts present at wiki/public/frontend/assets (set FORCE_REBUILD=1 to force rebuild)'; else yarn build:force; fi",
     "build:force": "yarn tailwind:build && cd frontend && yarn build",
     "theme:generate": "node scripts/generate-public-theme.mjs && node scripts/generate-public-prose.mjs && node scripts/generate-public-lucide.mjs",

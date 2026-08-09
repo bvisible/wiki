@@ -1,4 +1,6 @@
-"""Add a composite index on (revision, doc_key) for Wiki Revision Item.
+"""//// Neoffice — added file (no upstream equivalent).
+
+Add a composite index on (revision, doc_key) for Wiki Revision Item.
 
 The Change Request read path (get_cr_page / diff_change_request) looks up
 revision items by {revision, doc_key}. Without an index on these columns every

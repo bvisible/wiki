@@ -55,6 +55,14 @@ def get_translations():
 	return get_all_translations(language)
 
 
+#//// Neoffice — everything from here to resolve_wiki_path() is ours; upstream
+#//// has no equivalent. Two needs it serves:
+#////   1. readers (anonymous or portal Website Users) can't list Wiki Space
+#////      through frappe.client.get_list — this exposes the published ones only;
+#////   2. pretty URLs: our wikis are linked as /wiki/<space>/<page>, which the
+#////      SPA resolves through resolve_wiki_path() instead of internal IDs.
+#//// ignore_permissions is deliberate and safe HERE because the filter already
+#//// restricts the rows to published + switcher-visible spaces.
 @frappe.whitelist(allow_guest=True)
 def list_public_spaces():
 	"""Return published Wiki Spaces visible to everyone (guest-safe)."""

@@ -25,12 +25,12 @@ export const useUserStore = defineStore('user', () => {
 		);
 	});
 
-	const canAccessWiki = computed(() => {
+	//// Neoffice — added. Holds one of the wiki authoring roles. Everyone else —
+	//// anonymous visitors and signed-in portal users alike — is a reader.
+	//// Components key their read-only behaviour off this, not off is_logged_in.
+	const isWikiEditor = computed(() => {
 		const user = userResource.data;
-		if (!user) return false;
-		// Allow guests to access public wikis (permissions enforced on API side)
-		if (!user.is_logged_in) return true;
-		if (!user.roles) return false;
+		if (!user?.is_logged_in || !user.roles) return false;
 		return user.roles.some(
 			(role) =>
 				role.role === 'Wiki User' ||
@@ -39,9 +39,17 @@ export const useUserStore = defineStore('user', () => {
 		);
 	});
 
-	const shouldUseChangeRequestMode = computed(() => {
-		return Boolean(userResource.data?.is_logged_in);
-	});
+	//// Neoffice — rewritten. Upstream gated the app shell on holding an
+	//// authoring role, which made a signed-in Website User (portal customer, no
+	//// wiki role) hit "Access Denied" on a wiki an anonymous visitor reads
+	//// fine — signing in made you see LESS. Reaching the shell is not a
+	//// permission: the API filters every payload per space. Anyone whose user
+	//// info loaded may enter; what they see and do is decided per space.
+	const canAccessWiki = computed(() => Boolean(userResource.data));
+
+	//// Neoffice — was Boolean(is_logged_in). Change requests need an authoring
+	//// role, not merely an account.
+	const shouldUseChangeRequestMode = computed(() => isWikiEditor.value);
 
 	function fetch() {
 		return userResource.fetch();
@@ -61,6 +69,7 @@ export const useUserStore = defineStore('user', () => {
 		roles,
 		isLoading,
 		isWikiManager,
+		isWikiEditor,
 		canAccessWiki,
 		shouldUseChangeRequestMode,
 		fetch,
