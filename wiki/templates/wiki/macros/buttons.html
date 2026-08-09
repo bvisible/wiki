@@ -1,3 +1,6 @@
+{# //// Neoffice — user-facing strings wrapped in _() so they land in the POT
+   and get translated. Upstream ships them hardcoded in English, which left the
+   whole public reader untranslatable. #}
 {% macro dropdown_end() %}
         </div>
     </div>
@@ -38,7 +41,7 @@
             {% endif %}
             <!-- Dropdown toggle button -->
             <button @click="open = !open"
-                    aria-label="More page actions"
+                    aria-label="{{ _("More page actions") }}"
                     :aria-expanded="open"
                     class="{{ split_segment }} w-8 border-l border-[var(--outline-gray-2)] cursor-pointer">
                 <span class="inline-flex" :class="{ 'rotate-180': open }">{{ render_icon("chevron-down", "transition-transform duration-200") }}</span>
@@ -78,7 +81,7 @@
     </span>
     <div class="flex-1 min-w-0">
         <div class="truncate" x-text="downloadInProgress ? 'Preparing…' : 'Download'"></div>
-        <div class="truncate text-p-sm text-[var(--ink-gray-5)]">Download this page as a PDF</div>
+        <div class="truncate text-p-sm text-[var(--ink-gray-5)]">{{ _("Download this page as a PDF") }}</div>
     </div>
 </button>
 {% endmacro %}

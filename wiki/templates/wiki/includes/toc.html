@@ -1,3 +1,6 @@
+{# //// Neoffice — user-facing strings wrapped in _() so they land in the POT
+   and get translated. Upstream ships them hardcoded in English, which left the
+   whole public reader untranslatable. #}
 <!-- Table of Contents (Right Sidebar) - Server-rendered for reliability -->
 {#- Mirrors frappe-ui docs' OnThisPage (vitepress/components/Docs/OnThisPage.vue):
     a faint left rail per link, the active heading darkening its own segment.
@@ -14,7 +17,7 @@
        Mirrored by the nav-store's SPA re-render in includes/sidebar.html — edit both. #}
     <nav class="sticky top-[calc(var(--wiki-chrome-h)+24px)] max-h-[calc(100vh-var(--wiki-chrome-h)-4rem)] overflow-y-auto no-scrollbar flex flex-col leading-relaxed">
         <!-- Transparent border keeps the label on the same left edge as the links. -->
-        <span class="font-medium whitespace-nowrap pl-4 pb-1 border-l border-transparent">On this page</span>
+        <span class="font-medium whitespace-nowrap pl-4 pb-1 border-l border-transparent">{{ _("On this page") }}</span>
         {% for heading in toc_headings %}
         <a href="#{{ heading.id }}"
            data-toc-link="{{ heading.id }}"

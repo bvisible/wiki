@@ -246,7 +246,9 @@
                 // Update last updated
                 const lastUpdatedEl = document.getElementById('wiki-last-updated');
                 if (lastUpdatedEl) {
-                    lastUpdatedEl.textContent = 'Last updated ' + data.last_updated;
+                    //// Neoffice — was the English literal 'Last updated '; translated here so
+                    //// the SPA-navigated update matches the server-rendered label.
+                    lastUpdatedEl.textContent = {{ _("Last updated {0}") | tojson }}.replace('{0}', data.last_updated);
                     if (data.last_updated_on) {
                         lastUpdatedEl.setAttribute('title', data.last_updated_on);
                         lastUpdatedEl.setAttribute('data-timestamp', data.last_updated_on);
