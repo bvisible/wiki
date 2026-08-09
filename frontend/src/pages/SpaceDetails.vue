@@ -445,8 +445,14 @@ watch(
 	{ immediate: true },
 );
 
+// Guests get 403 on get_wiki_tree — v3 gates it behind the space's read
+// permission — so they read the same tree through the published-only endpoint,
+// which nests it under `.tree`. Both take `space_id`, so the load path below is
+// shared.
 const readonlyTreeResource = createResource({
-	url: 'wiki.api.wiki_space.get_wiki_tree',
+	url: isGuest.value
+		? 'wiki.api.wiki_space.get_public_space_info'
+		: 'wiki.api.wiki_space.get_wiki_tree',
 });
 
 // The space the loaded readonly tree belongs to. This component is reused across
@@ -476,7 +482,9 @@ function adaptReadonlyNode(node) {
 }
 
 const readonlyTreeData = computed(() => {
-	const data = readonlyTreeResource.data;
+	const raw = readonlyTreeResource.data;
+	// get_public_space_info wraps the same payload as {space, tree}.
+	const data = isGuest.value ? raw?.tree : raw;
 	if (!data) return null;
 	return {
 		root_group: data.root_group || '',
@@ -835,8 +843,10 @@ watch(
 watch(
 	() => space.doc,
 	async (doc) => {
-		if (!doc || !doc.git_synced) return;
+		// Guests take the same read-only path — no CR to hydrate a tree from.
+		if (!doc || !(doc.git_synced || isGuest.value)) return;
 		await loadReadonlyTree();
+		if (!doc.git_synced) return; // guest: nothing to sync
 		// First-ever sync of a freshly-created space: kick it once, silently —
 		// the "created successfully" toast already covers the action, and the
 		// status badge reflects progress. The guard stops a double-enqueue.
@@ -853,7 +863,7 @@ watch(
 );
 
 async function refreshTree() {
-	if (isGitSynced.value) {
+	if (isReadOnly.value) {
 		await loadReadonlyTree();
 		return;
 	}
