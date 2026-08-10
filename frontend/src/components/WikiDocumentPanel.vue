@@ -62,12 +62,19 @@
 									@keydown.enter="$event.target.blur()"
 								/>
 								<div class="flex shrink-0 items-center gap-2 pt-2">
-									<Badge v-if="displayPublished" variant="subtle" theme="green" size="sm">
-										{{ __('Published') }}
-									</Badge>
-									<Badge v-else variant="subtle" theme="orange" size="sm">
-										{{ __('Not Published') }}
-									</Badge>
+									<!-- //// Neoffice — gated on !readonly. Published/Not Published is
+									     editorial state: it tells an author whether their work is live.
+									     A reader (anonymous visitor or portal user) can only ever reach
+									     published pages, so the badge says nothing to them and leaks how
+									     we run the wiki. Upstream renders it unconditionally. -->
+									<template v-if="!readonly">
+										<Badge v-if="displayPublished" variant="subtle" theme="green" size="sm">
+											{{ __('Published') }}
+										</Badge>
+										<Badge v-else variant="subtle" theme="orange" size="sm">
+											{{ __('Not Published') }}
+										</Badge>
+									</template>
 									<Badge v-if="!readonly && hasChangeForCurrentPage" variant="subtle" theme="blue" size="sm">
 										{{ __('Has Draft Changes') }}
 									</Badge>

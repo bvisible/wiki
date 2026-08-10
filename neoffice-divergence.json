@@ -1,0 +1,181 @@
+{
+  "_comment": "Inventory of this fork's divergence from frappe/wiki. Regenerate with: python3 scripts/neoffice-divergence.py --update. A dropped entry is a Neoffice change that an upstream merge ate.",
+  "marked_blocks": 93,
+  "files": {
+    ".github/workflows/neoffice-divergence.yml": [
+      "added file (no upstream equivalent)."
+    ],
+    ".gitignore": [
+      "commit-the-build: upstream ignores every generated asset"
+    ],
+    "frontend/index.html": [
+      "brand. Upstream ships \"Frappe Wiki\"; this title is what a"
+    ],
+    "frontend/src/components/NeoCockpitBridge.vue": [
+      "added file (no upstream equivalent). Mounts the shared"
+    ],
+    "frontend/src/components/NeoCockpitWikiSidebar.vue": [
+      "added file (no upstream equivalent). Wiki flavour of the"
+    ],
+    "frontend/src/components/Sidebar.vue": [
+      "\"Wiki\", not \"Frappe Wiki\": we ship this under the",
+      "added. Anonymous visitors and signed-in users without a wiki",
+      "nothing to log out of when browsing anonymously.",
+      "change requests need a wiki role; readers only get the reading"
+    ],
+    "frontend/src/components/SpaceList.vue": [
+      "added. Readers are anonymous visitors AND signed-in users",
+      "readers only ever see published spaces, so the Status column",
+      "readers can't reach `frappe.client.get_list` on Wiki Space",
+      "reader list is unpaginated"
+    ],
+    "frontend/src/components/SpaceTreePanel.vue": [
+      "the space name is a switcher, the way the public",
+      "added. The theme toggle used to sit in this header and",
+      "gated on canManageTabs (the space's can_write). Upstream",
+      "added. Spaces to offer in the header switcher. The parent",
+      "everything below is ours: the space switcher and the theme"
+    ],
+    "frontend/src/components/WikiDocumentPanel.vue": [
+      "added button. Server-side PDF of this article",
+      "gated on !readonly. Published/Not Published is",
+      "added. Anonymous visitors and signed-in users without a wiki",
+      "readers can't read Wiki Document through frappe.client.get",
+      "added. Public PDF export of this article, rendered server-side"
+    ],
+    "frontend/src/components/tiptap-extensions/ImageNodeView.vue": [
+      "added. Upstream has no way to resize an image;",
+      "added. Readers need to enlarge screenshots; the",
+      "everything from here to setCustomWidth() is ours: image size",
+      "styles for the added size controls */",
+      "lightbox styles. Global (not scoped) on purpose: the markup"
+    ],
+    "frontend/src/components/tiptap-extensions/MermaidBlockView.vue": [
+      "was useStorage('wiki-theme', 'dark') read directly here, which"
+    ],
+    "frontend/src/composables/useTheme.js": [
+      "rewritten wholesale. Upstream stores useStorage('wiki-theme',"
+    ],
+    "frontend/src/layouts/MainLayout.vue": [
+      "added. Shared Neoffice chrome (ADR-015); it falls",
+      "added. Readers are anonymous visitors AND signed-in users"
+    ],
+    "frontend/src/main.js": [
+      "mount AFTER the translations land. __() is not reactive: any"
+    ],
+    "frontend/src/pages/SpaceDetails.vue": [
+      "readers have nothing to contribute from: no draft,",
+      "added. Readers are anonymous visitors AND signed-in users",
+      "added branch. Readers can't read Wiki Space through",
+      "added. Readers go through upstream's very own read-only path:",
+      "the capabilities endpoint needs a session; a reader can",
+      "added. Feeds the space switcher in the tree panel's header (we",
+      "readers get 403 on get_wiki_tree (v3 gates it behind the",
+      "get_public_space_info wraps the same payload as {space, tree}.",
+      "readers take the same read-only path: no CR to hydrate from."
+    ],
+    "frontend/src/router.js": [
+      "added route. Pretty URL routing: our wikis are linked as",
+      "rewritten guard. Upstream bounces EVERY route to /login when",
+      "signed in but with no wiki role (portal Website User):",
+      "added. Readers land directly in the first public space rather"
+    ],
+    "frontend/src/stores/user.js": [
+      "added. Holds one of the wiki authoring roles. Everyone else —",
+      "rewritten. Upstream gated the app shell on holding an",
+      "was Boolean(is_logged_in). Change requests need an authoring"
+    ],
+    "frontend/src/translation.js": [
+      "added. translate() reads window.translatedMessages at render",
+      "returns the resource (upstream discarded it) so"
+    ],
+    "scripts/neoffice-divergence.py": [
+      "added file (no upstream equivalent).",
+      "` at the time — the marking"
+    ],
+    "wiki/api/__init__.py": [
+      "everything from here to resolve_wiki_path() is ours; upstream",
+      "ignore_permissions is safe ONLY because can_read_space()",
+      "this used to return every published space to anyone. It fed"
+    ],
+    "wiki/api/og_image.py": [
+      "guard the frappe.utils.preview import (upstream imports it bare).",
+      "added: lets callers ask whether OG cards can be rendered at all",
+      "bail out explicitly when the renderer is missing (v15), so a"
+    ],
+    "wiki/api/wiki_space.py": [
+      "allow_guest added (upstream: @frappe.whitelist()). Neoffice wikis",
+      "added (no upstream equivalent). Readers without a wiki role —",
+      "enforce the space's own access rules. Filtering on",
+      "added (no upstream equivalent). Same reason as",
+      "is_published is always 1 given the filter above, but",
+      "a published page still belongs to a space; check that space"
+    ],
+    "wiki/frappe_wiki/doctype/wiki_document/test_wiki_document.py": [
+      "added test (no upstream equivalent). Upstream's switcher query",
+      "added test (no upstream equivalent). Upstream offers the Edit"
+    ],
+    "wiki/frappe_wiki/doctype/wiki_document/wiki_document.py": [
+      "added (upstream inlined a bare frappe.get_all in",
+      "\" (is_published=0) to anonymous visitors — the content 404'd, but",
+      "never offer Edit to an anonymous visitor. Upstream shows it",
+      "no renderer on Frappe v15 (see wiki/api/og_image.py), so"
+    ],
+    "wiki/frappe_wiki/doctype/wiki_revision_item/patches/add_revision_doc_key_index.py": [
+      "added file (no upstream equivalent)."
+    ],
+    "wiki/frappe_wiki/patches/init_public_read_from_guest_role.py": [
+      "added file (no upstream equivalent)."
+    ],
+    "wiki/frappe_wiki/patches/redirect_bare_wiki_route_to_app.py": [
+      "added file (no upstream equivalent)."
+    ],
+    "wiki/hooks.py": [
+      "note, not code. v3 moved the editor SPA from /wiki to /wiki-app,"
+    ],
+    "wiki/patches.txt": [
+      "patches below are ours; keep them last so an upstream merge"
+    ],
+    "wiki/permissions.py": [
+      "added. Master switch for anonymous access, off by default.",
+      "anonymous visitors get nothing while the master switch is"
+    ],
+    "wiki/templates/wiki/document.html": [
+      "user-facing strings wrapped in _() so they land in the POT",
+      "neo-wiki-article added. Hook for our reader CSS, which"
+    ],
+    "wiki/templates/wiki/includes/feedback_widget.html": [
+      "user-facing strings wrapped in _() so they land in the"
+    ],
+    "wiki/templates/wiki/includes/header.html": [
+      "user-facing strings wrapped in _() so they land in the POT"
+    ],
+    "wiki/templates/wiki/includes/mobile_header.html": [
+      "user-facing strings wrapped in _() so they land in the POT"
+    ],
+    "wiki/templates/wiki/includes/sidebar.html": [
+      "was the English literal 'Last updated '; translated here so"
+    ],
+    "wiki/templates/wiki/includes/toc.html": [
+      "user-facing strings wrapped in _() so they land in the POT"
+    ],
+    "wiki/templates/wiki/layout.html": [
+      "brand. Upstream falls back to \"Frappe Wiki\"; this reader is",
+      "added. Reader styling of ours (wider articles, image size"
+    ],
+    "wiki/templates/wiki/macros/buttons.html": [
+      "user-facing strings wrapped in _() so they land in the POT"
+    ],
+    "wiki/wiki/doctype/wiki_space/wiki_space.py": [
+      "added. \"Public\" upstream means a Guest row buried in the"
+    ],
+    "wiki/www/wiki-app.html": [
+      "brand. Upstream ships \"Frappe Wiki\"; this title is what a"
+    ],
+    "wiki/www/wiki_app.py": [
+      "added: the SPA shell is served to visitors without an account",
+      "no anonymous access while the wiki is private: send them to",
+      "upstream calls frappe.local.response_headers.set() directly."
+    ]
+  }
+}

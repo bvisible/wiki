@@ -109,6 +109,7 @@
                     :selected-draft-key="currentDraftKey"
                     :can-manage-tabs="canManageTabs"
                     :compact-header="treeHeaderCompact"
+                    :spaces="switcherSpaces"
                     @refresh="refreshTree"
                     @reorder-state-change="handleReorderStateChange"
                     @open-settings="openSettings"
@@ -141,6 +142,7 @@
                     :selected-draft-key="currentDraftKey"
                     :can-manage-tabs="canManageTabs"
                     :compact-header="treeHeaderCompact"
+                    :spaces="switcherSpaces"
                     @refresh="refreshTree"
                     @reorder-state-change="handleReorderStateChange"
                     @open-settings="openSettings"
@@ -448,6 +450,28 @@ watch(
 	},
 	{ immediate: true },
 );
+
+//// Neoffice — added. Feeds the space switcher in the tree panel's header (we
+//// had it pre-merge; it lived in this file's header, which upstream rewrote
+//// into SpaceTreePanel.vue, so it went out with the container). Readers cannot
+//// list Wiki Space through frappe.client.get_list — 403 — so they go through
+//// our guest-safe endpoint, which returns published spaces the caller may
+//// actually read. Never widen this to a plain get_list: that is precisely how
+//// a client instance would advertise its internal spaces to the open internet.
+const spacesForSwitcher = createResource({
+	url: isReader.value ? 'wiki.api.list_public_spaces' : 'frappe.client.get_list',
+	params: isReader.value
+		? {}
+		: {
+				doctype: 'Wiki Space',
+				fields: ['name', 'space_name', 'route'],
+				order_by: 'switcher_order asc, space_name asc',
+				limit_page_length: 0,
+			},
+	auto: true,
+});
+
+const switcherSpaces = computed(() => spacesForSwitcher.data || []);
 
 //// Neoffice — readers get 403 on get_wiki_tree (v3 gates it behind the
 //// space's read permission), so they read the same tree through our

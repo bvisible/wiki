@@ -1,0 +1,145 @@
+/*
+ * //// Neoffice — added file (no upstream equivalent).
+ *
+ * Reader styling for the Neoffice manual: wider articles, image size and
+ * alignment classes, figure captions.
+ *
+ * These rules used to live in `wiki/public/scss/wiki_custom.scss`, imported by
+ * `wiki/public/scss/wiki.bundle.scss`. Upstream deleted that bundle in
+ * `2068826 feat: Frappe UI Starter`, which reached us through an earlier sync:
+ * the SCSS file survived, its only import point did not, and the rules stopped
+ * being compiled or served without a single merge conflict. They were dead for
+ * months before anyone noticed. Plain CSS in `public/css` now, cache-busted by
+ * `get_asset_hash()` in layout.html — nothing to compile, nothing to import,
+ * so there is no build step left for an upstream commit to remove.
+ *
+ * Selectors target the v3 reader: `#wiki-content` is the rendered markdown
+ * container (see templates/wiki/document.html) and `.neo-wiki-article` is the
+ * article wrapper we tag there.
+ */
+
+/* ============================================================
+ * 1. Wider article content
+ *    Documentation here is screenshot-heavy; upstream's 100ch column cuts
+ *    every capture in half.
+ * ============================================================ */
+
+@media (min-width: 1280px) {
+	.neo-wiki-article {
+		max-width: 1100px !important;
+	}
+}
+
+@media (min-width: 1400px) {
+	.neo-wiki-article {
+		max-width: 1280px !important;
+	}
+}
+
+/* ============================================================
+ * 2. Image defaults — responsive, never wider than the column
+ * ============================================================ */
+
+#wiki-content img {
+	max-width: 100%;
+	height: auto;
+	border-radius: 8px;
+	margin: 1.5rem auto;
+	display: block;
+}
+
+/* ============================================================
+ * 3. Size classes — authors set these on the <img> in the page source
+ * ============================================================ */
+
+#wiki-content img.img-xs {
+	max-width: 240px;
+}
+
+#wiki-content img.img-sm {
+	max-width: 400px;
+}
+
+#wiki-content img.img-md {
+	max-width: 640px;
+}
+
+#wiki-content img.img-lg {
+	max-width: 900px;
+}
+
+#wiki-content img.img-full {
+	width: 100%;
+	max-width: 960px;
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+}
+
+/* ============================================================
+ * 4. Alignment helpers
+ * ============================================================ */
+
+#wiki-content img.img-center {
+	margin-left: auto;
+	margin-right: auto;
+	display: block;
+	float: none;
+}
+
+#wiki-content img.img-left {
+	float: left;
+	margin: 0.5rem 1.5rem 1rem 0;
+}
+
+#wiki-content img.img-right {
+	float: right;
+	margin: 0.5rem 0 1rem 1.5rem;
+}
+
+/* ============================================================
+ * 5. Border / shadow variants
+ *    The shadow is opt-in: the v3 reader already frames images, and stacking
+ *    two frames on a dark theme reads as a rendering fault.
+ * ============================================================ */
+
+#wiki-content img.img-shadow {
+	box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+}
+
+#wiki-content img.img-bordered {
+	border: 1px solid var(--outline-gray-2, #e5e7eb);
+}
+
+#wiki-content img.img-no-shadow {
+	box-shadow: none;
+}
+
+/* ============================================================
+ * 6. Figures with captions
+ * ============================================================ */
+
+#wiki-content figure {
+	margin: 2rem auto;
+	text-align: center;
+	max-width: 100%;
+}
+
+#wiki-content figure img {
+	margin: 0 auto 0.5rem;
+}
+
+#wiki-content figcaption {
+	font-size: 0.85rem;
+	color: var(--ink-gray-5, #6b7280);
+	font-style: italic;
+	margin-top: 0.5rem;
+	line-height: 1.4;
+}
+
+/* Clear floats left by img-left / img-right so the next block starts below. */
+#wiki-content p::after {
+	content: "";
+	display: table;
+	clear: both;
+}

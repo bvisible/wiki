@@ -6,13 +6,35 @@
 			v-if="!compactHeader"
 			class="flex h-12 shrink-0 items-center gap-1 border-b border-outline-gray-2 px-2"
 		>
-			<Button
-				variant="ghost"
-				icon="arrow-left"
-				:title="__('Back to Spaces')"
-				:route="{ name: 'SpaceList' }"
-			/>
-			<div class="min-w-0 flex-1">
+			<!-- //// Neoffice — the space name is a switcher, the way the public
+			     reader's navbar already works. Upstream offers a lone back arrow to
+			     the Spaces list, which is a dead end for a reader and one click too
+			     many for everyone else. We had this dropdown before the v3 merge; it
+			     lived in SpaceDetails.vue, in the header region upstream rewrote
+			     into this component, so it went out with the container. -->
+			<Dropdown
+				v-if="switcherOptions.length > 1"
+				:options="switcherOptions"
+				placement="bottom-start"
+				class="min-w-0 flex-1"
+			>
+				<button
+					type="button"
+					class="flex w-full min-w-0 items-center gap-1 rounded px-1 py-1 text-left hover:bg-surface-gray-3"
+					:title="__('Switch wiki space')"
+				>
+					<span class="min-w-0 flex-1">
+						<span class="block truncate text-base-medium leading-none text-ink-gray-8">
+							{{ spaceName || spaceId }}
+						</span>
+						<span class="mt-0.5 block truncate text-sm leading-none text-ink-gray-6">
+							{{ spaceRoute }}
+						</span>
+					</span>
+					<span class="lucide-chevron-down size-4 shrink-0 text-ink-gray-5" aria-hidden="true" />
+				</button>
+			</Dropdown>
+			<div v-else class="min-w-0 flex-1 px-1">
 				<div class="truncate text-base-medium leading-none text-ink-gray-8">
 					{{ spaceName || spaceId }}
 				</div>
@@ -27,7 +49,25 @@
 				:title="__('View Space')"
 				:link="'/' + spaceRoute"
 			/>
+			<!-- //// Neoffice — added. The theme toggle used to sit in this header and
+			     was reachable by everyone. Upstream moved it into the app sidebar,
+			     which MainLayout does not mount for a reader — so readers lost the
+			     ability to switch to dark at all. -->
 			<Button
+				variant="ghost"
+				:icon="themeIcon"
+				:title="__('Toggle Theme')"
+				@click="toggleTheme"
+			/>
+			<!-- //// Neoffice — gated on canManageTabs (the space's can_write). Upstream
+			     renders this gear unconditionally: on neoservice an anonymous visitor
+			     got the full Space Settings panel — Published toggle, feedback widget,
+			     logo upload, bulk route rewrite, Clone space, and the Permissions tab.
+			     The writes were refused server-side, but none of it is a reader's
+			     business. Our pre-merge guard (v-if="!isGuest") lived in
+			     SpaceDetails.vue and did not survive the v3 header refactor. -->
+			<Button
+				v-if="canManageTabs"
 				variant="ghost"
 				icon="settings"
 				:title="__('Settings')"
@@ -82,11 +122,14 @@
 </template>
 
 <script setup>
-import { Button, Skeleton } from 'frappe-ui';
+import { Button, Dropdown, Skeleton } from 'frappe-ui';
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 
+import { useTheme } from '../composables/useTheme';
 import WikiDocumentList from './WikiDocumentList.vue';
 
-defineProps({
+const props = defineProps({
 	spaceId: { type: String, required: true },
 	spaceName: { type: String, default: '' },
 	spaceRoute: { type: String, default: '' },
@@ -103,7 +146,40 @@ defineProps({
 	// is currently being browsed.
 	spaceRootNode: { type: String, default: '' },
 	compactHeader: { type: Boolean, default: false },
+	//// Neoffice — added. Spaces to offer in the header switcher. The parent
+	//// fetches them, because only it knows whether the caller is a reader (and
+	//// so which endpoint is allowed to answer).
+	spaces: { type: Array, default: () => [] },
 });
 
 const emit = defineEmits(['refresh', 'reorder-state-change', 'open-settings']);
+
+//// Neoffice — everything below is ours: the space switcher and the theme
+//// toggle that used to live in this header before the v3 refactor.
+const router = useRouter();
+const { themeIcon, toggleTheme } = useTheme();
+
+const switcherOptions = computed(() => {
+	const options = (props.spaces || []).map((space) => ({
+		label: space.space_name || space.name,
+		//// The active space is marked rather than hidden, so the list always
+		//// answers "where am I" as well as "where can I go".
+		icon: space.name === props.spaceId ? 'check' : null,
+		onClick: () => {
+			if (space.name === props.spaceId) return;
+			router.push({ name: 'SpaceDetails', params: { spaceId: space.name } });
+		},
+	}));
+
+	//// Readers have no Spaces list to go back to — it is an authoring screen.
+	if (!props.readonly) {
+		options.push({
+			label: __('All spaces'),
+			icon: 'grid',
+			onClick: () => router.push({ name: 'SpaceList' }),
+		});
+	}
+
+	return options;
+});
 </script>

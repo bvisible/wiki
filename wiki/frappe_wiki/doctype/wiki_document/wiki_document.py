@@ -330,15 +330,60 @@ class WikiDocument(NestedSet):
 			return None
 		return build_github_edit_url(space.repo_full_name, space.branch, self.source_path)
 
+	#//// Neoffice — added (upstream inlined a bare frappe.get_all in
+	#//// get_web_context). Upstream's query filtered on show_in_switcher alone:
+	#//// no is_published, no access check, no permission gate. On neoservice that
+	#//// listed "NORA Knowledge Base" (is_published=0, public_read=0) and "Aide
+	#//// Neoffice" (is_published=0) to anonymous visitors — the content 404'd, but
+	#//// the names, the routes and, through the space redirect, the slug of each
+	#//// space's first page were handed to the open internet. Same rule as
+	#//// wiki.api.list_public_spaces now: published, then can_read_space().
+	def _spaces_for_switcher(self, current_space: str) -> list[dict]:
+		"""Spaces to offer in the reader's switcher, restricted to what the caller may read."""
+		from wiki.permissions import can_read_space
+
+		spaces = frappe.get_all(
+			"Wiki Space",
+			fields=[
+				"name",
+				"space_name",
+				"route",
+				"is_published",
+				"light_mode_logo",
+				"app_switcher_logo",
+			],
+			or_filters={"show_in_switcher": 1, "name": current_space},
+			order_by="switcher_order asc, space_name asc",
+			# Safe only because the comprehension below filters every row: the Wiki
+			# Space permission query would otherwise hide rows a guest may read.
+			ignore_permissions=True,
+		)
+		# The space being read stays in the list even when unpublished — an author
+		# previewing a draft space still needs "you are here". A reader never gets
+		# that far: check_space_access() has already 404'd them.
+		return [
+			s
+			for s in spaces
+			if (s.is_published or s.name == current_space) and can_read_space(s.name)
+		]
+
 	def _can_show_edit(self, wiki_space_doc, user=None) -> bool:
 		"""Whether to render the reader's Edit button for the current user.
 
-		Shown when the space accepts contributions (anyone, including anonymous
-		visitors who then hit the login redirect — unchanged) or when the user has
-		write/merge access (managers always see Edit even with contributions off).
+		Shown when the space accepts contributions or when the user has write/merge
+		access (managers always see Edit even with contributions off).
 		"""
 		from wiki.permissions import _space_accepts_contributions, can_write_space
 		from wiki.wiki.git_sync import build_github_edit_url
+
+		#//// Neoffice — never offer Edit to an anonymous visitor. Upstream shows it
+		#//// to everyone and lets the click land on a login redirect; on our public
+		#//// manual that is a button no visitor can use, and it walked them into
+		#//// /wiki-app — the authoring SPA — where they met the space settings gear.
+		#//// _space_accepts_contributions() treats a NULL flag as enabled, so every
+		#//// space we have was showing it. Signed-in users are unaffected.
+		if (user or frappe.session.user) == "Guest":
+			return False
 
 		# Git-synced pages are edited on GitHub (the button links straight there),
 		# so wiki-side roles don't apply — but folder-only groups have no source
@@ -521,12 +566,7 @@ class WikiDocument(NestedSet):
 			{
 				"wiki_space": wiki_space_doc,
 				"can_edit": self._can_show_edit(wiki_space_doc),
-				"wiki_spaces_for_switcher": frappe.get_all(
-					"Wiki Space",
-					fields=["name", "space_name", "route", "light_mode_logo", "app_switcher_logo"],
-					or_filters={"show_in_switcher": 1, "name": wiki_space["name"]},
-					order_by="switcher_order asc, space_name asc",
-				),
+				"wiki_spaces_for_switcher": self._spaces_for_switcher(wiki_space["name"]),
 				"navbar_items": process_navbar_items(wiki_space_doc.navbar_items)
 				if wiki_space_doc.navbar_items
 				else [],

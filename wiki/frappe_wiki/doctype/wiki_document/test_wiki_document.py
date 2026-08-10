@@ -272,6 +272,56 @@ class TestGetWebContext(WikiDocumentTestBase):
 		# At least our 2 visible test spaces should be included
 		self.assertGreaterEqual(len(switcher_spaces), 2)
 
+	#//// Neoffice — added test (no upstream equivalent). Upstream's switcher query
+	#//// filtered on show_in_switcher alone, with no is_published and no access
+	#//// check. On neoservice that published the names and routes of two internal
+	#//// spaces to anonymous visitors. This test is the guard: it fails the moment
+	#//// an upstream merge widens the query again.
+	def test_switcher_excludes_unpublished_spaces(self):
+		"""An unpublished space never appears in another space's switcher."""
+		root_current = create_test_wiki_document(self, "Root Current Space", is_group=True)
+		doc_current = create_test_wiki_document(self, "Doc in Current", parent=root_current.name)
+
+		root_draft = create_test_wiki_document(self, "Root Draft Space", is_group=True)
+		create_test_wiki_document(self, "Doc in Draft", parent=root_draft.name)
+
+		create_test_wiki_space(self, "Current Space", "current-space", root_current.name)
+		# Visible in the switcher, but not published: exactly the shape that leaked.
+		create_test_wiki_space(
+			self,
+			"Draft Space",
+			"draft-space",
+			root_draft.name,
+			show_in_switcher=True,
+			is_published=False,
+		)
+
+		doc_current.reload()
+		space_names = [s["space_name"] for s in doc_current.get_web_context()["wiki_spaces_for_switcher"]]
+
+		self.assertNotIn("Draft Space", space_names)
+		self.assertIn("Current Space", space_names)
+
+	#//// Neoffice — added test (no upstream equivalent). Upstream offers the Edit
+	#//// button to everyone and lets the click land on a login redirect; that is
+	#//// what walked anonymous visitors into the authoring SPA and its settings
+	#//// gear. Signed-in users must keep the button, so both halves are asserted.
+	def test_edit_button_hidden_from_anonymous_visitor(self):
+		"""The reader's Edit button is never rendered for Guest."""
+		root = create_test_wiki_document(self, "Root Edit Guard", is_group=True)
+		doc = create_test_wiki_document(self, "Doc Edit Guard", parent=root.name)
+		space = create_test_wiki_space(self, "Edit Guard Space", "edit-guard", root.name)
+		space_doc = frappe.get_doc("Wiki Space", space.name)
+
+		doc.reload()
+		self.assertTrue(doc._can_show_edit(space_doc), "a signed-in user keeps the Edit button")
+
+		frappe.set_user("Guest")
+		try:
+			self.assertFalse(doc._can_show_edit(space_doc))
+		finally:
+			frappe.set_user("Administrator")
+
 	def test_orphan_document_without_wiki_space(self):
 		"""
 		Test that get_web_context handles a document that is not associated

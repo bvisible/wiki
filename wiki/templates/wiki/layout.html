@@ -4,9 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {# //// Neoffice — brand. Upstream falls back to "Frappe Wiki"; this reader is
+       public-facing, so the fallback shows an upstream product name to our
+       clients in the browser tab and in search results. #}
     <title>
         {% block title %}
-        {{_("Frappe Wiki")}}
+        {{ wiki_space.space_name if wiki_space and wiki_space.space_name else _("Wiki Neoffice") }}
         {% endblock %}
     </title>
 
@@ -20,6 +23,14 @@
     {% endif %}
 
     <link rel="stylesheet" href="/assets/wiki/css/tailwind.css?v={{get_tailwindcss_hash()}}">
+
+    {# //// Neoffice — added. Reader styling of ours (wider articles, image size
+       and alignment classes, figure captions). Must come AFTER tailwind.css so
+       our rules win. It is a plain committed CSS file on purpose: the previous
+       home for these rules was an SCSS partial imported by wiki.bundle.scss,
+       and when upstream deleted that bundle the partial went on existing while
+       nothing compiled it — the styles vanished silently for months. #}
+    <link rel="stylesheet" href="/assets/wiki/css/neoffice-wiki.css?v={{ get_asset_hash('public/css/neoffice-wiki.css') }}">
 
     <!-- Hide x-cloak elements until Alpine loads -->
     <style>
