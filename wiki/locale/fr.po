@@ -3254,6 +3254,11 @@ msgstr "Soumettre pour révision"
 msgid "Success"
 msgstr "Succès"
 
+#. Space switcher entry that leaves for the Spaces list (editors only)
+#: frontend/src/components/SpaceTreePanel.vue
+msgid "All spaces"
+msgstr "Tous les espaces"
+
 #: wiki/templates/wiki/includes/header.html:29
 #: wiki/templates/wiki/includes/mobile_header.html:155
 msgid "Switch wiki space"
