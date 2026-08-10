@@ -1,6 +1,6 @@
 {
   "_comment": "Inventory of this fork's divergence from frappe/wiki. Regenerate with: python3 scripts/neoffice-divergence.py --update. A dropped entry is a Neoffice change that an upstream merge ate.",
-  "marked_blocks": 93,
+  "marked_blocks": 94,
   "files": {
     ".github/workflows/neoffice-divergence.yml": [
       "added file (no upstream equivalent)."
@@ -10,6 +10,9 @@
     ],
     "frontend/index.html": [
       "brand. Upstream ships \"Frappe Wiki\"; this title is what a"
+    ],
+    "frontend/src/App.vue": [
+      "added. SpaceDetails reads props.spaceId once, at setup: its space"
     ],
     "frontend/src/components/NeoCockpitBridge.vue": [
       "added file (no upstream equivalent). Mounts the shared"

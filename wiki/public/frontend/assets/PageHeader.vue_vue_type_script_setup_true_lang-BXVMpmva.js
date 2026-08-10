@@ -1,0 +1,2 @@
+import{_ as s}from"./PageHeaderBase.vue_vue_type_script_setup_true_lang-CO3UH9fB.js";import{S as a,a as t,h as r,x as o,e as c,W as n}from"./index-DcaN49D0.js";const _={class:"flex items-center justify-between"},p=a({__name:"PageHeader",setup(f){return(e,i)=>(t(),r(s,{class:"z-10 flex min-h-12 flex-col justify-center border-b bg-surface-base px-3 sm:px-5"},{default:o(()=>[c("div",_,[n(e.$slots,"default")])]),_:3}))}});export{p as _};
+//# sourceMappingURL=PageHeader.vue_vue_type_script_setup_true_lang-BXVMpmva.js.map
