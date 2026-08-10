@@ -67,6 +67,14 @@ def process_navbar_items(navbar_items: list) -> list:
 	"""
 	processed = []
 	for item in navbar_items:
+		#//// Neoffice — skip items with no URL. Upstream renders every row, and the
+		#//// templates drop item.url straight into href — so a row saved without a
+		#//// URL shipped `<a href="None" target="_blank">` to the public reader: a
+		#//// navbar link that opens a new tab on a 404. Real case on neoservice, a
+		#//// "Wiki" item on the Documentation Utilisateur space.
+		if not (item.url or "").strip():
+			continue
+
 		icon = None
 		if item.url:
 			domain = urlparse(item.url).netloc.replace("www.", "")

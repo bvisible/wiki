@@ -41,7 +41,6 @@
     ],
     "frontend/src/components/WikiDocumentPanel.vue": [
       "added button. Server-side PDF of this article",
-      "gated on !readonly. Published/Not Published is",
       "added. Anonymous visitors and signed-in users without a wiki",
       "readers can't read Wiki Document through frappe.client.get",
       "added. Public PDF export of this article, rendered server-side"
@@ -119,6 +118,7 @@
       "added test (no upstream equivalent). Upstream offers the Edit"
     ],
     "wiki/frappe_wiki/doctype/wiki_document/wiki_document.py": [
+      "skip items with no URL. Upstream renders every row, and the",
       "added (upstream inlined a bare frappe.get_all in",
       "\" (is_published=0) to anonymous visitors — the content 404'd, but",
       "Edit is for authors only. Upstream shows it to everyone and",
