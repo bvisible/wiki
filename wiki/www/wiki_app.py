@@ -74,19 +74,42 @@ def _reader_url_for_app_path() -> str:
 
 	if space_id:
 		space = frappe.db.get_value(
-			"Wiki Space", {"name": space_id, "is_published": 1}, ["name", "route"], as_dict=True
+			"Wiki Space", space_id, ["name", "route", "is_published"], as_dict=True
 		)
-		if space and space.route and can_read_space(space.name):
+		# is_published is required for an anonymous visitor — redirecting there
+		# would confirm the space exists. A signed-in reader has already been
+		# vouched for, and on a client instance the wiki is routinely unpublished,
+		# so gating them on it would strand them at the site root.
+		if space and space.route and (space.is_published or _is_signed_in()) and can_read_space(space.name):
 			return "/" + space.route.lstrip("/")
 
-	# No usable target (bare /wiki-app, or a space they may not read): hand them
-	# the first space they are actually entitled to, and the site root if none.
-	from wiki.api import list_public_spaces
+	# No usable target: bare /wiki-app, or a space they may not read. Hand them
+	# the first space they are actually entitled to.
+	return _first_readable_space_url()
 
-	spaces = list_public_spaces()
-	if spaces and spaces[0].get("route"):
-		return "/" + spaces[0]["route"].lstrip("/")
-	return "/"
+
+def _is_signed_in() -> bool:
+	return bool(frappe.session.user) and frappe.session.user != "Guest"
+
+
+def _first_readable_space_url() -> str:
+	"""Route of the first space this caller may read, or the site root."""
+	from wiki.permissions import _accessible_space_names
+
+	filters = {"name": ("in", list(_accessible_space_names()) or [""])}
+	if not _is_signed_in():
+		# Anonymous: published + switcher-visible only, same rule as the reader's
+		# own space list. Never advertise an internal space to the open internet.
+		filters.update({"is_published": 1, "show_in_switcher": 1})
+
+	route = frappe.db.get_value(
+		"Wiki Space",
+		filters,
+		"route",
+		order_by="switcher_order asc, creation asc",
+		ignore_permissions=True,
+	)
+	return "/" + route.lstrip("/") if route else "/"
 
 
 @frappe.whitelist(methods=["POST"], allow_guest=True)
