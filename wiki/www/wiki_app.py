@@ -102,14 +102,17 @@ def _first_readable_space_url() -> str:
 		# own space list. Never advertise an internal space to the open internet.
 		filters.update({"is_published": 1, "show_in_switcher": 1})
 
-	route = frappe.db.get_value(
+	# get_all, not db.get_value: the latter takes no ignore_permissions, and the
+	# Wiki Space permission query would hide rows the caller is entitled to.
+	routes = frappe.get_all(
 		"Wiki Space",
-		filters,
-		"route",
+		filters=filters,
+		pluck="route",
 		order_by="switcher_order asc, creation asc",
+		limit=1,
 		ignore_permissions=True,
 	)
-	return "/" + route.lstrip("/") if route else "/"
+	return "/" + routes[0].lstrip("/") if routes and routes[0] else "/"
 
 
 @frappe.whitelist(methods=["POST"], allow_guest=True)
