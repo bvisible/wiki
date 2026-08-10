@@ -305,7 +305,10 @@ class TestGetWebContext(WikiDocumentTestBase):
 	#//// Neoffice — added test (no upstream equivalent). Upstream offers the Edit
 	#//// button to everyone and lets the click land on a login redirect; that is
 	#//// what walked anonymous visitors into the authoring SPA and its settings
-	#//// gear. Signed-in users must keep the button, so both halves are asserted.
+	#//// gear. Now that /wiki-app bounces non-authors back to the reader, the
+	#//// button must be gated on the authoring role, not merely on being signed
+	#//// in — otherwise it would lead a portal user back to the page they are on.
+	#//// Authors must keep it, so both halves are asserted.
 	def test_edit_button_hidden_from_anonymous_visitor(self):
 		"""The reader's Edit button is never rendered for Guest."""
 		root = create_test_wiki_document(self, "Root Edit Guard", is_group=True)

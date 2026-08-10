@@ -373,16 +373,20 @@ class WikiDocument(NestedSet):
 		Shown when the space accepts contributions or when the user has write/merge
 		access (managers always see Edit even with contributions off).
 		"""
-		from wiki.permissions import _space_accepts_contributions, can_write_space
+		from wiki.permissions import (
+			_space_accepts_contributions,
+			can_write_space,
+			is_wiki_author,
+		)
 		from wiki.wiki.git_sync import build_github_edit_url
 
-		#//// Neoffice — never offer Edit to an anonymous visitor. Upstream shows it
-		#//// to everyone and lets the click land on a login redirect; on our public
-		#//// manual that is a button no visitor can use, and it walked them into
-		#//// /wiki-app — the authoring SPA — where they met the space settings gear.
-		#//// _space_accepts_contributions() treats a NULL flag as enabled, so every
-		#//// space we have was showing it. Signed-in users are unaffected.
-		if (user or frappe.session.user) == "Guest":
+		#//// Neoffice — Edit is for authors only. Upstream shows it to everyone and
+		#//// lets the click land on a login redirect; _space_accepts_contributions()
+		#//// treats a NULL flag as enabled, so every space we have was showing it to
+		#//// anonymous visitors. It also has to stay hidden from a signed-in portal
+		#//// user: /wiki-app now bounces non-authors back to the reader, so for them
+		#//// the button would lead straight back to the page they are already on.
+		if not is_wiki_author(user):
 			return False
 
 		# Git-synced pages are edited on GitHub (the button links straight there),

@@ -54,6 +54,23 @@ def _is_manager(user=None) -> bool:
 	return bool(MANAGER_ROLES & set(frappe.get_roles(user)))
 
 
+#//// Neoffice — added (no upstream equivalent). The line between the two
+#//// surfaces: /wiki/… is the reader our clients use, /wiki-app is the authoring
+#//// app we use. Anyone without an authoring role has nothing to do in the app —
+#//// it has no table of contents, no ⌘K search, no copy-as-markdown, and it kept
+#//// showing them author chrome (settings gear, publication badge, Edit button)
+#//// that we then had to patch away one by one. Mirrors isWikiEditor in
+#//// frontend/src/stores/user.js: keep the two in step.
+def is_wiki_author(user=None) -> bool:
+	"""Whether the user holds a wiki authoring role (so belongs in /wiki-app)."""
+	user = user or frappe.session.user
+	if user == "Guest":
+		return False
+	if user == "Administrator":
+		return True
+	return bool({"Wiki User", *MANAGER_ROLES} & set(frappe.get_roles(user)))
+
+
 def _resolve_space_name(space):
 	if not space:
 		return None
