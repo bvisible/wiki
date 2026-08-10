@@ -65,14 +65,28 @@ def get_translations():
 #//// restricts the rows to published + switcher-visible spaces.
 @frappe.whitelist(allow_guest=True)
 def list_public_spaces():
-	"""Return published Wiki Spaces visible to everyone (guest-safe)."""
-	return frappe.get_all(
+	"""Return the spaces the caller may actually read, published + in the switcher.
+
+	Named "public" because it is the guest-safe entry point, but it is not a
+	bypass: every row is checked against the space's own access rules.
+	"""
+	from wiki.permissions import can_read_space
+
+	spaces = frappe.get_all(
 		"Wiki Space",
 		filters={"is_published": 1, "show_in_switcher": 1},
 		fields=["name", "space_name", "route", "root_group", "is_published", "switcher_order"],
 		order_by="switcher_order asc, creation asc",
+		#//// Neoffice — ignore_permissions is safe ONLY because can_read_space()
+		#//// filters the rows right below. It stays because the Wiki Space
+		#//// permission query alone would hide rows a guest is entitled to.
 		ignore_permissions=True,
 	)
+	#//// Neoffice — this used to return every published space to anyone. It fed
+	#//// the reader's space list, so a client instance advertised its internal
+	#//// spaces to the open internet. Now each row goes through the same access
+	#//// check as the rest of the app (which itself honours the master switch).
+	return [s for s in spaces if can_read_space(s.name)]
 
 
 

@@ -28,3 +28,4 @@ execute:from wiki.frappe_wiki.doctype.wiki_document.wiki_document import clear_w
 #//// appends its own above and this block stays identifiable.
 wiki.frappe_wiki.doctype.wiki_revision_item.patches.add_revision_doc_key_index
 wiki.frappe_wiki.patches.redirect_bare_wiki_route_to_app
+wiki.frappe_wiki.patches.init_public_read_from_guest_role

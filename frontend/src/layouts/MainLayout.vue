@@ -36,10 +36,11 @@
 				<template #sidebar>
 					<!-- //// Neoffice — added. Shared Neoffice chrome (ADR-015); it falls
 					     back to the native Sidebar on its own if the cockpit fails to
-					     boot. Readers skip it outright — the cockpit boot endpoint
-					     denies them anyway. -->
+					     boot. Readers get NO sidebar at all: theirs held a single
+					     "Spaces" link and an upstream product name, so it cost a column
+					     of screen and gave nothing back. The space tree next to it is
+					     the actual navigation. -->
 					<NeoCockpitWikiSidebar v-if="!isReader" />
-					<Sidebar v-else />
 				</template>
 				<slot></slot>
 			</DesktopShell>
@@ -87,7 +88,6 @@ import { DesktopShell, MobileNav, MobileNavItem, MobileShell } from 'frappe-ui';
 import { computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import NeoCockpitWikiSidebar from '../components/NeoCockpitWikiSidebar.vue';
-import Sidebar from '../components/Sidebar.vue';
 import WikiSettings from '../components/WikiSettings/WikiSettings.vue';
 import { useMobile } from '../composables/useMobile';
 import { useTheme } from '../composables/useTheme';

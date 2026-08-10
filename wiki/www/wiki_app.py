@@ -5,9 +5,10 @@ import frappe
 from frappe.utils import get_system_timezone
 
 no_cache = 1
-#//// Neoffice — added: the SPA shell itself is served to visitors without an
-#//// account. Neoffice wikis are public-facing; the data behind it is still
-#//// filtered per space by the API.
+#//// Neoffice — added: the SPA shell is served to visitors without an account
+#//// when the wiki is public. The data behind it is filtered per space by the
+#//// API either way; get_context() below turns anonymous visitors away when the
+#//// master switch is off, so they get a login page instead of an empty shell.
 allow_guest = 1
 sitemap = 0
 
@@ -15,6 +16,14 @@ ROBOTS_DIRECTIVE = "noindex, nofollow"
 
 
 def get_context():
+	#//// Neoffice — no anonymous access while the wiki is private: send them to
+	#//// the login page rather than an app shell every API call will refuse.
+	from wiki.permissions import public_wiki_enabled
+
+	if frappe.session.user == "Guest" and not public_wiki_enabled():
+		frappe.local.flags.redirect_location = "/login?redirect-to=/wiki-app"
+		raise frappe.Redirect
+
 	#//// Neoffice — upstream calls frappe.local.response_headers.set() directly.
 	#//// That attribute does not exist before Frappe ~15.9x and raised on older
 	#//// instances of the fleet, so read it defensively.

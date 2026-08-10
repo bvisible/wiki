@@ -53,6 +53,20 @@ class WikiSpace(Document):
 	def validate(self):
 		self.remove_leading_slash_from_route()
 		self.validate_git_synced_immutable()
+		self.sync_public_read_with_guest_role()
+
+	#//// Neoffice — added. "Public" upstream means a Guest row buried in the
+	#//// Roles table, which nobody reads and which a migration patch silently
+	#//// filled in. This mirrors that row into one honest checkbox so the answer
+	#//// to "is this space on the open internet?" is visible at a glance.
+	def sync_public_read_with_guest_role(self):
+		has_guest = any((r.role or "") == "Guest" for r in (self.roles or []))
+		if self.public_read and not has_guest:
+			self.append("roles", {"role": "Guest", "permission_level": "Read"})
+		elif not self.public_read and has_guest:
+			self.roles = [r for r in (self.roles or []) if (r.role or "") != "Guest"]
+			for i, row in enumerate(self.roles, start=1):
+				row.idx = i
 
 	def on_trash(self):
 		self.delete_linked_content()

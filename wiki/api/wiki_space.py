@@ -327,6 +327,14 @@ def _rebuild_wiki_node(doctype: str, name: str, left: int, parent_field: str) ->
 @frappe.whitelist(allow_guest=True)
 def get_public_space_info(space_id: str) -> dict:
 	"""Return Wiki Space info + tree for guest/public access. Only published spaces."""
+	#//// Neoffice — enforce the space's own access rules. Filtering on
+	#//// is_published alone handed the whole tree of an internal space to
+	#//// anonymous callers; can_read_space() also honours the master switch.
+	from wiki.permissions import can_read_space
+
+	if not can_read_space(space_id):
+		raise frappe.PermissionError
+
 	space = frappe.db.get_value(
 		"Wiki Space",
 		{"name": space_id, "is_published": 1},
@@ -398,4 +406,20 @@ def get_public_document(doc_key: str) -> dict:
 	)
 	if not doc:
 		frappe.throw(frappe._("Document not found"), frappe.DoesNotExistError)
+
+	#//// Neoffice — a published page still belongs to a space; check that space
+	#//// before handing the content over, so an internal page can't be pulled by
+	#//// key alone. Walk up to the owning root group, then to its space.
+	from wiki.permissions import can_read_space
+
+	current = doc.name
+	while True:
+		parent = frappe.db.get_value("Wiki Document", current, "parent_wiki_document")
+		if not parent:
+			break
+		current = parent
+	space_id = frappe.db.get_value("Wiki Space", {"root_group": current}, "name")
+	if space_id and not can_read_space(space_id):
+		raise frappe.PermissionError
+
 	return doc

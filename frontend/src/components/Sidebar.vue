@@ -1,8 +1,10 @@
 <template>
 	<Sidebar v-model:collapsed="isSidebarCollapsed">
 		<div class="flex h-full flex-col p-2">
+			<!-- //// Neoffice — "Wiki", not "Frappe Wiki": we ship this under the
+			     Neoffice brand, upstream product names don't belong in the UI. -->
 			<SidebarHeader
-				:title="__('Frappe Wiki')"
+				:title="__('Wiki')"
 				:subtitle="userStore.data?.full_name"
 				logo="/assets/wiki/images/wiki-logo.png"
 				:menu-items="headerMenuItems"

@@ -5,20 +5,22 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "javascript",
+  "section_break_mmtu",
   "general_tab",
-  "section_break_vefv",
   "default_wiki_space",
+  "public_access_section",
+  "enable_public_wiki",
+  "section_break_vefv",
   "table_of_contents_section",
   "enable_table_of_contents",
   "auto_convert_images_to_webp",
   "auto_generate_meta_images",
-  "feedback_tab",
   "feedback_section",
   "enable_feedback",
-  "feedback_submission_limit",
   "ask_for_contact_details",
-  "section_break_mmtu",
-  "javascript",
+  "feedback_tab",
+  "feedback_submission_limit",
   "header__robots_tab",
   "head_html",
   "github_app_tab",
@@ -52,6 +54,18 @@
    "fieldname": "default_wiki_space",
    "fieldtype": "Autocomplete",
    "label": "Default Wiki Space"
+  },
+  {
+   "fieldname": "public_access_section",
+   "fieldtype": "Section Break",
+   "label": "Public Access"
+  },
+  {
+   "default": "0",
+   "description": "Off by default. While this is off, visitors without an account get nothing from this wiki — no reader page, no space list, no page content — whatever individual spaces allow. Turn it on only on a wiki meant to be read from the open internet, then choose space by space with \"Readable without an account\" on each Wiki Space.",
+   "fieldname": "enable_public_wiki",
+   "fieldtype": "Check",
+   "label": "Allow access without an account"
   },
   {
    "fieldname": "section_break_vefv",

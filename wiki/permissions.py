@@ -85,10 +85,37 @@ def _space_role_levels(space) -> dict:
 	return levels
 
 
+#//// Neoffice — added. Master switch for anonymous access, off by default.
+#//// Upstream decides "public" per space, through a Guest row in the space's
+#//// role table. That is fine for a wiki meant to be read from the internet
+#//// (our shared manual on the hub), but it is the wrong default for a client
+#//// instance, where the wiki is an internal tool. Worse, upstream's
+#//// seed_space_roles_from_published patch turned every is_published space into
+#//// a Guest-readable one at migration time — on osiris that silently exposed
+#//// ERPNextSwiss, Déclarations annuelles and DevOps to the open internet.
+#//// This switch gates the whole anonymous surface in ONE place that every read
+#//// path already goes through, so a client instance leaks nothing until
+#//// somebody deliberately turns it on.
+def public_wiki_enabled() -> bool:
+	"""Whether this instance serves the wiki to visitors without an account."""
+	try:
+		return bool(
+			frappe.get_cached_value("Wiki Settings", "Wiki Settings", "enable_public_wiki")
+		)
+	except Exception:
+		# Settings not migrated yet (fresh install, mid-migrate): stay closed.
+		return False
+
+
 def can_read_space(space, user=None) -> bool:
 	user = user or frappe.session.user
 	if _is_manager(user):
 		return True
+
+	#//// Neoffice — anonymous visitors get nothing while the master switch is
+	#//// off, whatever the space's own role rows say.
+	if user == "Guest" and not public_wiki_enabled():
+		return False
 
 	levels = _space_role_levels(space)
 	if not levels:
