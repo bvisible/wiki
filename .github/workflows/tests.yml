@@ -1,12 +1,13 @@
 name: Tests
 # Fleet CI for this product fork (wave 2). Mechanics live in bvisible/neoffice-ci
-# (frappe-app-ci.yml): bench init on OUR frappe fork, deps, run-tests,
-# report to the hub (one [CI] issue per repo, closed by the green).
+# (frappe-app-ci.yml): bench init on OUR frappe fork, deps, run-tests, report to
+# the hub (one [CI] issue per repo, closed by the green). The fork imports
+# neoffice_theme (private): FLEET_READ_TOKEN clones it, like the wave-1 apps.
 # Nightly + PR + on demand — not on push: the upstream CI and the build bot
-# already run there, a second run per bot commit would only add noise.
-# No nightly yet: the fork imports neoffice_theme (private) in 95 places, and the CI
-# cannot clone it without a read token (tracker: same family as raven/mint). On demand only.
+# already run there.
 on:
+  schedule:
+    - cron: "35 4 * * *"
   pull_request:
   workflow_dispatch:
     inputs:
@@ -22,7 +23,8 @@ jobs:
     uses: bvisible/neoffice-ci/.github/workflows/frappe-app-ci.yml@main
     with:
       app: wiki
+      install_apps: erpnext,payments,neoffice_theme
       skip_build: true   # SPA commit-the-build: assets committed, never built on instances
       test_args: ${{ inputs.test_args || '' }}
-    # inherit: CI_REPORT_SECRET (deps are public forks: no read token needed)
+    # inherit: CI_REPORT_SECRET + FLEET_READ_TOKEN (neoffice_theme is private)
     secrets: inherit
