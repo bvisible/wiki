@@ -3,9 +3,8 @@ name: Upstream preview
 # bench is initialised on UPSTREAM frappe/frappe + frappe/erpnext (version-15)
 # instead of our forks. Failures land in a separate [CI amont] issue (key
 # ci-upstream::) and never touch the normal [CI] issue of this repo.
+# On demand only until neoffice_theme (private dependency) can be installed on the CI.
 on:
-  schedule:
-    - cron: "35 5 * * 1"
   workflow_dispatch:
 concurrency:
   group: upstream-preview-${{ github.ref }}
