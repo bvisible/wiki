@@ -55,18 +55,23 @@ def _filter_hits_by_space_visibility(hits: list[dict]) -> list[dict]:
 	//// anonymous visitor. The marker sits inside the docstring because that is
 	//// the text being corrected; a `#` comment cannot reach it.
 	"""
-	from wiki.permissions import can_read_space
+	from wiki.permissions import can_read_space, can_write_space
 
 	names = [hit["name"] for hit in hits]
 	if not names:
 		return hits
 
-	space_by_name = {
-		row.name: row.wiki_space
+	#//// Neoffice — is_published and is_private come along now. The space was the
+	#//// only thing checked, so a private page inside a Guest-readable space came
+	#//// back to anonymous visitors with its title AND its content snippet.
+	#//// Verified on osiris: a search for "configuration" as Guest returned
+	#//// wiki/erpnextswiss-settings-configuration, is_private=1.
+	row_by_name = {
+		row.name: row
 		for row in frappe.get_all(
 			"Wiki Document",
 			filters={"name": ("in", names)},
-			fields=["name", "wiki_space"],
+			fields=["name", "wiki_space", "is_published", "is_private"],
 		)
 	}
 
@@ -78,6 +83,17 @@ def _filter_hits_by_space_visibility(hits: list[dict]) -> list[dict]:
 			visible[space_name] = bool(space_published) and can_read_space(space_name)
 		return visible[space_name]
 
+	#//// Neoffice — added, memoised like the one above. Drafts and private pages
+	#//// belong to whoever may write the space; this is the same rule
+	#//// get_wiki_tree() and get_public_space_info() apply, so the reader, the
+	#//// tree and the search can never disagree about what exists.
+	writable: dict[str, bool] = {}
+
+	def _is_writable(space_name) -> bool:
+		if space_name not in writable:
+			writable[space_name] = can_write_space(space_name)
+		return writable[space_name]
+
 	#//// Neoffice — orphan hits (no wiki_space) used to pass unconditionally, so
 	#//// this allow_guest endpoint leaked their titles and snippets to anonymous
 	#//// visitors: the same hole closed in permissions.py and in
@@ -88,7 +104,12 @@ def _filter_hits_by_space_visibility(hits: list[dict]) -> list[dict]:
 
 	allowed = []
 	for hit in hits:
-		hit_space = space_by_name.get(hit["name"])
+		#//// Neoffice — a hit with no Wiki Document row is a stale index entry for
+		#//// a deleted page; it used to be treated as an orphan and shown.
+		row = row_by_name.get(hit["name"])
+		if row is None:
+			continue
+		hit_space = row.wiki_space
 		#//// Neoffice — orphan hits (no wiki_space) used to pass unconditionally
 		#//// (`if not hit_space or _is_visible(...)`), so this allow_guest search
 		#//// handed their titles and snippets to anonymous visitors. The name is
@@ -96,6 +117,11 @@ def _filter_hits_by_space_visibility(hits: list[dict]) -> list[dict]:
 		#//// closes over, so binding a bool to it turned the second hit of every
 		#//// search into "argument of type bool is not iterable".
 		hit_visible = _is_visible(hit_space) if hit_space else orphans_visible
-		if hit_visible:
-			allowed.append(hit)
+		if not hit_visible:
+			continue
+		#//// Neoffice — and the page's own state, not just its space's. Editors keep
+		#//// their drafts; everyone else sees only what is published and not private.
+		if not (row.is_published and not row.is_private) and not _is_writable(hit_space):
+			continue
+		allowed.append(hit)
 	return allowed
