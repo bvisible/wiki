@@ -70,6 +70,14 @@ def _make_space(test_case, name: str, roles: list[tuple[str, str]]) -> str:
 			"root_group": root_group.name,
 		}
 	)
+	#//// Neoffice — public_read is the source of truth for "this space is on the
+	#//// open internet" in our fork, and Wiki Space.sync_public_read_with_guest_role()
+	#//// mirrors it into the Guest role row — it also STRIPS a Guest row the checkbox
+	#//// does not back. A fixture that only appended the row therefore produced a
+	#//// space with no Guest role at all, which is why the two Guest assertions below
+	#//// failed. Ask for public the way the product asks for it.
+	if any(role == "Guest" for role, _level in roles):
+		space.public_read = 1
 	for role, level in roles:
 		space.append("roles", {"role": role, "permission_level": level})
 	space.insert(ignore_permissions=True)
@@ -94,6 +102,15 @@ class TestWikiSpacePermissions(IntegrationTestCase):
 	def setUp(self):
 		self._docs = []
 		self._spaces = []
+		#//// Neoffice — enable_public_wiki is the master switch for the whole
+		#//// anonymous surface and it is OFF by default, so every Guest assertion
+		#//// below silently depended on however the site running the suite happened
+		#//// to be configured. State the premise instead of inheriting it: these
+		#//// tests describe a public-facing instance. tearDown restores the site.
+		self._public_wiki_was = frappe.db.get_single_value(
+			"Wiki Settings", "enable_public_wiki"
+		)
+		frappe.db.set_single_value("Wiki Settings", "enable_public_wiki", 1)
 		# A space gated to the reader (Read) and writer (Write) roles.
 		self.restricted = _make_space(
 			self, "WSAC Restricted", [(READER_ROLE, "Read"), (WRITER_ROLE, "Write")]
@@ -105,6 +122,10 @@ class TestWikiSpacePermissions(IntegrationTestCase):
 
 	def tearDown(self):
 		frappe.set_user("Administrator")
+		#//// Neoffice — restore the master switch (see setUp).
+		frappe.db.set_single_value(
+			"Wiki Settings", "enable_public_wiki", self._public_wiki_was
+		)
 		for space in self._spaces:
 			if frappe.db.exists("Wiki Space", space):
 				frappe.delete_doc("Wiki Space", space, force=True)
@@ -145,6 +166,20 @@ class TestWikiSpacePermissions(IntegrationTestCase):
 
 	def test_restricted_space_not_readable_by_guest(self):
 		self.assertFalse(can_read_space(self.restricted, "Guest"))
+
+	#//// Neoffice — added. The master switch is the one thing standing between a
+	#//// client instance and the open internet, and it had no test at all. Both
+	#//// paths must obey it: can_read_space() refuses one space at a time, and
+	#//// _accessible_space_names() answers the list queries — they disagreed about
+	#//// the same Guest until they were made to share _guest_access_blocked().
+	def test_master_switch_closes_the_whole_guest_surface(self):
+		frappe.db.set_single_value("Wiki Settings", "enable_public_wiki", 0)
+
+		self.assertFalse(can_read_space(self.public, "Guest"))
+		self.assertEqual(_accessible_space_names("Guest"), set())
+
+		# and it closes nothing for somebody who actually has an account
+		self.assertTrue(can_read_space(self.open_space, self.outsider))
 
 	# --- can_write_space -------------------------------------------------
 
