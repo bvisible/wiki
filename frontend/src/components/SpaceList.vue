@@ -643,7 +643,9 @@ function viewSpace(row) {
 //// insert are inert.
 const publicSpaces = createResource({
 	url: 'wiki.api.list_public_spaces',
-	auto: isReader.value,
+	//// Neoffice — auto:false, loaded by the watcher below. It used to read
+	//// `isReader.value` here, which is evaluated once while setup runs.
+	auto: false,
 });
 
 const guestSpacesShim = {
@@ -658,14 +660,19 @@ const guestSpacesShim = {
 	reload: () => publicSpaces.reload(),
 };
 
-const spaces = isReader.value
-	? guestSpacesShim
-	: createListResource({
+//// Neoffice — split in two: the editor's list resource is built here and the
+//// choice between it and the shim is made below, reactively. Upstream had one
+//// `createListResource`; we cannot let it load for a reader, since
+//// `frappe.client.get_list` on Wiki Space answers 403 to them — hence
+//// auto:false plus a watcher, rather than the resource's own auto:true.
+const editorSpaces = createListResource({
 	doctype: 'Wiki Space',
 	fields: ['name', 'space_name', 'route', 'root_group', 'is_published'],
 	orderBy: 'creation desc',
 	pageLength: 25,
-	auto: true,
+	//// Neoffice — auto:false; the watcher below loads it once the user store
+	//// says this caller is an editor.
+	auto: false,
 	insert: {
 		onSuccess: (doc) => {
 			showCreateDialog.value = false;
@@ -691,12 +698,37 @@ const spaces = isReader.value
 	},
 });
 
+//// Neoffice — reactive, and it has to be. This read `const spaces =
+//// isReader.value ? shim : createListResource(...)`, which resolves once while
+//// setup runs and then never again. isReader derives from the user store, which
+//// is filled by an async fetch: any moment where it is empty — a reset/reload
+//// of the store, a session change, a mount that races the guard — froze an
+//// editor onto the read-only shim (no create dialog, no unpublished spaces, no
+//// pagination) until a full page reload, and froze a reader onto a list
+//// resource that answers 403. A computed re-decides whenever the roles do.
+const spaces = computed(() => (isReader.value ? guestSpacesShim : editorSpaces));
+
+//// Neoffice — and the matching side: whichever resource `spaces` now points at
+//// is the one that loads. immediate:true replaces the auto:true both resources
+//// gave up.
+watch(
+	isReader,
+	(reader) => {
+		if (reader) {
+			publicSpaces.fetch();
+		} else {
+			editorSpaces.reload();
+		}
+	},
+	{ immediate: true },
+);
+
 let searchDebounceTimer = null;
 watch(searchQuery, (value) => {
 	if (isReader.value) return; //// Neoffice — reader list is unpaginated
 	clearTimeout(searchDebounceTimer);
 	searchDebounceTimer = setTimeout(() => {
-		spaces.update({
+		spaces.value.update({
 			filters: {},
 			orFilters: value
 				? [
@@ -706,7 +738,7 @@ watch(searchQuery, (value) => {
 				: [],
 			start: 0,
 		});
-		spaces.reload();
+		spaces.value.reload();
 	}, 300);
 });
 
@@ -745,6 +777,6 @@ const handleCreateSpace = () => {
 		}
 	}
 
-	return spaces.insert.submit(payload);
+	return spaces.value.insert.submit(payload);
 };
 </script>
