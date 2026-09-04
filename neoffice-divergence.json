@@ -1,18 +1,36 @@
 {
   "_comment": "Inventory of this fork's divergence from frappe/wiki. Regenerate with: python3 scripts/neoffice-divergence.py --update. A dropped entry is a Neoffice change that an upstream merge ate.",
-  "marked_blocks": 97,
+  "marked_blocks": 174,
   "files": {
+    ".github/workflows/fork-markers.yml": [
+      "` markers: a hunk that changes"
+    ],
     ".github/workflows/neoffice-divergence.yml": [
       "added file (no upstream equivalent)."
     ],
     ".gitignore": [
-      "commit-the-build: upstream ignores every generated asset"
+      "commit-the-build: upstream ignores every generated asset",
+      "trailing newline only. Upstream ends this file without one;"
+    ],
+    "CLAUDE.md": [
+      "everything down to \"Notes amont\" is ours (unshipped file,",
+      "rewritten. Upstream tells the reader to ignore the fork and"
+    ],
+    "NEOFFICE_FORK_MARKERS.md": [
+      "` comment",
+      "` marker block in the"
     ],
     "frontend/index.html": [
       "brand. Upstream ships \"Frappe Wiki\"; this title is what a"
     ],
     "frontend/src/App.vue": [
-      "added. SpaceDetails reads props.spaceId once, at setup: its space"
+      "computed + useRoute added for the viewKey below (header space switcher).",
+      "added. SpaceDetails reads props.spaceId once, at setup: its space",
+      ":key added, see viewKey in the script above: without it a"
+    ],
+    "frontend/src/components/DiffViewer.vue": [
+      "useStorage('wiki-theme') import dropped, useTheme() imported",
+      "was useStorage('wiki-theme', 'dark'); now the shared ref (see"
     ],
     "frontend/src/components/NeoCockpitBridge.vue": [
       "added file (no upstream equivalent). Mounts the shared"
@@ -29,6 +47,9 @@
     "frontend/src/components/SpaceList.vue": [
       "added. Readers are anonymous visitors AND signed-in users",
       "readers only ever see published spaces, so the Status column",
+      "the Status column is spread in only for editors (see the note",
+      "closes the computed() wrapper; upstream ends a plain array here.",
+      "wrapped in computed() because `columns` is now reactive (see",
       "readers can't reach `frappe.client.get_list` on Wiki Space",
       "reader list is unpaginated"
     ],
@@ -36,37 +57,60 @@
       "the space name is a switcher, the way the public",
       "added. The theme toggle used to sit in this header and",
       "gated on canManageTabs (the space's can_write). Upstream",
+      "the v-if on the next line is ours; the reason is in the",
+      "Dropdown, computed and useRouter added for the space switcher",
+      "added: the theme toggle we put back in this header needs it.",
+      "props captured (upstream calls defineProps without binding it):",
       "added. Spaces to offer in the header switcher. The parent",
       "everything below is ours: the space switcher and the theme"
     ],
     "frontend/src/components/WikiDocumentPanel.vue": [
       "added button. Server-side PDF of this article",
+      "v-if added. The menu holds authoring actions only (rename,",
+      "createResource added: the reader branch below fetches through a",
       "added. Anonymous visitors and signed-in users without a wiki",
       "readers can't read Wiki Document through frappe.client.get",
       "added. Public PDF export of this article, rendered server-side"
     ],
     "frontend/src/components/tiptap-extensions/ImageNodeView.vue": [
+      "two changes inside this img tag, both listed in",
       "added. Upstream has no way to resize an image;",
       "added. Readers need to enlarge screenshots; the",
+      "computed added: imageStyle and currentSize below (image sizing",
       "everything from here to setCustomWidth() is ours: image size",
       "styles for the added size controls */",
       "lightbox styles. Global (not scoped) on purpose: the markup"
     ],
     "frontend/src/components/tiptap-extensions/MermaidBlockView.vue": [
-      "was useStorage('wiki-theme', 'dark') read directly here, which"
+      "useStorage dropped from this import and useTheme added on the",
+      "was useStorage('wiki-theme', 'dark') read directly here, which",
+      "the shared ref, per the note above."
     ],
     "frontend/src/composables/useTheme.js": [
-      "rewritten wholesale. Upstream stores useStorage('wiki-theme',"
+      "rewritten wholesale. Upstream stores useStorage('wiki-theme',",
+      "added, part of the rewrite described at the top of this file:",
+      "added: upstream compared userTheme.value inline in each caller.",
+      "reads isDark instead of comparing the raw ref (same icon).",
+      "toggling now WRITES the choice (upstream only mutated the",
+      "applyTheme also sets the ref now, so upstream's trailing",
+      "added. Drops the explicit choice and hands the theme back to",
+      "applies the module ref (upstream applied the storage ref).",
+      "return widened: upstream returns userTheme/themeIcon/"
     ],
     "frontend/src/layouts/MainLayout.vue": [
       "added. Shared Neoffice chrome (ADR-015); it falls",
+      "was `import Sidebar from '../components/Sidebar.vue'`. The",
       "added. Readers are anonymous visitors AND signed-in users"
     ],
     "frontend/src/main.js": [
+      "translationsReady added to this import; it is what the mount",
       "mount AFTER the translations land. __() is not reactive: any"
     ],
     "frontend/src/pages/SpaceDetails.vue": [
       "readers have nothing to contribute from: no draft,",
+      "two props of this component are ours and are listed in",
+      "same two props as the desktop panel above (:readonly",
+      ":readonly below was `isGitSynced`: a reader must get the",
       "added. Readers are anonymous visitors AND signed-in users",
       "added branch. Readers can't read Wiki Space through",
       "added. Readers go through upstream's very own read-only path:",
@@ -74,28 +118,36 @@
       "added. Feeds the space switcher in the tree panel's header (we",
       "readers get 403 on get_wiki_tree (v3 gates it behind the",
       "get_public_space_info wraps the same payload as {space, tree}.",
-      "readers take the same read-only path: no CR to hydrate from."
+      "was `if (isGitSynced.value)`: readers read the tree through the",
+      "readers take the same read-only path: no CR to hydrate from.",
+      "same widening as in treeData: a reader's refresh must re-run"
     ],
     "frontend/src/router.js": [
       "added route. Pretty URL routing: our wikis are linked as",
       "rewritten guard. Upstream bounces EVERY route to /login when",
       "signed in but with no wiki role (portal Website User):",
-      "added. Readers land directly in the first public space rather"
+      "added. Readers land directly in the first public space rather",
+      "single terminal next(). Upstream ended on an if/else that only"
     ],
     "frontend/src/stores/user.js": [
       "added. Holds one of the wiki authoring roles. Everyone else —",
       "rewritten. Upstream gated the app shell on holding an",
-      "was Boolean(is_logged_in). Change requests need an authoring"
+      "was Boolean(is_logged_in). Change requests need an authoring",
+      "exported: components branch on the authoring role, not on"
     ],
     "frontend/src/translation.js": [
       "added. translate() reads window.translatedMessages at render",
       "returns the resource (upstream discarded it) so"
+    ],
+    "pyproject.toml": [
+      "was \">=3.14\" upstream (v3 targets a Python the fleet does not"
     ],
     "scripts/neoffice-divergence.py": [
       "added file (no upstream equivalent).",
       "` at the time — the marking"
     ],
     "wiki/api/__init__.py": [
+      "allow_guest added (upstream: @frappe.whitelist()). The SPA asks",
       "everything from here to resolve_wiki_path() is ours; upstream",
       "ignore_permissions is safe ONLY because can_read_space()",
       "this used to return every published space to anyone. It fed"
@@ -121,8 +173,13 @@
       "skip items with no URL. Upstream renders every row, and the",
       "added (upstream inlined a bare frappe.get_all in",
       "\" (is_published=0) to anonymous visitors — the content 404'd, but",
+      "docstring reworded (88b1f47). Upstream's text promised the",
+      "is_wiki_author added to this import; it is what the guard",
       "Edit is for authors only. Upstream shows it to everyone and",
-      "no renderer on Frappe v15 (see wiki/api/og_image.py), so"
+      "routed through _spaces_for_switcher() (see that",
+      "og_images_supported added to this import (upstream imports",
+      "no renderer on Frappe v15 (see wiki/api/og_image.py), so",
+      "pdf_generator added (upstream lets Frappe pick, which"
     ],
     "wiki/frappe_wiki/doctype/wiki_revision_item/patches/add_revision_doc_key_index.py": [
       "added file (no upstream equivalent)."
@@ -146,29 +203,67 @@
     ],
     "wiki/templates/wiki/document.html": [
       "user-facing strings wrapped in _() so they land in the POT",
-      "neo-wiki-article added. Hook for our reader CSS, which"
+      "neo-wiki-article added. Hook for our reader CSS, which",
+      "i18n: upstream hardcodes this label in English; _() puts it in the POT so the public reader speaks the client's language. #}",
+      "i18n: upstream passes these menu labels to the macro as raw English; _() puts them in the POT. #}",
+      "i18n: upstream passes these menu labels to the macro as raw English; _() puts them in the POT. #}",
+      "i18n: same dropdown as above, desktop copy; upstream labels are raw English. #}",
+      "i18n: same dropdown as above, desktop copy; upstream labels are raw English. #}",
+      "i18n: upstream concatenated the English words with the date; _() with a placeholder lets a translator move the date. #}"
     ],
     "wiki/templates/wiki/includes/feedback_widget.html": [
-      "user-facing strings wrapped in _() so they land in the"
+      "user-facing strings wrapped in _() so they land in the",
+      "i18n: upstream hardcodes this question in English; _() puts it in the POT. #}",
+      "i18n: the aria-label of the fieldset below is read aloud by screen readers, so it is translated too. #}",
+      "i18n on the placeholder attribute of this textarea: upstream",
+      "i18n: upstream hardcodes the submit label in English. #}",
+      "i18n: upstream hardcodes the thank-you in English. #}"
     ],
     "wiki/templates/wiki/includes/header.html": [
-      "user-facing strings wrapped in _() so they land in the POT"
+      "user-facing strings wrapped in _() so they land in the POT",
+      "i18n on the title attribute of this button: upstream hardcodes",
+      "i18n on the aria-label below: upstream hardcodes it in English. #}",
+      "i18n: upstream hardcodes the search placeholder in English. #}",
+      "i18n on the aria-label below: upstream hardcodes it in English. #}"
     ],
     "wiki/templates/wiki/includes/mobile_header.html": [
-      "user-facing strings wrapped in _() so they land in the POT"
+      "user-facing strings wrapped in _() so they land in the POT",
+      "i18n: upstream hardcodes this label in English. #}",
+      "i18n on the aria-label of this button: upstream hardcodes it in",
+      "i18n on the title attribute below: upstream hardcodes it in English. #}",
+      "i18n on the aria-label below: upstream hardcodes it in English. #}"
     ],
     "wiki/templates/wiki/includes/sidebar.html": [
       "was the English literal 'Last updated '; translated here so"
     ],
     "wiki/templates/wiki/includes/toc.html": [
-      "user-facing strings wrapped in _() so they land in the POT"
+      "user-facing strings wrapped in _() so they land in the POT",
+      "i18n: upstream hardcodes this heading in English. #}"
     ],
     "wiki/templates/wiki/layout.html": [
       "brand. Upstream falls back to \"Frappe Wiki\"; this reader is",
+      "brand, see the note above: the marker had to be repeated here",
       "added. Reader styling of ours (wider articles, image size"
     ],
     "wiki/templates/wiki/macros/buttons.html": [
-      "user-facing strings wrapped in _() so they land in the POT"
+      "user-facing strings wrapped in _() so they land in the POT",
+      "i18n: _() applied to the macro argument (upstream printed",
+      "i18n on the aria-label below: upstream hardcodes it in English. #}",
+      "i18n: upstream hardcodes the PDF download description in English. #}"
+    ],
+    "wiki/utils.py": [
+      "early return added (WI-00297, ab732fd). Upstream gives the"
+    ],
+    "wiki/wiki/doctype/wiki_page/sqlite_search.py": [
+      "TO REVIEW at the next merge: this retry is NOT ours. It comes",
+      "call renamed with the function, see the note in search() above:",
+      "renamed from _search() to free that name for the retry wrapper"
+    ],
+    "wiki/wiki/doctype/wiki_space/patches/v3/assign_wiki_user_to_active_users.py": [
+      "restrict to desk users. Upstream granted \"Wiki User\" to EVERY"
+    ],
+    "wiki/wiki/doctype/wiki_space/wiki_space.js": [
+      "added handlers (no upstream equivalent). The Wiki Sidebars grid"
     ],
     "wiki/wiki/doctype/wiki_space/wiki_space.py": [
       "added. \"Public\" upstream means a Guest row buried in the"
