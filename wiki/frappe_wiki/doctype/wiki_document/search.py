@@ -71,6 +71,7 @@ def _filter_hits_by_space_visibility(hits: list[dict]) -> list[dict]:
 		for row in frappe.get_all(
 			"Wiki Document",
 			filters={"name": ("in", names)},
+			#//// Neoffice — is_published and is_private added; see above.
 			fields=["name", "wiki_space", "is_published", "is_private"],
 		)
 	}
