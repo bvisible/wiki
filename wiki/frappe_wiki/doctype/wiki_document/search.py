@@ -85,7 +85,13 @@ def _filter_hits_by_space_visibility(hits: list[dict]) -> list[dict]:
 	allowed = []
 	for hit in hits:
 		hit_space = space_by_name.get(hit["name"])
-		visible = _is_visible(hit_space) if hit_space else orphans_visible
-		if visible:
+		#//// Neoffice — orphan hits (no wiki_space) used to pass unconditionally
+		#//// (`if not hit_space or _is_visible(...)`), so this allow_guest search
+		#//// handed their titles and snippets to anonymous visitors. The name is
+		#//// hit_visible and NOT visible: `visible` is the memo dict _is_visible()
+		#//// closes over, so binding a bool to it turned the second hit of every
+		#//// search into "argument of type bool is not iterable".
+		hit_visible = _is_visible(hit_space) if hit_space else orphans_visible
+		if hit_visible:
 			allowed.append(hit)
 	return allowed
