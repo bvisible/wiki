@@ -76,12 +76,34 @@ def get_wiki_tree(space_id: str) -> dict:
 	if not descendants:
 		return {"children": [], "root_group": root_group}
 
-	tree = _build_wiki_tree_for_api(descendants)
+	#//// Neoffice — the tree is filtered for the caller. check_permission("read")
+	#//// above only answers "may you open this space"; it says nothing about the
+	#//// individual pages, and this endpoint is allow_guest, so a visitor on a
+	#//// public space was handed the titles and routes of every draft and every
+	#//// private page in it. get_public_space_info() in this same file already
+	#//// filters on is_published + is_private for exactly that reason — the two
+	#//// feed the same tree component and must agree. Editors keep the full tree:
+	#//// drafts are what they are here to work on.
+	from wiki.permissions import can_write_space
+
+	tree = _build_wiki_tree_for_api(descendants, include_drafts=can_write_space(space_id))
 	return {"children": tree, "root_group": root_group}
 
 
-def _build_wiki_tree_for_api(documents: list[str]) -> list[dict]:
-	"""Build a nested tree structure from a list of Wiki Document names."""
+#//// Neoffice — include_drafts added (upstream always returns everything). See
+#//// the call site above for why.
+def _build_wiki_tree_for_api(documents: list[str], include_drafts: bool = True) -> list[dict]:
+	"""Build a nested tree structure from a list of Wiki Document names.
+
+	With ``include_drafts`` false, unpublished and private documents are left
+	out; a published child of a dropped group simply becomes a root node, the
+	same way get_public_space_info() handles it.
+	"""
+	filters = {"name": ("in", documents)}
+	if not include_drafts:
+		filters["is_published"] = 1
+		filters["is_private"] = 0
+
 	wiki_documents = frappe.db.get_all(
 		"Wiki Document",
 		fields=[
@@ -95,7 +117,7 @@ def _build_wiki_tree_for_api(documents: list[str]) -> list[dict]:
 			"is_published",
 			"sort_order",
 		],
-		filters={"name": ("in", documents)},
+		filters=filters,
 		order_by="lft asc",
 	)
 
