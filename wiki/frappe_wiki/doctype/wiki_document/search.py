@@ -47,9 +47,13 @@ def _filter_hits_by_space_visibility(hits: list[dict]) -> list[dict]:
 	restricted spaces can surface here. Resolve each hit's denormalized
 	wiki_space and gate it through the same checks as page rendering: the
 	space must be published (`check_published`) and readable by the current
-	user (`check_space_access`). Orphan documents (no wiki_space) follow the
-	same rule as everywhere else: any logged-in user, never an anonymous
-	visitor.
+	user (`check_space_access`).
+
+	//// Neoffice — this paragraph used to end "Orphan documents (no wiki_space)
+	//// stay readable by all", and the code did exactly that. Orphans now follow
+	//// the rule that holds everywhere else: any logged-in user, never an
+	//// anonymous visitor. The marker sits inside the docstring because that is
+	//// the text being corrected; a `#` comment cannot reach it.
 	"""
 	from wiki.permissions import can_read_space
 

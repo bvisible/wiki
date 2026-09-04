@@ -117,6 +117,9 @@ def _build_wiki_tree_for_api(documents: list[str], include_drafts: bool = True) 
 			"is_published",
 			"sort_order",
 		],
+		#//// Neoffice — was `filters={"name": ("in", documents)}`. The caller may
+		#//// only be entitled to the published, non-private part of the tree; see
+		#//// include_drafts above.
 		filters=filters,
 		order_by="lft asc",
 	)

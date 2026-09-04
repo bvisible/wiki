@@ -181,14 +181,17 @@ def climb_to_root_document(name: str) -> str | None:
 	return None
 
 
+#//// Neoffice — this resolver is ours (pretty URLs) and it is allow_guest. It
+#//// used to answer straight from the route column, so a visitor who guessed a
+#//// slug was told whether a space they cannot read exists, and handed its
+#//// internal ID to feed the rest of the API. _can_see_space() above is that
+#//// filter: a space the caller may not see now answers exactly like a slug
+#//// that matches nothing.
 @frappe.whitelist(allow_guest=True)
 def resolve_space_slug(slug: str) -> dict:
 	"""Resolve a URL slug (e.g. 'technique', 'utilisateur', 'Web-Domaines')
 	to a Wiki Space name (ID). Tries exact route match, then 'wiki/<slug>',
 	then case-insensitive match.
-
-	A space the caller may not see answers exactly like a slug that matches
-	nothing, so the response never confirms that a private space exists.
 	"""
 	slug = (slug or "").strip().strip("/")
 	if not slug:
@@ -214,6 +217,9 @@ def resolve_space_slug(slug: str) -> dict:
 		(slug, f"wiki/{slug}"),
 		as_dict=True,
 	)
+	#//// Neoffice — was `if row: return {"space_id": row[0]["name"]}`. Filtered
+	#//// now, and looped rather than LIMIT 1: with a filter, stopping at the first
+	#//// row would hide a space the caller may read behind one they may not.
 	for candidate in rows:
 		if _can_see_space(candidate["name"]):
 			return {"space_id": candidate["name"]}
@@ -222,6 +228,10 @@ def resolve_space_slug(slug: str) -> dict:
 
 
 
+#//// Neoffice — ours too, and allow_guest like the resolver above. Same hole,
+#//// same filter: anything the caller may not see answers exactly like a path
+#//// that matches nothing, so the response never separates "private" from "does
+#//// not exist".
 @frappe.whitelist(allow_guest=True)
 def resolve_wiki_path(path: str) -> dict:
 	"""Unified resolver for wiki pretty URLs.
@@ -229,9 +239,6 @@ def resolve_wiki_path(path: str) -> dict:
 		- Space slug only: 'technique', 'utilisateur' -> returns space_id
 		- Full document route: 'wiki/rh/configuration-assurances' -> returns {space_id, page_id}
 		- Without 'wiki/' prefix: 'rh/configuration-assurances' -> same as above
-
-	Anything the caller may not see answers exactly like a path that matches
-	nothing: the response never separates "private" from "does not exist".
 	"""
 	path = (path or "").strip().strip("/")
 	if not path:
@@ -287,6 +294,8 @@ def resolve_wiki_path(path: str) -> dict:
 		(path, f"wiki/{path}"),
 		as_dict=True,
 	)
+	#//// Neoffice — same as in resolve_space_slug: filtered, and looped instead of
+	#//// LIMIT 1 so a readable space is not hidden behind an unreadable one.
 	for candidate in rows:
 		if _can_see_space(candidate["name"]):
 			return {"space_id": candidate["name"], "page_id": None}
