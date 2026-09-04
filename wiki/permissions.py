@@ -270,17 +270,29 @@ def wiki_document_query_conditions(user=None, doctype=None):
 	user = user or frappe.session.user
 	if _is_manager(user):
 		return ""
-	return _space_in_clause("tabWiki Document", user, allow_null=True)
+	#//// Neoffice — allow_null was hardcoded True, so every list query got the
+	#//// orphan documents (empty wiki_space) on top of what its spaces allow,
+	#//// anonymous callers included: the master switch is meant to close the whole
+	#//// anonymous surface in one place, and orphans walked around it. Whether "no
+	#//// space" is readable is a question can_read_space already answers
+	#//// (open-space rules: any logged-in user, never a Guest), so ask it rather
+	#//// than assume yes.
+	return _space_in_clause("tabWiki Document", user, allow_null=can_read_space(None, user))
 
 
 def wiki_document_has_permission(doc, ptype, user=None):
 	user = user or frappe.session.user
 	space = doc.wiki_space
 	if not space:
-		# Orphan document: readable by all, writable only by managers.
+		# Orphan document: writable only by managers.
 		if ptype in WRITE_PTYPES:
 			return _is_manager(user)
-		return True
+		#//// Neoffice — was `return True`, which handed every orphan document to
+		#//// anyone at all, Guest included, straight past the master switch. Defer
+		#//// to the space rules for "no space" — open-space rules: any logged-in
+		#//// user, never an anonymous Guest — so an orphan is read under the same
+		#//// rule as everything else.
+		return can_read_space(None, user)
 
 	if ptype in WRITE_PTYPES:
 		# A git-synced space is read-only; only the sync engine (running under

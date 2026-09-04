@@ -427,10 +427,14 @@ class WikiDocument(NestedSet):
 		from wiki.permissions import can_read_space, can_write_space
 
 		space = self.wiki_space or (self.get_wiki_space() or {}).get("name")
-		if not space:
-			# Orphan documents stay readable by all (preserves chromeless pages).
-			return
-
+		#//// Neoffice — the `if not space: return` that stood here is gone. It let
+		#//// an orphan document (no owning space) render for anyone, Guest
+		#//// included, so enable_public_wiki did NOT close the whole anonymous
+		#//// surface the way its comment in permissions.py claims. can_read_space
+		#//// and can_write_space are both well-defined for a missing space — they
+		#//// fall back to the open-space rules, i.e. any logged-in user and never
+		#//// an anonymous Guest — so the line below covers orphans too and there
+		#//// is one rule instead of two.
 		allowed = can_write_space(space, user) if ptype == "write" else can_read_space(space, user)
 		if not allowed:
 			frappe.throw(_("Page not found"), frappe.DoesNotExistError)

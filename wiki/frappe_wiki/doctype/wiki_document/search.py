@@ -47,8 +47,9 @@ def _filter_hits_by_space_visibility(hits: list[dict]) -> list[dict]:
 	restricted spaces can surface here. Resolve each hit's denormalized
 	wiki_space and gate it through the same checks as page rendering: the
 	space must be published (`check_published`) and readable by the current
-	user (`check_space_access`). Orphan documents (no wiki_space) stay
-	readable by all.
+	user (`check_space_access`). Orphan documents (no wiki_space) follow the
+	same rule as everywhere else: any logged-in user, never an anonymous
+	visitor.
 	"""
 	from wiki.permissions import can_read_space
 
@@ -73,9 +74,18 @@ def _filter_hits_by_space_visibility(hits: list[dict]) -> list[dict]:
 			visible[space_name] = bool(space_published) and can_read_space(space_name)
 		return visible[space_name]
 
+	#//// Neoffice — orphan hits (no wiki_space) used to pass unconditionally, so
+	#//// this allow_guest endpoint leaked their titles and snippets to anonymous
+	#//// visitors: the same hole closed in permissions.py and in
+	#//// WikiDocument.check_space_access, and closing two of the three would have
+	#//// been worse than useless. can_read_space(None) is the shared answer for
+	#//// "no space": any logged-in user, never a Guest.
+	orphans_visible = can_read_space(None)
+
 	allowed = []
 	for hit in hits:
 		hit_space = space_by_name.get(hit["name"])
-		if not hit_space or _is_visible(hit_space):
+		visible = _is_visible(hit_space) if hit_space else orphans_visible
+		if visible:
 			allowed.append(hit)
 	return allowed
