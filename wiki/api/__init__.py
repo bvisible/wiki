@@ -96,6 +96,45 @@ def list_public_spaces():
 
 
 
+#//// Neoffice — added. Both resolvers used to climb `parent_wiki_document` in a
+#//// bare `while True`. Wiki Document is a nested set, but the parent link is a
+#//// plain Link field: a bad move, a restored backup or a hand-edited row can
+#//// make a document its own ancestor, and the loop then spins forever inside a
+#//// worker — from an allow_guest endpoint, so one request from any visitor pins
+#//// a worker. Stop on a repeat and on an absurd depth.
+MAX_DOCUMENT_DEPTH = 50
+
+
+def climb_to_root_document(name: str) -> str | None:
+	"""Walk `parent_wiki_document` up to the tree root, cycle- and depth-safe.
+
+	Returns the topmost ancestor reached, or None when the climb hit a cycle or
+	MAX_DOCUMENT_DEPTH. Callers then resolve no space, which reads as "not
+	found" — the safe answer when the tree is corrupt.
+	"""
+	current = name
+	visited = {current}
+
+	for _ in range(MAX_DOCUMENT_DEPTH):
+		parent = frappe.db.get_value("Wiki Document", current, "parent_wiki_document")
+		if not parent:
+			return current
+		if parent in visited:
+			frappe.log_error(
+				"Wiki Document parent cycle",
+				f"Climbing from {name} reached {parent} twice; the tree is corrupt.",
+			)
+			return None
+		visited.add(parent)
+		current = parent
+
+	frappe.log_error(
+		"Wiki Document tree too deep",
+		f"Climbing from {name} passed {MAX_DOCUMENT_DEPTH} levels; the tree is likely corrupt.",
+	)
+	return None
+
+
 @frappe.whitelist(allow_guest=True)
 def resolve_space_slug(slug: str) -> dict:
 	"""Resolve a URL slug (e.g. 'technique', 'utilisateur', 'Web-Domaines')
@@ -150,14 +189,17 @@ def resolve_wiki_path(path: str) -> dict:
 		)
 		if doc:
 			# Walk up to find the owning space
-			current = doc.name
-			while True:
-				parent = frappe.db.get_value("Wiki Document", current, "parent_wiki_document")
-				if not parent:
-					break
-				current = parent
-			# current = root_group, find the space
-			space_id = frappe.db.get_value("Wiki Space", {"root_group": current}, "name")
+			#//// Neoffice — bounded climb; see climb_to_root_document() above.
+			#//// The bare `while True` it replaces spun forever on a cycle in
+			#//// parent_wiki_document, inside a worker, from an allow_guest
+			#//// endpoint.
+			root_group = climb_to_root_document(doc.name)
+			# root_group = the tree root, find the space
+			space_id = (
+				frappe.db.get_value("Wiki Space", {"root_group": root_group}, "name")
+				if root_group
+				else None
+			)
 			return {"space_id": space_id, "page_id": doc.name}
 
 	# Try Wiki Space route match

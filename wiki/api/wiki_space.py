@@ -432,15 +432,19 @@ def get_public_document(doc_key: str) -> dict:
 	#//// Neoffice — a published page still belongs to a space; check that space
 	#//// before handing the content over, so an internal page can't be pulled by
 	#//// key alone. Walk up to the owning root group, then to its space.
+	from wiki.api import climb_to_root_document
 	from wiki.permissions import can_read_space
 
-	current = doc.name
-	while True:
-		parent = frappe.db.get_value("Wiki Document", current, "parent_wiki_document")
-		if not parent:
-			break
-		current = parent
-	space_id = frappe.db.get_value("Wiki Space", {"root_group": current}, "name")
+	#//// Neoffice — bounded climb (was a bare `while True`): a cycle in
+	#//// parent_wiki_document spun a worker forever, and this endpoint is
+	#//// allow_guest. climb_to_root_document() returns None on a cycle or an
+	#//// absurd depth, which lands in the fail-closed check below.
+	root_group = climb_to_root_document(doc.name)
+	space_id = (
+		frappe.db.get_value("Wiki Space", {"root_group": root_group}, "name")
+		if root_group
+		else None
+	)
 	#//// Neoffice — fail CLOSED. This used to read `if space_id and not
 	#//// can_read_space(...)`, so a document whose owning space could not be
 	#//// resolved — an orphan, or a tree this climb refuses to walk — skipped the
