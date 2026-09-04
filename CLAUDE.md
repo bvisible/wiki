@@ -1,3 +1,6 @@
+<!-- //// Neoffice — everything down to "Notes amont" is ours (unshipped file,
+     //// see .gitignore): the fork's own git rules and the commit-the-build
+     //// pipeline. Upstream's file starts at "## About". -->
 # Git Configuration
 
 ## Branch de production
@@ -93,6 +96,9 @@ Use Tracer bullets comes from the Pragmatic Programmer. When building systems, y
 
 ## Pull Requests
 
+<!-- //// Neoffice — rewritten. Upstream tells the reader to ignore the fork and
+     //// push branches to frappe/wiki; on this branch the canonical remote is
+     //// origin (bvisible/wiki) and upstream is read-only. -->
 * Notre repo canonique est `bvisible/wiki` (`origin`), branche `version-15` —
   on y pousse directement, sans PR. `upstream` (`frappe/wiki`) est en lecture
   seule et sert à récupérer les releases amont.

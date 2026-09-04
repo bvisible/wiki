@@ -120,6 +120,12 @@ frappe.ui.form.on("Wiki Space", {
   },
 });
 
+//// Neoffice — added handlers (no upstream equivalent). The Wiki Sidebars grid
+//// shows Published and Allow Guest for each page (two Custom-Field-shaped
+//// additions to Wiki Group Item, see NEOFFICE_FORK_MARKERS.md); ticking a box
+//// in the grid writes the value onto the linked Wiki Page, so an admin can
+//// publish or open a whole space from one screen instead of opening every
+//// page. The child row itself only fetch_from's the value.
 frappe.ui.form.on("Wiki Group Item", {
   published: function (frm, cdt, cdn) {
     let row = locals[cdt][cdn];

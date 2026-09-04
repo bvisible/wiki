@@ -37,4 +37,6 @@ screenshots/
 # Local design tool for the generated OG card (/og_playground) — renders the
 # real template with live dials. Handy while iterating, not something to ship.
 wiki/www/og_playground.py
+#//// Neoffice — trailing newline only. Upstream ends this file without one;
+#//// nothing of ours is at stake, take upstream's version at the next merge.
 wiki/www/og_playground.html

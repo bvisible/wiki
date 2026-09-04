@@ -41,9 +41,13 @@ def _search(query: str, space: str | None = None) -> list[dict[str, Any]]:
 		build_index()
 
 	with contextlib.closing(sqlite3.connect(f"file:{index_path}?mode=ro", uri=True)) as conn:
+		#//// Neoffice — call renamed with the function, see the note in search() above:
+		#//// this is upstream 4885211, carried by the master line and not by version-3.
 		return _run_search_query(conn.cursor(), query, space)
 
 
+#//// Neoffice — renamed from _search() to free that name for the retry wrapper
+#//// above (upstream 4885211, master line only). Body untouched.
 def _run_search_query(cursor: sqlite3.Cursor, query: str, space: str | None = None) -> list[dict[str, Any]]:
 	_set_pragmas(cursor, is_read=True)
 
