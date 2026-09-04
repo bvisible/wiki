@@ -592,6 +592,8 @@ const columns = computed(() => [
 		key: 'space_name',
 		width: 2,
 	},
+	//// Neoffice — the Status column is spread in only for editors (see the note
+	//// above): for a reader every listed space is published by construction.
 	...(isReader.value
 		? []
 		: [
@@ -614,9 +616,12 @@ const columns = computed(() => [
 		width: 3,
 		align: 'left',
 	},
+//// Neoffice — closes the computed() wrapper; upstream ends a plain array here.
 ]);
 
 // Numeric width = fr weight, translated into the List grid template.
+//// Neoffice — wrapped in computed() because `columns` is now reactive (see
+//// above); upstream mapped a constant array once at module scope.
 const tracks = computed(() =>
 	columns.value.map((col) =>
 		typeof col.width === 'number' ? `minmax(0,${col.width}fr)` : col.width,

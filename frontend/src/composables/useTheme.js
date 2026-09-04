@@ -40,6 +40,9 @@ function savedChoice() {
 	return v === 'dark' || v === 'light' ? v : null;
 }
 
+//// Neoffice — added, part of the rewrite described at the top of this file:
+//// the OS preference, the shared ref, applying it at import time (no flash on
+//// first paint) and following live OS changes while no choice was made.
 function systemTheme() {
 	return media?.matches ? 'dark' : 'light';
 }
@@ -64,21 +67,30 @@ if (media) {
 }
 
 export function useTheme() {
+	//// Neoffice — added: upstream compared userTheme.value inline in each caller.
 	const isDark = computed(() => theme.value === 'dark');
 	const themeIcon = computed(() =>
+		//// Neoffice — reads isDark instead of comparing the raw ref (same icon).
 		isDark.value ? 'lucide-sun' : 'lucide-moon',
 	);
 
 	function toggleTheme() {
+		//// Neoffice — toggling now WRITES the choice (upstream only mutated the
+		//// useStorage ref, which was already pre-filled with 'dark' on first visit).
+		//// Guarded because localStorage throws in private mode.
 		const next = theme.value === 'dark' ? 'light' : 'dark';
 		try {
 			localStorage.setItem(STORAGE_KEY, next); // explicit choice persists
 		} catch (_) {
 			/* ignore storage errors (private mode) */
 		}
+		//// Neoffice — applyTheme also sets the ref now, so upstream's trailing
+		//// `userTheme.value = next` disappeared.
 		applyTheme(next);
 	}
 
+	//// Neoffice — added. Drops the explicit choice and hands the theme back to
+	//// the OS; there is no way back to system in upstream once toggled.
 	function resetToSystem() {
 		try {
 			localStorage.removeItem(STORAGE_KEY);
@@ -92,9 +104,13 @@ export function useTheme() {
 	// shell. The module already applied the theme at import time, so this is a
 	// no-op safety net rather than the real entry point.
 	function initTheme() {
+		//// Neoffice — applies the module ref (upstream applied the storage ref).
 		applyTheme(theme.value);
 	}
 
+	//// Neoffice — return widened: upstream returns userTheme/themeIcon/
+	//// toggleTheme/initTheme. Those four names are kept exactly so its own
+	//// components keep working; theme, isDark and resetToSystem are ours.
 	// `userTheme` is upstream's name for the same ref.
 	return {
 		theme,

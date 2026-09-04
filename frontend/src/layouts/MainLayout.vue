@@ -87,6 +87,9 @@ import { useUserStore } from '@/stores/user';
 import { DesktopShell, MobileNav, MobileNavItem, MobileShell } from 'frappe-ui';
 import { computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+//// Neoffice — was `import Sidebar from '../components/Sidebar.vue'`. The
+//// shared Neoffice chrome replaces the app's own sidebar (ADR-015); the
+//// wrapper falls back to the native Sidebar if the cockpit fails to boot.
 import NeoCockpitWikiSidebar from '../components/NeoCockpitWikiSidebar.vue';
 import WikiSettings from '../components/WikiSettings/WikiSettings.vue';
 import { useMobile } from '../composables/useMobile';

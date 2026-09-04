@@ -4,6 +4,9 @@
 
 <script setup>
 import { FileDiff } from '@pierre/diffs';
+//// Neoffice — useStorage('wiki-theme') import dropped, useTheme() imported
+//// instead: upstream read the theme straight from localStorage here, which
+//// bypassed our OS-following theme and re-pinned this viewer to dark.
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useTheme } from '../composables/useTheme';
 
@@ -12,6 +15,8 @@ const THEMES = {
 	light: 'github-light',
 };
 
+//// Neoffice — was useStorage('wiki-theme', 'dark'); now the shared ref (see
+//// the import note above). Same value, one source of truth.
 const { theme: userTheme } = useTheme();
 const themeType = computed(() =>
 	userTheme.value === 'dark' ? 'dark' : 'light',

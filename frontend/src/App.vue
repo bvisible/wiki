@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FrappeUIProvider, setConfig, toast } from 'frappe-ui';
+//// Neoffice — computed + useRoute added for the viewKey below (header space switcher).
 import { computed, onBeforeUnmount, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import MainLayout from './layouts/MainLayout.vue';
@@ -40,6 +41,8 @@ onBeforeUnmount(() => {
 <template>
 	<FrappeUIProvider>
 		<MainLayout>
+			<!-- //// Neoffice — :key added, see viewKey in the script above: without it a
+			     //// space switch never re-created SpaceDetails, which reads its spaceId once. -->
 			<router-view :key="viewKey" />
 		</MainLayout>
 	</FrappeUIProvider>

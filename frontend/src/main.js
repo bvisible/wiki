@@ -5,6 +5,8 @@ import router from './router';
 import { initSocket } from './socket';
 import { pinia } from './stores';
 
+//// Neoffice — translationsReady added to this import; it is what the mount
+//// below waits on.
 import translationPlugin, { translationsReady } from './translation';
 
 import {

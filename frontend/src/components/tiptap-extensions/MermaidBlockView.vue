@@ -13,6 +13,9 @@ function nextMermaidInstanceId() {
 <script setup>
 import { useNodeViewEditable } from '@/composables/useNodeViewEditable';
 import { NodeViewWrapper } from '@tiptap/vue-3';
+//// Neoffice — useStorage dropped from this import and useTheme added on the
+//// line below: upstream read the theme straight from localStorage, which
+//// bypassed our OS-following theme and re-pinned the diagram to dark.
 import { watchDebounced } from '@vueuse/core';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useTheme } from '@/composables/useTheme';
@@ -53,6 +56,7 @@ const isRendering = ref(false);
 // DiffViewer.vue): the shared useTheme() ref, mirrored to <html data-theme>.
 // We re-render on flips so the diagram picks up the freshly-resolved Frappe UI
 // tokens (the theme itself comes from getMermaidThemeConfig(), not this value).
+//// Neoffice — the shared ref, per the note above.
 const { theme: userTheme } = useTheme();
 
 function updateCode(event) {

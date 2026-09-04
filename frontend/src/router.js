@@ -178,6 +178,9 @@ router.beforeEach(async (to, from, next) => {
 			// fall through to normal navigation
 		}
 	}
+//// Neoffice — single terminal next(). Upstream ended on an if/else that only
+//// ever called next() for a signed-in user; the guard above now decides route
+//// by route, so navigation continues here for everyone else.
 
 	next();
 });

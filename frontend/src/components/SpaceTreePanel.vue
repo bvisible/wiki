@@ -66,6 +66,8 @@
 			     The writes were refused server-side, but none of it is a reader's
 			     business. Our pre-merge guard (v-if="!isGuest") lived in
 			     SpaceDetails.vue and did not survive the v3 header refactor. -->
+			<!-- //// Neoffice — the v-if on the next line is ours; the reason is in the
+			     //// comment just above. -->
 			<Button
 				v-if="canManageTabs"
 				variant="ghost"
@@ -122,13 +124,18 @@
 </template>
 
 <script setup>
+//// Neoffice — Dropdown, computed and useRouter added for the space switcher
+//// this header now carries (see the template above).
 import { Button, Dropdown, Skeleton } from 'frappe-ui';
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 
+//// Neoffice — added: the theme toggle we put back in this header needs it.
 import { useTheme } from '../composables/useTheme';
 import WikiDocumentList from './WikiDocumentList.vue';
 
+//// Neoffice — props captured (upstream calls defineProps without binding it):
+//// the switcher and the toggle below read props.spaceId / props.spaces.
 const props = defineProps({
 	spaceId: { type: String, required: true },
 	spaceName: { type: String, default: '' },

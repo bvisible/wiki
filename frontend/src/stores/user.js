@@ -69,6 +69,8 @@ export const useUserStore = defineStore('user', () => {
 		roles,
 		isLoading,
 		isWikiManager,
+		//// Neoffice — exported: components branch on the authoring role, not on
+		//// is_logged_in (see the two computed above).
 		isWikiEditor,
 		canAccessWiki,
 		shouldUseChangeRequestMode,

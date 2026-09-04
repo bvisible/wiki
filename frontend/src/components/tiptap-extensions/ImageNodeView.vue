@@ -2,6 +2,12 @@
     <NodeViewWrapper class="wiki-image-wrapper" :class="{ 'is-selected': selected }">
         <div class="wiki-image-container">
             <div class="wiki-image-frame">
+                <!-- //// Neoffice — two changes inside this img tag, both listed in
+                     //// NEOFFICE_FORK_MARKERS.md because a comment cannot sit between
+                     //// attributes: :width was dropped (the width now goes through :style, so
+                     //// a resized image scales instead of being letterboxed) and @click was
+                     //// re-pointed from selectNode to handleImageClick, which selects in edit
+                     //// mode and opens the lightbox in read mode. -->
                 <img
                     :src="node.attrs.src"
                     :alt="node.attrs.alt || ''"
@@ -80,6 +86,8 @@
 <script setup>
 import { useNodeViewEditable } from '@/composables/useNodeViewEditable';
 import { NodeViewWrapper } from '@tiptap/vue-3';
+//// Neoffice — computed added: imageStyle and currentSize below (image sizing
+//// presets and the read-mode lightbox) are ours.
 import { computed, ref, watch } from 'vue';
 
 const props = defineProps({

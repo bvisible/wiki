@@ -33,6 +33,9 @@
 			>
 				{{ __('Save') }}
 			</Button>
+			<!-- //// Neoffice — v-if added. The menu holds authoring actions only (rename,
+			     //// move, delete, settings), so it is hidden from readers rather than left
+			     //// to fail server-side. -->
 			<Dropdown v-if="!readonly" :options="menuOptions">
 				<Button variant="ghost" :title="__('More actions')">
 					<span class="lucide-more-vertical size-4" aria-hidden="true" />
@@ -163,6 +166,8 @@ import {
 	FormControl,
 	Skeleton,
 	createDocumentResource,
+	//// Neoffice — createResource added: the reader branch below fetches through a
+	//// whitelisted endpoint, not through the Wiki Document document resource.
 	createResource,
 	getCachedDocumentResource,
 	toast,

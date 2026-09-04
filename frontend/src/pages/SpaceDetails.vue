@@ -96,6 +96,10 @@
                 class="border-r border-outline-gray-2 flex flex-col bg-surface-gray-1 relative flex-shrink-0"
                 :style="{ width: `${sidebarWidth}px` }"
             >
+                <!-- //// Neoffice — two props of this component are ours and are listed in
+                     //// NEOFFICE_FORK_MARKERS.md, a comment being impossible between
+                     //// attributes: :readonly was `isGitSynced` upstream and is now isReadOnly
+                     //// (git-synced OR reader), and :spaces feeds the header space switcher. -->
                 <SpaceTreePanel
                     :space-id="spaceId"
                     :space-name="space.doc?.space_name"
@@ -129,6 +133,10 @@
                 :title="__('Pages')"
                 @update:open="mobileTreeOpen = $event"
             >
+                <!-- //// Neoffice — same two props as the desktop panel above (:readonly
+                     //// widened to isReadOnly, :spaces added for the switcher); both listed in
+                     //// NEOFFICE_FORK_MARKERS.md, a comment being impossible between
+                     //// attributes. -->
                 <SpaceTreePanel
                     :space-id="spaceId"
                     :space-name="space.doc?.space_name"
@@ -151,6 +159,8 @@
 
             <main class="flex-1 flex flex-col bg-surface-base min-w-0">
                 <div class="flex-1 overflow-auto">
+                    <!-- //// Neoffice — :readonly below was `isGitSynced`: a reader must get the
+                         //// read-only page too, not only a git-synced space. -->
                     <router-view
                         :space-id="spaceId"
                         :readonly="isReadOnly"
@@ -648,6 +658,8 @@ const treeData = computed(() => {
 	// singleton still hydrated for the previous space. Returning a stale tree
 	// here makes auto-open navigate into the wrong space's page, so gate each on
 	// belonging to the current space.
+	//// Neoffice — was `if (isGitSynced.value)`: readers read the tree through the
+	//// published-only endpoint, so they take the readonly branch as well.
 	if (isReadOnly.value) {
 		return readonlyTreeSpaceId.value === props.spaceId
 			? readonlyTreeData.value
@@ -891,6 +903,8 @@ watch(
 );
 
 async function refreshTree() {
+	//// Neoffice — same widening as in treeData: a reader's refresh must re-run
+	//// the public tree fetch, not the editor one (which answers 403).
 	if (isReadOnly.value) {
 		await loadReadonlyTree();
 		return;
