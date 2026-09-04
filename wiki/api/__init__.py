@@ -23,6 +23,12 @@ def get_space_capabilities(space: str) -> dict:
 	}
 
 
+#//// Neoffice — allow_guest added (upstream: @frappe.whitelist()). The SPA asks
+#//// who it is talking to before it renders anything; on a public wiki that
+#//// caller has no session, and upstream's plain whitelist answered 403, so the
+#//// user store stayed empty and canAccessWiki was false for every anonymous
+#//// visitor. Nothing is disclosed: the Guest branch below returns
+#//// {"is_logged_in": False} and never touches the User doctype.
 @frappe.whitelist(allow_guest=True)
 def get_user_info() -> dict:
 	"""Get basic information about the logged-in user."""

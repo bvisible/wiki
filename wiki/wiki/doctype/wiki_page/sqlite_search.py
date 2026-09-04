@@ -18,6 +18,15 @@ def delete_db():
 def search(query: str, space: str | None = None) -> list[dict[str, Any]]:
 	"""Search the index for the given query and return the results"""
 
+	#//// Neoffice — TO REVIEW at the next merge: this retry is NOT ours. It comes
+	#//// from upstream commit 4885211 ("fix: add retry logic to search",
+	#//// 18alantom, 2025-09-18) on frappe/wiki's `master` line, which the
+	#//// `version-3` line we merged in August 2026 never took. It survived the v3
+	#//// merge, so from version-3's point of view it is divergence and it will
+	#//// conflict. It retries once after wiping a corrupt index (sqlite3
+	#//// OperationalError), and renamed the old `_search(cursor, …)` to
+	#//// `_run_search_query` to free the name for this wrapper. Drop it in favour
+	#//// of upstream's own handling if version-3 ever grows one.
 	for _ in range(2):
 		try:
 			return _search(query, space)

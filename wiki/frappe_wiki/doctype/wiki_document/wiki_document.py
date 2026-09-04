@@ -378,9 +378,15 @@ class WikiDocument(NestedSet):
 	def _can_show_edit(self, wiki_space_doc, user=None) -> bool:
 		"""Whether to render the reader's Edit button for the current user.
 
+		//// Neoffice — docstring reworded (88b1f47). Upstream's text promised the
+		//// button to anyone, "including anonymous visitors who then hit the login
+		//// redirect". That is no longer true: the is_wiki_author() guard below
+		//// hides it from readers, so the sentence had to stop saying otherwise.
 		Shown when the space accepts contributions or when the user has write/merge
 		access (managers always see Edit even with contributions off).
 		"""
+		#//// Neoffice — is_wiki_author added to this import; it is what the guard
+		#//// below calls. Upstream imports only the two contribution helpers.
 		from wiki.permissions import (
 			_space_accepts_contributions,
 			can_write_space,
@@ -578,6 +584,9 @@ class WikiDocument(NestedSet):
 			{
 				"wiki_space": wiki_space_doc,
 				"can_edit": self._can_show_edit(wiki_space_doc),
+				#//// Neoffice — routed through _spaces_for_switcher() (see that
+				#//// method). Upstream inlined a bare frappe.get_all here, filtered
+				#//// on show_in_switcher alone: no is_published, no access check.
 				"wiki_spaces_for_switcher": self._spaces_for_switcher(wiki_space["name"]),
 				"navbar_items": process_navbar_items(wiki_space_doc.navbar_items)
 				if wiki_space_doc.navbar_items
@@ -601,6 +610,8 @@ class WikiDocument(NestedSet):
 		Returns a path rather than an absolute URL so MetaTags absolutizes it
 		through get_url() -- that is what keeps it right on custom domains.
 		"""
+		#//// Neoffice — og_images_supported added to this import (upstream imports
+		#//// only _og_context and og_fingerprint); it is the v15 guard below.
 		from wiki.api.og_image import _og_context, og_fingerprint, og_images_supported
 
 		#//// Neoffice — no renderer on Frappe v15 (see wiki/api/og_image.py), so
@@ -1149,6 +1160,8 @@ def download_pdf(route: str):
 			doc=doc,
 			as_pdf=True,
 			no_letterhead=1,
+			#//// Neoffice — pdf_generator added (upstream lets Frappe pick, which
+			#//// means wkhtmltopdf on our fleet). Reason on the next two lines.
 			# Neoffice renders every PDF with headless Chrome (Oslo print stack).
 			# wkhtmltopdf segfaults (-11) on this content/server, so force Chrome here too.
 			pdf_generator="chrome",
