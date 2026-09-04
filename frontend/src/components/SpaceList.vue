@@ -738,6 +738,7 @@ watch(searchQuery, (value) => {
 				: [],
 			start: 0,
 		});
+		//// Neoffice — .value: `spaces` is a computed now (see above).
 		spaces.value.reload();
 	}, 300);
 });
@@ -777,6 +778,8 @@ const handleCreateSpace = () => {
 		}
 	}
 
+	//// Neoffice — .value: `spaces` is a computed now (see above). Only an
+	//// editor reaches this call, so it always lands on the list resource.
 	return spaces.value.insert.submit(payload);
 };
 </script>
