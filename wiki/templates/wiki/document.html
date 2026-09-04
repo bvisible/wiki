@@ -38,7 +38,8 @@
                         <template x-if="downloadInProgress">
                             {{ render_icon("loader", "w-4 h-4 animate-spin") }}
                         </template>
-                        <span x-text="downloadInProgress ? 'Preparing…' : 'Download'"></span>
+                        {# //// Neoffice — i18n: the same two hardcoded English labels as in macros/buttons.html, which was fixed while this copy was missed. This is the hide_chrome branch (orphan documents), so it renders on a page the space layout never reaches. tojson plus forceescape, not bare quotes, so an apostrophe in a translation cannot break the Alpine expression. #}
+                        <span x-text="downloadInProgress ? {{ _('Preparing…') | tojson | forceescape }} : {{ _('Download') | tojson | forceescape }}"></span>
                     </button>
                     <button @click="copyMarkdown()"
                             class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm-medium text-[var(--ink-gray-7)] bg-[var(--surface-base)] border border-[var(--outline-gray-2)] rounded-lg hover:bg-[var(--surface-gray-1)] transition-colors duration-200 cursor-pointer">
