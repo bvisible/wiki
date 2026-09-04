@@ -441,7 +441,14 @@ def get_public_document(doc_key: str) -> dict:
 			break
 		current = parent
 	space_id = frappe.db.get_value("Wiki Space", {"root_group": current}, "name")
-	if space_id and not can_read_space(space_id):
+	#//// Neoffice — fail CLOSED. This used to read `if space_id and not
+	#//// can_read_space(...)`, so a document whose owning space could not be
+	#//// resolved — an orphan, or a tree this climb refuses to walk — skipped the
+	#//// check altogether and was served to anyone. On a guest-facing endpoint,
+	#//// not knowing which space a page belongs to is a reason to refuse, not to
+	#//// trust the caller. Editors reach such documents through frappe.client.get,
+	#//// which is gated by the doctype's own permissions.
+	if not space_id or not can_read_space(space_id):
 		raise frappe.PermissionError
 
 	return doc
