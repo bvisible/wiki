@@ -83,7 +83,8 @@
         </template>
     </span>
     <div class="flex-1 min-w-0">
-        <div class="truncate" x-text="downloadInProgress ? 'Preparing…' : 'Download'"></div>
+        {# //// Neoffice — i18n: both labels were hardcoded English next to an already-translated line; tojson plus forceescape, not bare quotes, so an apostrophe in a translation cannot break the Alpine expression. #}
+        <div class="truncate" x-text="downloadInProgress ? {{ _('Preparing…') | tojson | forceescape }} : {{ _('Download') | tojson | forceescape }}"></div>
         {# //// Neoffice — i18n: upstream hardcodes the PDF download description in English. #}
         <div class="truncate text-p-sm text-[var(--ink-gray-5)]">{{ _("Download this page as a PDF") }}</div>
     </div>
