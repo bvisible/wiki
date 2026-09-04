@@ -7,6 +7,9 @@
     {# //// Neoffice — brand. Upstream falls back to "Frappe Wiki"; this reader is
        public-facing, so the fallback shows an upstream product name to our
        clients in the browser tab and in search results. #}
+    {# //// Neoffice — brand, see the note above: the marker had to be repeated here
+       //// because only its first line carries the slashes and the title value sits
+       //// four lines below it. #}
     <title>
         {% block title %}
         {{ wiki_space.space_name if wiki_space and wiki_space.space_name else _("Wiki Neoffice") }}

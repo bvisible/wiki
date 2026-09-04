@@ -25,6 +25,8 @@
                {% if edit_external %}target="_blank" rel="noopener"{% endif %}
                class="wiki-edit-link {{ split_segment }} px-2.5">
                 {{ render_icon("edit", "w-4 h-4") }}
+                {# //// Neoffice — i18n: _() applied to the macro argument (upstream printed
+                   //// edit_text raw), so the caller's Edit label is translated too. #}
                 <span>{{ _(edit_text) }}</span>
             </a>
             {% else %}
@@ -40,6 +42,7 @@
             </button>
             {% endif %}
             <!-- Dropdown toggle button -->
+            {# //// Neoffice — i18n on the aria-label below: upstream hardcodes it in English. #}
             <button @click="open = !open"
                     aria-label="{{ _("More page actions") }}"
                     :aria-expanded="open"
@@ -81,6 +84,7 @@
     </span>
     <div class="flex-1 min-w-0">
         <div class="truncate" x-text="downloadInProgress ? 'Preparing…' : 'Download'"></div>
+        {# //// Neoffice — i18n: upstream hardcodes the PDF download description in English. #}
         <div class="truncate text-p-sm text-[var(--ink-gray-5)]">{{ _("Download this page as a PDF") }}</div>
     </div>
 </button>

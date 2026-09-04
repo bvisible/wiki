@@ -48,6 +48,7 @@
                         <template x-if="copied">
                             {{ render_icon("check", "w-4 h-4 text-green-600") }}
                         </template>
+                        {# //// Neoffice — i18n: upstream hardcodes this label in English; _() puts it in the POT so the public reader speaks the client's language. #}
                         <span x-text="copied ? '{{ _('Copied!') }}' : '{{ _('Copy') }}'"></span>
                     </button>
                 </div>
@@ -58,8 +59,10 @@
                 {{ page_actions_dropdown(edit_href=doc.get_edit_link(), show_edit=can_edit, edit_external=wiki_space.git_synced) }}
                     {{ download_action_item() }}
                     {% if can_edit %}
+                    {# //// Neoffice — i18n: upstream passes these menu labels to the macro as raw English; _() puts them in the POT. #}
                     {{ page_action_item(text=_("Copy page"), description=_("Copy page as Markdown for LLMs"), icon="clipboard", click="copyMarkdown(); open = false") }}
                     {% endif %}
+                    {# //// Neoffice — i18n: upstream passes these menu labels to the macro as raw English; _() puts them in the POT. #}
                     {{ page_action_item(text=_("Open in ChatGPT"), description=_("Ask ChatGPT about this page"), icon="openai", href_expr="getAIUrl('openai')", target="_blank") }}
                     {{ page_action_item(text=_("Open in Claude"), description=_("Ask Claude about this page"), icon="claude", href_expr="getAIUrl('claude')", target="_blank") }}
                 {{ dropdown_end() }}
@@ -72,8 +75,10 @@
                     {{ page_actions_dropdown(edit_href=doc.get_edit_link(), show_edit=can_edit, edit_external=wiki_space.git_synced) }}
                         {{ download_action_item() }}
                         {% if can_edit %}
+                        {# //// Neoffice — i18n: same dropdown as above, desktop copy; upstream labels are raw English. #}
                         {{ page_action_item(text=_("Copy page"), description=_("Copy page as Markdown for LLMs"), icon="clipboard", click="copyMarkdown(); open = false") }}
                         {% endif %}
+                        {# //// Neoffice — i18n: same dropdown as above, desktop copy; upstream labels are raw English. #}
                         {{ page_action_item(text=_("Open in ChatGPT"), description=_("Ask ChatGPT about this page"), icon="openai", href_expr="getAIUrl('openai')", target="_blank") }}
                         {{ page_action_item(text=_("Open in Claude"), description=_("Ask Claude about this page"), icon="claude", href_expr="getAIUrl('claude')", target="_blank") }}
                     {{ dropdown_end() }}
@@ -125,6 +130,7 @@
         <!-- Last Updated & Feedback Widget -->
         <div class="mt-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div id="wiki-last-updated" class="text-sm text-[var(--ink-gray-5)]" title="{{ last_updated_on }}" data-timestamp="{{ last_updated_on }}">
+                {# //// Neoffice — i18n: upstream concatenated the English words with the date; _() with a placeholder lets a translator move the date. #}
                 {{ _("Last updated {0}").format(last_updated) }}
             </div>
             {% if wiki_space and wiki_space.enable_feedback_collection %}

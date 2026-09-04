@@ -4,6 +4,7 @@
 <!-- Feedback Widget -->
 <div x-data="feedbackWidget('{{ doc.name }}')" class="flex flex-col items-start sm:items-end">
     <div class="flex flex-col items-start sm:items-center gap-2">
+        {# //// Neoffice — i18n: upstream hardcodes this question in English; _() puts it in the POT. #}
         <span class="text-sm text-[var(--ink-gray-5)]">{{ _("Was this helpful?") }}</span>
 
         <!-- Reaction Buttons (pill-shaped toggle group) -->
@@ -12,6 +13,7 @@
             {"type": "Ok", "mouth": '<line x1="8" y1="15" x2="16" y2="15"/>'},
             {"type": "Good", "mouth": '<path d="M8 14s1.5 2 4 2 4-2 4-2"/>'}
         ] %}
+        {# //// Neoffice — i18n: the aria-label of the fieldset below is read aloud by screen readers, so it is translated too. #}
         <fieldset class="inline-flex rounded-full bg-[var(--surface-gray-2)] p-0.5" role="radiogroup" aria-label="{{ _("Feedback rating") }}">
             {% for reaction in reactions %}
             <button type="button"
@@ -40,6 +42,9 @@
          x-transition:enter-end="opacity-100 translate-y-0"
          class="mt-2 w-72">
         <form @submit.prevent="submit()" class="relative">
+            {# //// Neoffice — i18n on the placeholder attribute of this textarea: upstream
+               //// hardcodes it in English. The marker sits on the element because a comment
+               //// cannot go between attributes; the hunk is listed in NEOFFICE_FORK_MARKERS.md. #}
             <textarea x-ref="feedbackInput"
                       x-model="comment"
                       name="feedback"
@@ -54,6 +59,7 @@
                         type="submit"
                         :disabled="submitting"
                         class="px-2.5 py-1 text-xs-medium rounded-sm bg-[var(--surface-gray-3)] text-[var(--ink-gray-7)] hover:bg-[var(--surface-gray-4)] hover:text-[var(--ink-gray-9)] transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                    {# //// Neoffice — i18n: upstream hardcodes the submit label in English. #}
                     <span x-show="!submitting">{{ _("Submit") }}</span>
                     <span x-show="submitting" class="flex items-center gap-1">
                         <svg class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -67,6 +73,7 @@
                         <circle cx="12" cy="12" r="10"/>
                         <path d="M9 12l2 2 4-4"/>
                     </svg>
+                    {# //// Neoffice — i18n: upstream hardcodes the thank-you in English. #}
                     {{ _("Thanks!") }}
                 </span>
             </div>
