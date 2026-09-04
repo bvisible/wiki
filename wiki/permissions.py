@@ -124,14 +124,26 @@ def public_wiki_enabled() -> bool:
 		return False
 
 
+#//// Neoffice — added. THE definition of "this caller has no account and the
+#//// instance is not public". It exists because the rule used to live inline in
+#//// can_read_space() only: _accessible_space_names(), which answers the very
+#//// same question for the list queries, never consulted the switch — so with
+#//// enable_public_wiki off a Guest was refused one space at a time and handed
+#//// all of them at once. Both go through this now; there is one rule.
+def _guest_access_blocked(user: str) -> bool:
+	"""Whether this caller is anonymous on an instance that is not public."""
+	return user == "Guest" and not public_wiki_enabled()
+
+
 def can_read_space(space, user=None) -> bool:
 	user = user or frappe.session.user
 	if _is_manager(user):
 		return True
 
 	#//// Neoffice — anonymous visitors get nothing while the master switch is
-	#//// off, whatever the space's own role rows say.
-	if user == "Guest" and not public_wiki_enabled():
+	#//// off, whatever the space's own role rows say. Shared with
+	#//// _accessible_space_names() so the two can never drift apart.
+	if _guest_access_blocked(user):
 		return False
 
 	levels = _space_role_levels(space)
@@ -216,6 +228,13 @@ def _accessible_space_names(user=None) -> set:
 	)
 	restricted_spaces = {row.parent for row in rows}
 	accessible_restricted = {row.parent for row in rows if row.role in user_roles}
+
+	#//// Neoffice — the master switch was missing here while can_read_space()
+	#//// applied it, so the two disagreed about the same Guest: every read was
+	#//// refused one by one while this still returned every Guest-roled space to
+	#//// the list queries. Same helper, one answer.
+	if _guest_access_blocked(user):
+		return set()
 
 	if user == "Guest":
 		return accessible_restricted
