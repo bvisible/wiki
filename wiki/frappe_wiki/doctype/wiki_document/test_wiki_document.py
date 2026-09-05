@@ -615,6 +615,14 @@ class TestRenderedPageMetaTags(WikiDocumentTestBase):
 		self.assertRegex(html, rf'<link rel="canonical" href="[^"]*/{doc.route}">')
 
 	def test_rendered_head_uses_generated_og_image_when_no_meta_image(self):
+		# //// Neoffice — generated OG cards need a renderer Frappe v15 does not ship
+		# //// (wiki/api/og_image.py::og_images_supported); the head then omits the
+		# //// card on purpose, so there is nothing to assert here until v16.
+		from wiki.api.og_image import og_images_supported
+
+		if not og_images_supported():
+			self.skipTest("generated OG cards are not supported on this Frappe version")
+
 		route = self._unique("meta-render-fallback")
 		space = create_test_wiki_space(
 			self, "Meta Render Fallback Space", route, None, roles=[("Guest", "Read")]
