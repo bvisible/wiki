@@ -93,6 +93,24 @@ class WikiDocumentTestBase(IntegrationTestCase):
 		super().setUpClass()
 		cls.test_docs = []
 		cls.test_spaces = []
+		# //// Neoffice — this fork adds a master switch, Wiki Settings.enable_public_wiki
+		# //// (off by default): while it is off an anonymous visitor gets nothing, whatever
+		# //// a space's own Guest rows say. Upstream's tests grant Guest Read on a space and
+		# //// expect the page to render for a Guest, so they run with the switch on — the
+		# //// state of a Neoffice instance that publishes its wiki. Committed because the
+		# //// werkzeug test client serves each request on its own DB connection.
+		cls._public_wiki_before = frappe.db.get_single_value("Wiki Settings", "enable_public_wiki")
+		frappe.db.set_single_value("Wiki Settings", "enable_public_wiki", 1)
+		frappe.clear_cache(doctype="Wiki Settings")
+		frappe.db.commit()  # nosemgrep: frappe-semgrep-rules.rules.frappe-manual-commit
+
+	@classmethod
+	def tearDownClass(cls):
+		# //// Neoffice — restore the master switch, see setUpClass.
+		frappe.db.set_single_value("Wiki Settings", "enable_public_wiki", cls._public_wiki_before or 0)
+		frappe.clear_cache(doctype="Wiki Settings")
+		frappe.db.commit()  # nosemgrep: frappe-semgrep-rules.rules.frappe-manual-commit
+		super().tearDownClass()
 
 	def tearDown(self):
 		for doc_name in reversed(self.test_docs):
