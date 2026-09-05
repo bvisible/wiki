@@ -77,6 +77,13 @@ def create_test_wiki_space(test_case, space_name, route, root_group, **kwargs):
 	doc = frappe.get_doc(fields)
 	for role, level in kwargs.get("roles", []):
 		doc.append("roles", {"role": role, "permission_level": level})
+	# //// Neoffice — this fork makes a space public through one honest checkbox,
+	# //// Wiki Space.public_read, and WikiSpace.validate() mirrors it into the Guest
+	# //// role row (and strips a Guest row the checkbox does not back). Upstream's
+	# //// tests express "public" as a bare Guest row; asking for Guest here means
+	# //// the checkbox, exactly what an editor ticks on a Neoffice instance.
+	if any((role or "") == "Guest" for role, _level in kwargs.get("roles", [])):
+		doc.public_read = 1
 	doc.insert(ignore_permissions=True)
 	test_case.test_spaces.append(doc.name)
 	# Track auto-created root_group for cleanup
