@@ -108,6 +108,7 @@ def enqueue_reindex(docnames: list[str]):
 	queue = getattr(search, "add_to_queue", None)
 	try:
 		for docname in docnames:
+			# //// Neoffice — see the block marker above: v15 queue fallback
 			if queue:
 				queue(f"Wiki Document:{docname}")
 			else:
