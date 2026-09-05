@@ -108,14 +108,18 @@ class WikiDocumentTestBase(IntegrationTestCase):
 		# //// werkzeug test client serves each request on its own DB connection.
 		cls._public_wiki_before = frappe.db.get_single_value("Wiki Settings", "enable_public_wiki")
 		frappe.db.set_single_value("Wiki Settings", "enable_public_wiki", 1)
-		frappe.clear_cache(doctype="Wiki Settings")
+		# clear_document_cache, not clear_cache(doctype=): public_wiki_enabled() reads the
+		# single through get_cached_value, whose in-process copy survives across tests.
+		frappe.clear_document_cache("Wiki Settings", "Wiki Settings")
 		frappe.db.commit()  # nosemgrep: frappe-semgrep-rules.rules.frappe-manual-commit
 
 	@classmethod
 	def tearDownClass(cls):
 		# //// Neoffice — restore the master switch, see setUpClass.
 		frappe.db.set_single_value("Wiki Settings", "enable_public_wiki", cls._public_wiki_before or 0)
-		frappe.clear_cache(doctype="Wiki Settings")
+		# clear_document_cache, not clear_cache(doctype=): public_wiki_enabled() reads the
+		# single through get_cached_value, whose in-process copy survives across tests.
+		frappe.clear_document_cache("Wiki Settings", "Wiki Settings")
 		frappe.db.commit()  # nosemgrep: frappe-semgrep-rules.rules.frappe-manual-commit
 		super().tearDownClass()
 
