@@ -47,12 +47,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          #//// Neoffice — wiki-app.html, not wiki.html: wiki v3 renamed the
-          #//// SPA entry point (frontend/vite.config.js -> buildConfig
-          #//// .indexHtmlPath). git add fails hard on a pathspec that matches
-          #//// nothing, so this step exited 128 on every run from 2026-08-09
-          #//// onward and the bot stopped committing artifacts entirely, while
-          #//// the build step above kept passing.
+          # //// Neoffice — wiki-app.html, not wiki.html: wiki v3 renamed the
+          # //// SPA entry point (frontend/vite.config.js -> buildConfig
+          # //// .indexHtmlPath). git add fails hard on a pathspec that matches
+          # //// nothing, so this step exited 128 on every run from 2026-08-09
+          # //// onward and the bot stopped committing artifacts entirely, while
+          # //// the build step above kept passing.
           git add wiki/public/frontend wiki/www/wiki-app.html
           if git diff --cached --quiet; then
             echo "No artifact changes to commit"

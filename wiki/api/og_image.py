@@ -24,13 +24,13 @@ from frappe import _
 from frappe.rate_limiter import rate_limit
 from werkzeug.wrappers import Response
 
-#//// Neoffice — guard the frappe.utils.preview import (upstream imports it bare).
-#//// That module does not exist on Frappe v15, which the whole fleet runs, and
-#//// the import sits on the public reader's render path
-#//// (get_web_context -> get_og_image_url -> this module): every wiki page
-#//// answered HTTP 500. Degrade to "no OG card" instead — pages render, they
-#//// just get no preview image. og_images_supported() is what callers ask.
-#//// Drop this shim once the fleet is on a Frappe that ships the module.
+# //// Neoffice — guard the frappe.utils.preview import (upstream imports it bare).
+# //// That module does not exist on Frappe v15, which the whole fleet runs, and
+# //// the import sits on the public reader's render path
+# //// (get_web_context -> get_og_image_url -> this module): every wiki page
+# //// answered HTTP 500. Degrade to "no OG card" instead — pages render, they
+# //// just get no preview image. og_images_supported() is what callers ask.
+# //// Drop this shim once the fleet is on a Frappe that ships the module.
 try:
 	from frappe.utils.preview import get_preview_from_html
 except ImportError:
@@ -272,16 +272,16 @@ def render_og_html(ctx: dict) -> str:
 	return frappe.render_template("templates/wiki/og_image.html", ctx)
 
 
-#//// Neoffice — added: lets callers ask whether OG cards can be rendered at all
-#//// on this Frappe, instead of discovering it through an ImportError.
+# //// Neoffice — added: lets callers ask whether OG cards can be rendered at all
+# //// on this Frappe, instead of discovering it through an ImportError.
 def og_images_supported() -> bool:
 	"""Whether this Frappe exposes the headless renderer OG cards need."""
 	return get_preview_from_html is not None
 
 
 def generate_og_bytes(ctx: dict) -> bytes:
-	#//// Neoffice — bail out explicitly when the renderer is missing (v15), so a
-	#//// direct hit on the og_image endpoint 404s instead of raising TypeError.
+	# //// Neoffice — bail out explicitly when the renderer is missing (v15), so a
+	# //// direct hit on the og_image endpoint 404s instead of raising TypeError.
 	if not og_images_supported():
 		frappe.throw(
 			_("Generated meta images require a Frappe version with frappe.utils.preview."),

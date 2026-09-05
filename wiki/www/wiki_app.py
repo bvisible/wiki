@@ -5,10 +5,10 @@ import frappe
 from frappe.utils import get_system_timezone
 
 no_cache = 1
-#//// Neoffice — added: the SPA shell is served to visitors without an account
-#//// when the wiki is public. The data behind it is filtered per space by the
-#//// API either way; get_context() below turns anonymous visitors away when the
-#//// master switch is off, so they get a login page instead of an empty shell.
+# //// Neoffice — added: the SPA shell is served to visitors without an account
+# //// when the wiki is public. The data behind it is filtered per space by the
+# //// API either way; get_context() below turns anonymous visitors away when the
+# //// master switch is off, so they get a login page instead of an empty shell.
 allow_guest = 1
 sitemap = 0
 
@@ -16,29 +16,29 @@ ROBOTS_DIRECTIVE = "noindex, nofollow"
 
 
 def get_context():
-	#//// Neoffice — no anonymous access while the wiki is private: send them to
-	#//// the login page rather than an app shell every API call will refuse.
+	# //// Neoffice — no anonymous access while the wiki is private: send them to
+	# //// the login page rather than an app shell every API call will refuse.
 	from wiki.permissions import is_wiki_author, public_wiki_enabled
 
 	if frappe.session.user == "Guest" and not public_wiki_enabled():
 		frappe.local.flags.redirect_location = "/login?redirect-to=/wiki-app"
 		raise frappe.Redirect
 
-	#//// Neoffice — a reader never enters the authoring app. /wiki-app is ours;
-	#//// /wiki/… is the client's, and it is the better read anyway (table of
-	#//// contents, ⌘K search, copy-as-markdown, prev/next). Sending them to the
-	#//// SAME page of the reader keeps a shared /wiki-app link working instead of
-	#//// dropping it on a landing page. Server-side on purpose: the app must not
-	#//// even boot for them, or they get a flash of author chrome. Authors are
-	#//// untouched, so ?preview=1 still works — it only flips the SPA's own
-	#//// reader mode, it does not make an author a reader here.
+	# //// Neoffice — a reader never enters the authoring app. /wiki-app is ours;
+	# //// /wiki/… is the client's, and it is the better read anyway (table of
+	# //// contents, ⌘K search, copy-as-markdown, prev/next). Sending them to the
+	# //// SAME page of the reader keeps a shared /wiki-app link working instead of
+	# //// dropping it on a landing page. Server-side on purpose: the app must not
+	# //// even boot for them, or they get a flash of author chrome. Authors are
+	# //// untouched, so ?preview=1 still works — it only flips the SPA's own
+	# //// reader mode, it does not make an author a reader here.
 	if not is_wiki_author():
 		frappe.local.flags.redirect_location = _reader_url_for_app_path()
 		raise frappe.Redirect
 
-	#//// Neoffice — upstream calls frappe.local.response_headers.set() directly.
-	#//// That attribute does not exist before Frappe ~15.9x and raised on older
-	#//// instances of the fleet, so read it defensively.
+	# //// Neoffice — upstream calls frappe.local.response_headers.set() directly.
+	# //// That attribute does not exist before Frappe ~15.9x and raised on older
+	# //// instances of the fleet, so read it defensively.
 	response_headers = getattr(frappe.local, "response_headers", None)
 	if response_headers is not None:
 		response_headers.set("X-Robots-Tag", ROBOTS_DIRECTIVE)
@@ -50,10 +50,10 @@ def get_context():
 	return context
 
 
-#//// Neoffice — added (no upstream equivalent). Translates an authoring-app URL
-#//// into the reader URL for the same thing, so a reader who was handed a
-#//// /wiki-app link lands on the page that link meant. Never raises: a URL we
-#//// cannot map is still better served by the wiki root than by a 500.
+# //// Neoffice — added (no upstream equivalent). Translates an authoring-app URL
+# //// into the reader URL for the same thing, so a reader who was handed a
+# //// /wiki-app link lands on the page that link meant. Never raises: a URL we
+# //// cannot map is still better served by the wiki root than by a 500.
 def _reader_url_for_app_path() -> str:
 	"""Reader URL matching the requested /wiki-app path, or the wiki root."""
 	from wiki.permissions import can_read_space

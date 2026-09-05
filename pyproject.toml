@@ -4,9 +4,9 @@ authors = [
     { name = "Frappe Technologies Pvt Ltd", email = "developers@frappe.io"}
 ]
 description = "Simple Wiki App"
-#//// Neoffice — was ">=3.14" upstream (v3 targets a Python the fleet does not
-#//// run). Our instances are on 3.10/3.11, where pip refused to install the app
-#//// at all. Drop this once the fleet moves past the version upstream requires.
+# //// Neoffice — was ">=3.14" upstream (v3 targets a Python the fleet does not
+# //// run). Our instances are on 3.10/3.11, where pip refused to install the app
+# //// at all. Drop this once the fleet moves past the version upstream requires.
 requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]

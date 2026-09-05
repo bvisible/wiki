@@ -204,11 +204,11 @@ website_route_rules = [
 	{"from_route": "/wiki-app/<path:app_path>", "to_route": "wiki-app"},
 ]
 
-#//// Neoffice — note, not code. v3 moved the editor SPA from /wiki to /wiki-app,
-#//// which would 404 the bare /wiki that Neoffice instances publish (it is
-#//// wired into neoffice_theme's neoffice_wiki_url, NORA's help panel and
-#//// frappe's desk.js). The redirect is deliberately NOT declared here: a
-#//// website_redirects hook applies fleet-wide AND wins over route resolution,
-#//// so on an instance where a Wiki Space owns the route "wiki" it would hide
-#//// that space's public reader. It is posted per-instance, only when /wiki is
-#//// free, by wiki.frappe_wiki.patches.redirect_bare_wiki_route_to_app.
+# //// Neoffice — note, not code. v3 moved the editor SPA from /wiki to /wiki-app,
+# //// which would 404 the bare /wiki that Neoffice instances publish (it is
+# //// wired into neoffice_theme's neoffice_wiki_url, NORA's help panel and
+# //// frappe's desk.js). The redirect is deliberately NOT declared here: a
+# //// website_redirects hook applies fleet-wide AND wins over route resolution,
+# //// so on an instance where a Wiki Space owns the route "wiki" it would hide
+# //// that space's public reader. It is posted per-instance, only when /wiki is
+# //// free, by wiki.frappe_wiki.patches.redirect_bare_wiki_route_to_app.

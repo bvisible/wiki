@@ -272,11 +272,11 @@ class TestGetWebContext(WikiDocumentTestBase):
 		# At least our 2 visible test spaces should be included
 		self.assertGreaterEqual(len(switcher_spaces), 2)
 
-	#//// Neoffice — added test (no upstream equivalent). Upstream's switcher query
-	#//// filtered on show_in_switcher alone, with no is_published and no access
-	#//// check. On neoservice that published the names and routes of two internal
-	#//// spaces to anonymous visitors. This test is the guard: it fails the moment
-	#//// an upstream merge widens the query again.
+	# //// Neoffice — added test (no upstream equivalent). Upstream's switcher query
+	# //// filtered on show_in_switcher alone, with no is_published and no access
+	# //// check. On neoservice that published the names and routes of two internal
+	# //// spaces to anonymous visitors. This test is the guard: it fails the moment
+	# //// an upstream merge widens the query again.
 	def test_switcher_excludes_unpublished_spaces(self):
 		"""An unpublished space never appears in another space's switcher."""
 		root_current = create_test_wiki_document(self, "Root Current Space", is_group=True)
@@ -302,13 +302,13 @@ class TestGetWebContext(WikiDocumentTestBase):
 		self.assertNotIn("Draft Space", space_names)
 		self.assertIn("Current Space", space_names)
 
-	#//// Neoffice — added test (no upstream equivalent). Upstream offers the Edit
-	#//// button to everyone and lets the click land on a login redirect; that is
-	#//// what walked anonymous visitors into the authoring SPA and its settings
-	#//// gear. Now that /wiki-app bounces non-authors back to the reader, the
-	#//// button must be gated on the authoring role, not merely on being signed
-	#//// in — otherwise it would lead a portal user back to the page they are on.
-	#//// Authors must keep it, so both halves are asserted.
+	# //// Neoffice — added test (no upstream equivalent). Upstream offers the Edit
+	# //// button to everyone and lets the click land on a login redirect; that is
+	# //// what walked anonymous visitors into the authoring SPA and its settings
+	# //// gear. Now that /wiki-app bounces non-authors back to the reader, the
+	# //// button must be gated on the authoring role, not merely on being signed
+	# //// in — otherwise it would lead a portal user back to the page they are on.
+	# //// Authors must keep it, so both halves are asserted.
 	def test_edit_button_hidden_from_anonymous_visitor(self):
 		"""The reader's Edit button is never rendered for Guest."""
 		root = create_test_wiki_document(self, "Root Edit Guard", is_group=True)

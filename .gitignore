@@ -12,10 +12,10 @@ node_modules/*
 cypress/screenshots
 cypress/videos
 __pycache__/
-#//// Neoffice — commit-the-build: upstream ignores every generated asset
-#//// below; we track them instead, because our instances pull the built app
-#//// and never run `yarn build` (4 GB RAM = OOM). Un-ignoring them here is the
-#//// whole mechanism — do not "clean up" these commented lines.
+# //// Neoffice — commit-the-build: upstream ignores every generated asset
+# //// below; we track them instead, because our instances pull the built app
+# //// and never run `yarn build` (4 GB RAM = OOM). Un-ignoring them here is the
+# //// whole mechanism — do not "clean up" these commented lines.
 # CLAUDE.md  # 2026-05-07 unshipped to document commit-the-build pipeline
 # 2026-05-07 (NORA #28) — frontend build outputs are committed on this branch.
 # See docs/COMMIT-BUILD-PATTERN.md in neoffice-devops.
@@ -37,6 +37,6 @@ screenshots/
 # Local design tool for the generated OG card (/og_playground) — renders the
 # real template with live dials. Handy while iterating, not something to ship.
 wiki/www/og_playground.py
-#//// Neoffice — trailing newline only. Upstream ends this file without one;
-#//// nothing of ours is at stake, take upstream's version at the next merge.
+# //// Neoffice — trailing newline only. Upstream ends this file without one;
+# //// nothing of ours is at stake, take upstream's version at the next merge.
 wiki/www/og_playground.html

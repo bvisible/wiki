@@ -1,8 +1,8 @@
-#//// Neoffice — added file (no upstream equivalent).
-#//// Fails the build when a change of ours disappears from the fork. Runs on
-#//// PUSH, not only on pull_request: we push straight to version-15, so a
-#//// PR-only workflow (see linters.yml) would never fire on the merge commit
-#//// that eats something — which is exactly the moment it has to fire.
+# //// Neoffice — added file (no upstream equivalent).
+# //// Fails the build when a change of ours disappears from the fork. Runs on
+# //// PUSH, not only on pull_request: we push straight to version-15, so a
+# //// PR-only workflow (see linters.yml) would never fire on the merge commit
+# //// that eats something — which is exactly the moment it has to fire.
 name: Neoffice Divergence
 
 on:

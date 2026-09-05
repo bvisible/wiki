@@ -23,12 +23,12 @@ def get_space_capabilities(space: str) -> dict:
 	}
 
 
-#//// Neoffice — allow_guest added (upstream: @frappe.whitelist()). The SPA asks
-#//// who it is talking to before it renders anything; on a public wiki that
-#//// caller has no session, and upstream's plain whitelist answered 403, so the
-#//// user store stayed empty and canAccessWiki was false for every anonymous
-#//// visitor. Nothing is disclosed: the Guest branch below returns
-#//// {"is_logged_in": False} and never touches the User doctype.
+# //// Neoffice — allow_guest added (upstream: @frappe.whitelist()). The SPA asks
+# //// who it is talking to before it renders anything; on a public wiki that
+# //// caller has no session, and upstream's plain whitelist answered 403, so the
+# //// user store stayed empty and canAccessWiki was false for every anonymous
+# //// visitor. Nothing is disclosed: the Guest branch below returns
+# //// {"is_logged_in": False} and never touches the User doctype.
 @frappe.whitelist(allow_guest=True)
 def get_user_info() -> dict:
 	"""Get basic information about the logged-in user."""
@@ -61,14 +61,14 @@ def get_translations():
 	return get_all_translations(language)
 
 
-#//// Neoffice — everything from here to resolve_wiki_path() is ours; upstream
-#//// has no equivalent. Two needs it serves:
-#////   1. readers (anonymous or portal Website Users) can't list Wiki Space
-#////      through frappe.client.get_list — this exposes the published ones only;
-#////   2. pretty URLs: our wikis are linked as /wiki/<space>/<page>, which the
-#////      SPA resolves through resolve_wiki_path() instead of internal IDs.
-#//// ignore_permissions is deliberate and safe HERE because the filter already
-#//// restricts the rows to published + switcher-visible spaces.
+# //// Neoffice — everything from here to resolve_wiki_path() is ours; upstream
+# //// has no equivalent. Two needs it serves:
+# ////   1. readers (anonymous or portal Website Users) can't list Wiki Space
+# ////      through frappe.client.get_list — this exposes the published ones only;
+# ////   2. pretty URLs: our wikis are linked as /wiki/<space>/<page>, which the
+# ////      SPA resolves through resolve_wiki_path() instead of internal IDs.
+# //// ignore_permissions is deliberate and safe HERE because the filter already
+# //// restricts the rows to published + switcher-visible spaces.
 @frappe.whitelist(allow_guest=True)
 def list_public_spaces():
 	"""Return the spaces the caller may actually read, published + in the switcher.
@@ -83,27 +83,27 @@ def list_public_spaces():
 		filters={"is_published": 1, "show_in_switcher": 1},
 		fields=["name", "space_name", "route", "root_group", "is_published", "switcher_order"],
 		order_by="switcher_order asc, creation asc",
-		#//// Neoffice — ignore_permissions is safe ONLY because can_read_space()
-		#//// filters the rows right below. It stays because the Wiki Space
-		#//// permission query alone would hide rows a guest is entitled to.
+		# //// Neoffice — ignore_permissions is safe ONLY because can_read_space()
+		# //// filters the rows right below. It stays because the Wiki Space
+		# //// permission query alone would hide rows a guest is entitled to.
 		ignore_permissions=True,
 	)
-	#//// Neoffice — this used to return every published space to anyone. It fed
-	#//// the reader's space list, so a client instance advertised its internal
-	#//// spaces to the open internet. Now each row goes through the same access
-	#//// check as the rest of the app (which itself honours the master switch).
+	# //// Neoffice — this used to return every published space to anyone. It fed
+	# //// the reader's space list, so a client instance advertised its internal
+	# //// spaces to the open internet. Now each row goes through the same access
+	# //// check as the rest of the app (which itself honours the master switch).
 	return [s for s in spaces if can_read_space(s.name)]
 
 
 
-#//// Neoffice — added. The two resolvers below are ours and both allow_guest.
-#//// They answered straight from the route column, so a visitor who guessed a
-#//// URL was told whether an unpublished page or a space they cannot read
-#//// exists, and was handed its internal ID to feed the rest of the API. These
-#//// helpers are that filter, and they answer FOR THE CALLER: an editor still
-#//// resolves the drafts they are working on, everybody else only ever sees what
-#//// is published. Same rules as get_public_space_info(), so the reader and the
-#//// resolver can never disagree about what exists.
+# //// Neoffice — added. The two resolvers below are ours and both allow_guest.
+# //// They answered straight from the route column, so a visitor who guessed a
+# //// URL was told whether an unpublished page or a space they cannot read
+# //// exists, and was handed its internal ID to feed the rest of the API. These
+# //// helpers are that filter, and they answer FOR THE CALLER: an editor still
+# //// resolves the drafts they are working on, everybody else only ever sees what
+# //// is published. Same rules as get_public_space_info(), so the reader and the
+# //// resolver can never disagree about what exists.
 def _can_see_space(space_id: str | None) -> bool:
 	"""Whether the caller may be told this Wiki Space exists.
 
@@ -142,12 +142,12 @@ def _can_see_document(doc_name: str, space_id: str | None) -> bool:
 	return bool(row and row.is_published and not row.is_private)
 
 
-#//// Neoffice — added. Both resolvers used to climb `parent_wiki_document` in a
-#//// bare `while True`. Wiki Document is a nested set, but the parent link is a
-#//// plain Link field: a bad move, a restored backup or a hand-edited row can
-#//// make a document its own ancestor, and the loop then spins forever inside a
-#//// worker — from an allow_guest endpoint, so one request from any visitor pins
-#//// a worker. Stop on a repeat and on an absurd depth.
+# //// Neoffice — added. Both resolvers used to climb `parent_wiki_document` in a
+# //// bare `while True`. Wiki Document is a nested set, but the parent link is a
+# //// plain Link field: a bad move, a restored backup or a hand-edited row can
+# //// make a document its own ancestor, and the loop then spins forever inside a
+# //// worker — from an allow_guest endpoint, so one request from any visitor pins
+# //// a worker. Stop on a repeat and on an absurd depth.
 MAX_DOCUMENT_DEPTH = 50
 
 
@@ -181,12 +181,12 @@ def climb_to_root_document(name: str) -> str | None:
 	return None
 
 
-#//// Neoffice — this resolver is ours (pretty URLs) and it is allow_guest. It
-#//// used to answer straight from the route column, so a visitor who guessed a
-#//// slug was told whether a space they cannot read exists, and handed its
-#//// internal ID to feed the rest of the API. _can_see_space() above is that
-#//// filter: a space the caller may not see now answers exactly like a slug
-#//// that matches nothing.
+# //// Neoffice — this resolver is ours (pretty URLs) and it is allow_guest. It
+# //// used to answer straight from the route column, so a visitor who guessed a
+# //// slug was told whether a space they cannot read exists, and handed its
+# //// internal ID to feed the rest of the API. _can_see_space() above is that
+# //// filter: a space the caller may not see now answers exactly like a slug
+# //// that matches nothing.
 @frappe.whitelist(allow_guest=True)
 def resolve_space_slug(slug: str) -> dict:
 	"""Resolve a URL slug (e.g. 'technique', 'utilisateur', 'Web-Domaines')
@@ -200,26 +200,26 @@ def resolve_space_slug(slug: str) -> dict:
 	candidates = [slug, f"wiki/{slug}"]
 	for route in candidates:
 		name = frappe.db.get_value("Wiki Space", {"route": route}, "name")
-		#//// Neoffice — was `if name:`. Any row matching the route was handed
-		#//// over, published or not, readable by this caller or not.
+		# //// Neoffice — was `if name:`. Any row matching the route was handed
+		# //// over, published or not, readable by this caller or not.
 		if name and _can_see_space(name):
 			return {"space_id": name}
 
 	# Case-insensitive fallback
-	#//// Neoffice — this raw-SQL fallback bypassed every check above, so a slug
-	#//// in the wrong case reached spaces the ORM path had already refused. It
-	#//// goes through the same filter now, and the LIMIT 1 had to go with it:
-	#//// with a filter, stopping at the first row would hide a space the caller
-	#//// may read behind one they may not.
+	# //// Neoffice — this raw-SQL fallback bypassed every check above, so a slug
+	# //// in the wrong case reached spaces the ORM path had already refused. It
+	# //// goes through the same filter now, and the LIMIT 1 had to go with it:
+	# //// with a filter, stopping at the first row would hide a space the caller
+	# //// may read behind one they may not.
 	rows = frappe.db.sql(
 		"""SELECT name FROM `tabWiki Space`
 		WHERE LOWER(route) IN (LOWER(%s), LOWER(%s))""",
 		(slug, f"wiki/{slug}"),
 		as_dict=True,
 	)
-	#//// Neoffice — was `if row: return {"space_id": row[0]["name"]}`. Filtered
-	#//// now, and looped rather than LIMIT 1: with a filter, stopping at the first
-	#//// row would hide a space the caller may read behind one they may not.
+	# //// Neoffice — was `if row: return {"space_id": row[0]["name"]}`. Filtered
+	# //// now, and looped rather than LIMIT 1: with a filter, stopping at the first
+	# //// row would hide a space the caller may read behind one they may not.
 	for candidate in rows:
 		if _can_see_space(candidate["name"]):
 			return {"space_id": candidate["name"]}
@@ -228,10 +228,10 @@ def resolve_space_slug(slug: str) -> dict:
 
 
 
-#//// Neoffice — ours too, and allow_guest like the resolver above. Same hole,
-#//// same filter: anything the caller may not see answers exactly like a path
-#//// that matches nothing, so the response never separates "private" from "does
-#//// not exist".
+# //// Neoffice — ours too, and allow_guest like the resolver above. Same hole,
+# //// same filter: anything the caller may not see answers exactly like a path
+# //// that matches nothing, so the response never separates "private" from "does
+# //// not exist".
 @frappe.whitelist(allow_guest=True)
 def resolve_wiki_path(path: str) -> dict:
 	"""Unified resolver for wiki pretty URLs.
@@ -255,10 +255,10 @@ def resolve_wiki_path(path: str) -> dict:
 		)
 		if doc:
 			# Walk up to find the owning space
-			#//// Neoffice — bounded climb; see climb_to_root_document() above.
-			#//// The bare `while True` it replaces spun forever on a cycle in
-			#//// parent_wiki_document, inside a worker, from an allow_guest
-			#//// endpoint.
+			# //// Neoffice — bounded climb; see climb_to_root_document() above.
+			# //// The bare `while True` it replaces spun forever on a cycle in
+			# //// parent_wiki_document, inside a worker, from an allow_guest
+			# //// endpoint.
 			root_group = climb_to_root_document(doc.name)
 			# root_group = the tree root, find the space
 			space_id = (
@@ -266,13 +266,13 @@ def resolve_wiki_path(path: str) -> dict:
 				if root_group
 				else None
 			)
-			#//// Neoffice — was an unconditional return. It disclosed the
-			#//// internal ID of any page whose route you could guess —
-			#//// unpublished drafts, private pages, pages in spaces the caller
-			#//// cannot read — which is then enough to pull it through the rest
-			#//// of the API. A page we may not show is not a match: fall through
-			#//// to the space lookups and, failing those, to the shared "not
-			#//// found" at the end.
+			# //// Neoffice — was an unconditional return. It disclosed the
+			# //// internal ID of any page whose route you could guess —
+			# //// unpublished drafts, private pages, pages in spaces the caller
+			# //// cannot read — which is then enough to pull it through the rest
+			# //// of the API. A page we may not show is not a match: fall through
+			# //// to the space lookups and, failing those, to the shared "not
+			# //// found" at the end.
 			if _can_see_document(doc.name, space_id):
 				return {"space_id": space_id, "page_id": doc.name}
 
@@ -280,22 +280,22 @@ def resolve_wiki_path(path: str) -> dict:
 	candidates_space = [path, f"wiki/{path}"]
 	for route in candidates_space:
 		name = frappe.db.get_value("Wiki Space", {"route": route}, "name")
-		#//// Neoffice — same filter as resolve_space_slug: a space the caller
-		#//// may not see answers like one that does not exist.
+		# //// Neoffice — same filter as resolve_space_slug: a space the caller
+		# //// may not see answers like one that does not exist.
 		if name and _can_see_space(name):
 			return {"space_id": name, "page_id": None}
 
 	# Case-insensitive fallback on Wiki Space route
-	#//// Neoffice — filtered too, and un-LIMIT-ed for the same reason as in
-	#//// resolve_space_slug: the first row is not necessarily the readable one.
+	# //// Neoffice — filtered too, and un-LIMIT-ed for the same reason as in
+	# //// resolve_space_slug: the first row is not necessarily the readable one.
 	rows = frappe.db.sql(
 		"""SELECT name FROM `tabWiki Space`
 		WHERE LOWER(route) IN (LOWER(%s), LOWER(%s))""",
 		(path, f"wiki/{path}"),
 		as_dict=True,
 	)
-	#//// Neoffice — same as in resolve_space_slug: filtered, and looped instead of
-	#//// LIMIT 1 so a readable space is not hidden behind an unreadable one.
+	# //// Neoffice — same as in resolve_space_slug: filtered, and looped instead of
+	# //// LIMIT 1 so a readable space is not hidden behind an unreadable one.
 	for candidate in rows:
 		if _can_see_space(candidate["name"]):
 			return {"space_id": candidate["name"], "page_id": None}

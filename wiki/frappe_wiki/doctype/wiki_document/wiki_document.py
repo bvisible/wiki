@@ -67,11 +67,11 @@ def process_navbar_items(navbar_items: list) -> list:
 	"""
 	processed = []
 	for item in navbar_items:
-		#//// Neoffice — skip items with no URL. Upstream renders every row, and the
-		#//// templates drop item.url straight into href — so a row saved without a
-		#//// URL shipped `<a href="None" target="_blank">` to the public reader: a
-		#//// navbar link that opens a new tab on a 404. Real case on neoservice, a
-		#//// "Wiki" item on the Documentation Utilisateur space.
+		# //// Neoffice — skip items with no URL. Upstream renders every row, and the
+		# //// templates drop item.url straight into href — so a row saved without a
+		# //// URL shipped `<a href="None" target="_blank">` to the public reader: a
+		# //// navbar link that opens a new tab on a 404. Real case on neoservice, a
+		# //// "Wiki" item on the Documentation Utilisateur space.
 		if not (item.url or "").strip():
 			continue
 
@@ -338,14 +338,14 @@ class WikiDocument(NestedSet):
 			return None
 		return build_github_edit_url(space.repo_full_name, space.branch, self.source_path)
 
-	#//// Neoffice — added (upstream inlined a bare frappe.get_all in
-	#//// get_web_context). Upstream's query filtered on show_in_switcher alone:
-	#//// no is_published, no access check, no permission gate. On neoservice that
-	#//// listed "NORA Knowledge Base" (is_published=0, public_read=0) and "Aide
-	#//// Neoffice" (is_published=0) to anonymous visitors — the content 404'd, but
-	#//// the names, the routes and, through the space redirect, the slug of each
-	#//// space's first page were handed to the open internet. Same rule as
-	#//// wiki.api.list_public_spaces now: published, then can_read_space().
+	# //// Neoffice — added (upstream inlined a bare frappe.get_all in
+	# //// get_web_context). Upstream's query filtered on show_in_switcher alone:
+	# //// no is_published, no access check, no permission gate. On neoservice that
+	# //// listed "NORA Knowledge Base" (is_published=0, public_read=0) and "Aide
+	# //// Neoffice" (is_published=0) to anonymous visitors — the content 404'd, but
+	# //// the names, the routes and, through the space redirect, the slug of each
+	# //// space's first page were handed to the open internet. Same rule as
+	# //// wiki.api.list_public_spaces now: published, then can_read_space().
 	def _spaces_for_switcher(self, current_space: str) -> list[dict]:
 		"""Spaces to offer in the reader's switcher, restricted to what the caller may read."""
 		from wiki.permissions import can_read_space
@@ -385,8 +385,8 @@ class WikiDocument(NestedSet):
 		Shown when the space accepts contributions or when the user has write/merge
 		access (managers always see Edit even with contributions off).
 		"""
-		#//// Neoffice — is_wiki_author added to this import; it is what the guard
-		#//// below calls. Upstream imports only the two contribution helpers.
+		# //// Neoffice — is_wiki_author added to this import; it is what the guard
+		# //// below calls. Upstream imports only the two contribution helpers.
 		from wiki.permissions import (
 			_space_accepts_contributions,
 			can_write_space,
@@ -394,12 +394,12 @@ class WikiDocument(NestedSet):
 		)
 		from wiki.wiki.git_sync import build_github_edit_url
 
-		#//// Neoffice — Edit is for authors only. Upstream shows it to everyone and
-		#//// lets the click land on a login redirect; _space_accepts_contributions()
-		#//// treats a NULL flag as enabled, so every space we have was showing it to
-		#//// anonymous visitors. It also has to stay hidden from a signed-in portal
-		#//// user: /wiki-app now bounces non-authors back to the reader, so for them
-		#//// the button would lead straight back to the page they are already on.
+		# //// Neoffice — Edit is for authors only. Upstream shows it to everyone and
+		# //// lets the click land on a login redirect; _space_accepts_contributions()
+		# //// treats a NULL flag as enabled, so every space we have was showing it to
+		# //// anonymous visitors. It also has to stay hidden from a signed-in portal
+		# //// user: /wiki-app now bounces non-authors back to the reader, so for them
+		# //// the button would lead straight back to the page they are already on.
 		if not is_wiki_author(user):
 			return False
 
@@ -427,14 +427,14 @@ class WikiDocument(NestedSet):
 		from wiki.permissions import can_read_space, can_write_space
 
 		space = self.wiki_space or (self.get_wiki_space() or {}).get("name")
-		#//// Neoffice — the `if not space: return` that stood here is gone. It let
-		#//// an orphan document (no owning space) render for anyone, Guest
-		#//// included, so enable_public_wiki did NOT close the whole anonymous
-		#//// surface the way its comment in permissions.py claims. can_read_space
-		#//// and can_write_space are both well-defined for a missing space — they
-		#//// fall back to the open-space rules, i.e. any logged-in user and never
-		#//// an anonymous Guest — so the line below covers orphans too and there
-		#//// is one rule instead of two.
+		# //// Neoffice — the `if not space: return` that stood here is gone. It let
+		# //// an orphan document (no owning space) render for anyone, Guest
+		# //// included, so enable_public_wiki did NOT close the whole anonymous
+		# //// surface the way its comment in permissions.py claims. can_read_space
+		# //// and can_write_space are both well-defined for a missing space — they
+		# //// fall back to the open-space rules, i.e. any logged-in user and never
+		# //// an anonymous Guest — so the line below covers orphans too and there
+		# //// is one rule instead of two.
 		allowed = can_write_space(space, user) if ptype == "write" else can_read_space(space, user)
 		if not allowed:
 			frappe.throw(_("Page not found"), frappe.DoesNotExistError)
@@ -588,9 +588,9 @@ class WikiDocument(NestedSet):
 			{
 				"wiki_space": wiki_space_doc,
 				"can_edit": self._can_show_edit(wiki_space_doc),
-				#//// Neoffice — routed through _spaces_for_switcher() (see that
-				#//// method). Upstream inlined a bare frappe.get_all here, filtered
-				#//// on show_in_switcher alone: no is_published, no access check.
+				# //// Neoffice — routed through _spaces_for_switcher() (see that
+				# //// method). Upstream inlined a bare frappe.get_all here, filtered
+				# //// on show_in_switcher alone: no is_published, no access check.
 				"wiki_spaces_for_switcher": self._spaces_for_switcher(wiki_space["name"]),
 				"navbar_items": process_navbar_items(wiki_space_doc.navbar_items)
 				if wiki_space_doc.navbar_items
@@ -614,12 +614,12 @@ class WikiDocument(NestedSet):
 		Returns a path rather than an absolute URL so MetaTags absolutizes it
 		through get_url() -- that is what keeps it right on custom domains.
 		"""
-		#//// Neoffice — og_images_supported added to this import (upstream imports
-		#//// only _og_context and og_fingerprint); it is the v15 guard below.
+		# //// Neoffice — og_images_supported added to this import (upstream imports
+		# //// only _og_context and og_fingerprint); it is the v15 guard below.
 		from wiki.api.og_image import _og_context, og_fingerprint, og_images_supported
 
-		#//// Neoffice — no renderer on Frappe v15 (see wiki/api/og_image.py), so
-		#//// advertise no OG card rather than a URL that cannot be produced.
+		# //// Neoffice — no renderer on Frappe v15 (see wiki/api/og_image.py), so
+		# //// advertise no OG card rather than a URL that cannot be produced.
 		if not og_images_supported():
 			return None
 		if self.is_group or self.is_external_link or not self.is_published or not self.route:
@@ -1164,8 +1164,8 @@ def download_pdf(route: str):
 			doc=doc,
 			as_pdf=True,
 			no_letterhead=1,
-			#//// Neoffice — pdf_generator added (upstream lets Frappe pick, which
-			#//// means wkhtmltopdf on our fleet). Reason on the next two lines.
+			# //// Neoffice — pdf_generator added (upstream lets Frappe pick, which
+			# //// means wkhtmltopdf on our fleet). Reason on the next two lines.
 			# Neoffice renders every PDF with headless Chrome (Oslo print stack).
 			# wkhtmltopdf segfaults (-11) on this content/server, so force Chrome here too.
 			pdf_generator="chrome",

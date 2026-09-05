@@ -54,13 +54,13 @@ def _is_manager(user=None) -> bool:
 	return bool(MANAGER_ROLES & set(frappe.get_roles(user)))
 
 
-#//// Neoffice — added (no upstream equivalent). The line between the two
-#//// surfaces: /wiki/… is the reader our clients use, /wiki-app is the authoring
-#//// app we use. Anyone without an authoring role has nothing to do in the app —
-#//// it has no table of contents, no ⌘K search, no copy-as-markdown, and it kept
-#//// showing them author chrome (settings gear, publication badge, Edit button)
-#//// that we then had to patch away one by one. Mirrors isWikiEditor in
-#//// frontend/src/stores/user.js: keep the two in step.
+# //// Neoffice — added (no upstream equivalent). The line between the two
+# //// surfaces: /wiki/… is the reader our clients use, /wiki-app is the authoring
+# //// app we use. Anyone without an authoring role has nothing to do in the app —
+# //// it has no table of contents, no ⌘K search, no copy-as-markdown, and it kept
+# //// showing them author chrome (settings gear, publication badge, Edit button)
+# //// that we then had to patch away one by one. Mirrors isWikiEditor in
+# //// frontend/src/stores/user.js: keep the two in step.
 def is_wiki_author(user=None) -> bool:
 	"""Whether the user holds a wiki authoring role (so belongs in /wiki-app)."""
 	user = user or frappe.session.user
@@ -102,17 +102,17 @@ def _space_role_levels(space) -> dict:
 	return levels
 
 
-#//// Neoffice — added. Master switch for anonymous access, off by default.
-#//// Upstream decides "public" per space, through a Guest row in the space's
-#//// role table. That is fine for a wiki meant to be read from the internet
-#//// (our shared manual on the hub), but it is the wrong default for a client
-#//// instance, where the wiki is an internal tool. Worse, upstream's
-#//// seed_space_roles_from_published patch turned every is_published space into
-#//// a Guest-readable one at migration time — on osiris that silently exposed
-#//// ERPNextSwiss, Déclarations annuelles and DevOps to the open internet.
-#//// This switch gates the whole anonymous surface in ONE place that every read
-#//// path already goes through, so a client instance leaks nothing until
-#//// somebody deliberately turns it on.
+# //// Neoffice — added. Master switch for anonymous access, off by default.
+# //// Upstream decides "public" per space, through a Guest row in the space's
+# //// role table. That is fine for a wiki meant to be read from the internet
+# //// (our shared manual on the hub), but it is the wrong default for a client
+# //// instance, where the wiki is an internal tool. Worse, upstream's
+# //// seed_space_roles_from_published patch turned every is_published space into
+# //// a Guest-readable one at migration time — on osiris that silently exposed
+# //// ERPNextSwiss, Déclarations annuelles and DevOps to the open internet.
+# //// This switch gates the whole anonymous surface in ONE place that every read
+# //// path already goes through, so a client instance leaks nothing until
+# //// somebody deliberately turns it on.
 def public_wiki_enabled() -> bool:
 	"""Whether this instance serves the wiki to visitors without an account."""
 	try:
@@ -124,12 +124,12 @@ def public_wiki_enabled() -> bool:
 		return False
 
 
-#//// Neoffice — added. THE definition of "this caller has no account and the
-#//// instance is not public". It exists because the rule used to live inline in
-#//// can_read_space() only: _accessible_space_names(), which answers the very
-#//// same question for the list queries, never consulted the switch — so with
-#//// enable_public_wiki off a Guest was refused one space at a time and handed
-#//// all of them at once. Both go through this now; there is one rule.
+# //// Neoffice — added. THE definition of "this caller has no account and the
+# //// instance is not public". It exists because the rule used to live inline in
+# //// can_read_space() only: _accessible_space_names(), which answers the very
+# //// same question for the list queries, never consulted the switch — so with
+# //// enable_public_wiki off a Guest was refused one space at a time and handed
+# //// all of them at once. Both go through this now; there is one rule.
 def _guest_access_blocked(user: str) -> bool:
 	"""Whether this caller is anonymous on an instance that is not public."""
 	return user == "Guest" and not public_wiki_enabled()
@@ -140,9 +140,9 @@ def can_read_space(space, user=None) -> bool:
 	if _is_manager(user):
 		return True
 
-	#//// Neoffice — anonymous visitors get nothing while the master switch is
-	#//// off, whatever the space's own role rows say. Shared with
-	#//// _accessible_space_names() so the two can never drift apart.
+	# //// Neoffice — anonymous visitors get nothing while the master switch is
+	# //// off, whatever the space's own role rows say. Shared with
+	# //// _accessible_space_names() so the two can never drift apart.
 	if _guest_access_blocked(user):
 		return False
 
@@ -229,10 +229,10 @@ def _accessible_space_names(user=None) -> set:
 	restricted_spaces = {row.parent for row in rows}
 	accessible_restricted = {row.parent for row in rows if row.role in user_roles}
 
-	#//// Neoffice — the master switch was missing here while can_read_space()
-	#//// applied it, so the two disagreed about the same Guest: every read was
-	#//// refused one by one while this still returned every Guest-roled space to
-	#//// the list queries. Same helper, one answer.
+	# //// Neoffice — the master switch was missing here while can_read_space()
+	# //// applied it, so the two disagreed about the same Guest: every read was
+	# //// refused one by one while this still returned every Guest-roled space to
+	# //// the list queries. Same helper, one answer.
 	if _guest_access_blocked(user):
 		return set()
 
@@ -289,13 +289,13 @@ def wiki_document_query_conditions(user=None, doctype=None):
 	user = user or frappe.session.user
 	if _is_manager(user):
 		return ""
-	#//// Neoffice — allow_null was hardcoded True, so every list query got the
-	#//// orphan documents (empty wiki_space) on top of what its spaces allow,
-	#//// anonymous callers included: the master switch is meant to close the whole
-	#//// anonymous surface in one place, and orphans walked around it. Whether "no
-	#//// space" is readable is a question can_read_space already answers
-	#//// (open-space rules: any logged-in user, never a Guest), so ask it rather
-	#//// than assume yes.
+	# //// Neoffice — allow_null was hardcoded True, so every list query got the
+	# //// orphan documents (empty wiki_space) on top of what its spaces allow,
+	# //// anonymous callers included: the master switch is meant to close the whole
+	# //// anonymous surface in one place, and orphans walked around it. Whether "no
+	# //// space" is readable is a question can_read_space already answers
+	# //// (open-space rules: any logged-in user, never a Guest), so ask it rather
+	# //// than assume yes.
 	return _space_in_clause("tabWiki Document", user, allow_null=can_read_space(None, user))
 
 
@@ -306,11 +306,11 @@ def wiki_document_has_permission(doc, ptype, user=None):
 		# Orphan document: writable only by managers.
 		if ptype in WRITE_PTYPES:
 			return _is_manager(user)
-		#//// Neoffice — was `return True`, which handed every orphan document to
-		#//// anyone at all, Guest included, straight past the master switch. Defer
-		#//// to the space rules for "no space" — open-space rules: any logged-in
-		#//// user, never an anonymous Guest — so an orphan is read under the same
-		#//// rule as everything else.
+		# //// Neoffice — was `return True`, which handed every orphan document to
+		# //// anyone at all, Guest included, straight past the master switch. Defer
+		# //// to the space rules for "no space" — open-space rules: any logged-in
+		# //// user, never an anonymous Guest — so an orphan is read under the same
+		# //// rule as everything else.
 		return can_read_space(None, user)
 
 	if ptype in WRITE_PTYPES:

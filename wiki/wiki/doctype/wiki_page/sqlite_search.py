@@ -18,15 +18,15 @@ def delete_db():
 def search(query: str, space: str | None = None) -> list[dict[str, Any]]:
 	"""Search the index for the given query and return the results"""
 
-	#//// Neoffice — TO REVIEW at the next merge: this retry is NOT ours. It comes
-	#//// from upstream commit 4885211 ("fix: add retry logic to search",
-	#//// 18alantom, 2025-09-18) on frappe/wiki's `master` line, which the
-	#//// `version-3` line we merged in August 2026 never took. It survived the v3
-	#//// merge, so from version-3's point of view it is divergence and it will
-	#//// conflict. It retries once after wiping a corrupt index (sqlite3
-	#//// OperationalError), and renamed the old `_search(cursor, …)` to
-	#//// `_run_search_query` to free the name for this wrapper. Drop it in favour
-	#//// of upstream's own handling if version-3 ever grows one.
+	# //// Neoffice — TO REVIEW at the next merge: this retry is NOT ours. It comes
+	# //// from upstream commit 4885211 ("fix: add retry logic to search",
+	# //// 18alantom, 2025-09-18) on frappe/wiki's `master` line, which the
+	# //// `version-3` line we merged in August 2026 never took. It survived the v3
+	# //// merge, so from version-3's point of view it is divergence and it will
+	# //// conflict. It retries once after wiping a corrupt index (sqlite3
+	# //// OperationalError), and renamed the old `_search(cursor, …)` to
+	# //// `_run_search_query` to free the name for this wrapper. Drop it in favour
+	# //// of upstream's own handling if version-3 ever grows one.
 	for _ in range(2):
 		try:
 			return _search(query, space)
@@ -41,13 +41,13 @@ def _search(query: str, space: str | None = None) -> list[dict[str, Any]]:
 		build_index()
 
 	with contextlib.closing(sqlite3.connect(f"file:{index_path}?mode=ro", uri=True)) as conn:
-		#//// Neoffice — call renamed with the function, see the note in search() above:
-		#//// this is upstream 4885211, carried by the master line and not by version-3.
+		# //// Neoffice — call renamed with the function, see the note in search() above:
+		# //// this is upstream 4885211, carried by the master line and not by version-3.
 		return _run_search_query(conn.cursor(), query, space)
 
 
-#//// Neoffice — renamed from _search() to free that name for the retry wrapper
-#//// above (upstream 4885211, master line only). Body untouched.
+# //// Neoffice — renamed from _search() to free that name for the retry wrapper
+# //// above (upstream 4885211, master line only). Body untouched.
 def _run_search_query(cursor: sqlite3.Cursor, query: str, space: str | None = None) -> list[dict[str, Any]]:
 	_set_pragmas(cursor, is_read=True)
 

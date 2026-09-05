@@ -58,9 +58,9 @@ def set_space_contributions(space_id: str, allow: int | str | bool) -> bool:
 	return bool(value)
 
 
-#//// Neoffice — allow_guest added (upstream: @frappe.whitelist()). Neoffice wikis
-#//// are public-facing: a visitor with no account browses published spaces. The
-#//// check_permission("read") below is untouched and still gates private spaces.
+# //// Neoffice — allow_guest added (upstream: @frappe.whitelist()). Neoffice wikis
+# //// are public-facing: a visitor with no account browses published spaces. The
+# //// check_permission("read") below is untouched and still gates private spaces.
 @frappe.whitelist(allow_guest=True)
 def get_wiki_tree(space_id: str) -> dict:
 	"""Get the tree structure of Wiki Documents for a given Wiki Space."""
@@ -76,22 +76,22 @@ def get_wiki_tree(space_id: str) -> dict:
 	if not descendants:
 		return {"children": [], "root_group": root_group}
 
-	#//// Neoffice — the tree is filtered for the caller. check_permission("read")
-	#//// above only answers "may you open this space"; it says nothing about the
-	#//// individual pages, and this endpoint is allow_guest, so a visitor on a
-	#//// public space was handed the titles and routes of every draft and every
-	#//// private page in it. get_public_space_info() in this same file already
-	#//// filters on is_published + is_private for exactly that reason — the two
-	#//// feed the same tree component and must agree. Editors keep the full tree:
-	#//// drafts are what they are here to work on.
+	# //// Neoffice — the tree is filtered for the caller. check_permission("read")
+	# //// above only answers "may you open this space"; it says nothing about the
+	# //// individual pages, and this endpoint is allow_guest, so a visitor on a
+	# //// public space was handed the titles and routes of every draft and every
+	# //// private page in it. get_public_space_info() in this same file already
+	# //// filters on is_published + is_private for exactly that reason — the two
+	# //// feed the same tree component and must agree. Editors keep the full tree:
+	# //// drafts are what they are here to work on.
 	from wiki.permissions import can_write_space
 
 	tree = _build_wiki_tree_for_api(descendants, include_drafts=can_write_space(space_id))
 	return {"children": tree, "root_group": root_group}
 
 
-#//// Neoffice — include_drafts added (upstream always returns everything). See
-#//// the call site above for why.
+# //// Neoffice — include_drafts added (upstream always returns everything). See
+# //// the call site above for why.
 def _build_wiki_tree_for_api(documents: list[str], include_drafts: bool = True) -> list[dict]:
 	"""Build a nested tree structure from a list of Wiki Document names.
 
@@ -117,9 +117,9 @@ def _build_wiki_tree_for_api(documents: list[str], include_drafts: bool = True) 
 			"is_published",
 			"sort_order",
 		],
-		#//// Neoffice — was `filters={"name": ("in", documents)}`. The caller may
-		#//// only be entitled to the published, non-private part of the tree; see
-		#//// include_drafts above.
+		# //// Neoffice — was `filters={"name": ("in", documents)}`. The caller may
+		# //// only be entitled to the published, non-private part of the tree; see
+		# //// include_drafts above.
 		filters=filters,
 		order_by="lft asc",
 	)
@@ -344,17 +344,17 @@ def _rebuild_wiki_node(doctype: str, name: str, left: int, parent_field: str) ->
 
 
 
-#//// Neoffice — added (no upstream equivalent). Readers without a wiki role —
-#//// anonymous visitors and portal Website Users alike — cannot go through
-#//// frappe.client.get on Wiki Space nor get_wiki_tree (both 403). This serves
-#//// the same payload restricted to PUBLISHED spaces, so the SPA can render a
-#//// public wiki for them. Keep the is_published filter: it is the whole guard.
+# //// Neoffice — added (no upstream equivalent). Readers without a wiki role —
+# //// anonymous visitors and portal Website Users alike — cannot go through
+# //// frappe.client.get on Wiki Space nor get_wiki_tree (both 403). This serves
+# //// the same payload restricted to PUBLISHED spaces, so the SPA can render a
+# //// public wiki for them. Keep the is_published filter: it is the whole guard.
 @frappe.whitelist(allow_guest=True)
 def get_public_space_info(space_id: str) -> dict:
 	"""Return Wiki Space info + tree for guest/public access. Only published spaces."""
-	#//// Neoffice — enforce the space's own access rules. Filtering on
-	#//// is_published alone handed the whole tree of an internal space to
-	#//// anonymous callers; can_read_space() also honours the master switch.
+	# //// Neoffice — enforce the space's own access rules. Filtering on
+	# //// is_published alone handed the whole tree of an internal space to
+	# //// anonymous callers; can_read_space() also honours the master switch.
 	from wiki.permissions import can_read_space
 
 	if not can_read_space(space_id):
@@ -405,9 +405,9 @@ def get_public_space_info(space_id: str) -> dict:
 	return {"space": space, "tree": {"children": root_nodes, "root_group": space.root_group}}
 
 
-#//// Neoffice — added (no upstream equivalent). Same reason as
-#//// get_public_space_info: readers can't reach Wiki Document through
-#//// frappe.client.get. Published + non-private only.
+# //// Neoffice — added (no upstream equivalent). Same reason as
+# //// get_public_space_info: readers can't reach Wiki Document through
+# //// frappe.client.get. Published + non-private only.
 @frappe.whitelist(allow_guest=True)
 def get_public_document(doc_key: str) -> dict:
 	"""Return a single Wiki Document if public + published (guest-safe)."""
@@ -422,9 +422,9 @@ def get_public_document(doc_key: str) -> dict:
 			"parent_wiki_document",
 			"is_group",
 			"sort_order",
-			#//// Neoffice — is_published is always 1 given the filter above, but
-			#//// the reader renders its publication badge from this field:
-			#//// omitting it labelled every public page "Not Published".
+			# //// Neoffice — is_published is always 1 given the filter above, but
+			# //// the reader renders its publication badge from this field:
+			# //// omitting it labelled every public page "Not Published".
 			"is_published",
 		],
 		as_dict=True,
@@ -432,29 +432,29 @@ def get_public_document(doc_key: str) -> dict:
 	if not doc:
 		frappe.throw(frappe._("Document not found"), frappe.DoesNotExistError)
 
-	#//// Neoffice — a published page still belongs to a space; check that space
-	#//// before handing the content over, so an internal page can't be pulled by
-	#//// key alone. Walk up to the owning root group, then to its space.
+	# //// Neoffice — a published page still belongs to a space; check that space
+	# //// before handing the content over, so an internal page can't be pulled by
+	# //// key alone. Walk up to the owning root group, then to its space.
 	from wiki.api import climb_to_root_document
 	from wiki.permissions import can_read_space
 
-	#//// Neoffice — bounded climb (was a bare `while True`): a cycle in
-	#//// parent_wiki_document spun a worker forever, and this endpoint is
-	#//// allow_guest. climb_to_root_document() returns None on a cycle or an
-	#//// absurd depth, which lands in the fail-closed check below.
+	# //// Neoffice — bounded climb (was a bare `while True`): a cycle in
+	# //// parent_wiki_document spun a worker forever, and this endpoint is
+	# //// allow_guest. climb_to_root_document() returns None on a cycle or an
+	# //// absurd depth, which lands in the fail-closed check below.
 	root_group = climb_to_root_document(doc.name)
 	space_id = (
 		frappe.db.get_value("Wiki Space", {"root_group": root_group}, "name")
 		if root_group
 		else None
 	)
-	#//// Neoffice — fail CLOSED. This used to read `if space_id and not
-	#//// can_read_space(...)`, so a document whose owning space could not be
-	#//// resolved — an orphan, or a tree this climb refuses to walk — skipped the
-	#//// check altogether and was served to anyone. On a guest-facing endpoint,
-	#//// not knowing which space a page belongs to is a reason to refuse, not to
-	#//// trust the caller. Editors reach such documents through frappe.client.get,
-	#//// which is gated by the doctype's own permissions.
+	# //// Neoffice — fail CLOSED. This used to read `if space_id and not
+	# //// can_read_space(...)`, so a document whose owning space could not be
+	# //// resolved — an orphan, or a tree this climb refuses to walk — skipped the
+	# //// check altogether and was served to anyone. On a guest-facing endpoint,
+	# //// not knowing which space a page belongs to is a reason to refuse, not to
+	# //// trust the caller. Editors reach such documents through frappe.client.get,
+	# //// which is gated by the doctype's own permissions.
 	if not space_id or not can_read_space(space_id):
 		raise frappe.PermissionError
 

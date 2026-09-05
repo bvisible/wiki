@@ -86,8 +86,8 @@ def check_app_permission():
 
 
 def add_wiki_user_role(doc, event=None):
-	#//// Neoffice — early return added (WI-00297, ab732fd). Upstream gives the
-	#//// role to EVERY user this hook fires on. Reason on the next four lines.
+	# //// Neoffice — early return added (WI-00297, ab732fd). Upstream gives the
+	# //// role to EVERY user this hook fires on. Reason on the next four lines.
 	# Wiki User role has desk_access=1, which would convert a Website User
 	# into a System User (see frappe.core.doctype.user.user.set_system_user).
 	# Only grant this role to actual desk users — website users browsing the
