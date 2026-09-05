@@ -1336,14 +1336,18 @@ class TestProcessNavbarItems(unittest.TestCase):
 		items = [self._make_navbar_item("Empty", "")]
 		result = process_navbar_items(items)
 
-		self.assertIsNone(result[0]["icon"])
+		# //// Neoffice — our process_navbar_items drops a row without a URL instead of
+		# //// rendering `<a href="None">` (real case on neoservice); upstream asserted
+		# //// the row survives with no icon.
+		self.assertEqual(result, [])
 
 	def test_none_url_has_no_icon(self):
 		"""Test that items with None URL have no icon."""
 		items = [self._make_navbar_item("None URL", None)]
 		result = process_navbar_items(items)
 
-		self.assertIsNone(result[0]["icon"])
+		# //// Neoffice — same as test_empty_url_has_no_icon: the row is dropped.
+		self.assertEqual(result, [])
 
 	def test_preserves_open_in_new_tab(self):
 		"""Test that open_in_new_tab flag is preserved."""

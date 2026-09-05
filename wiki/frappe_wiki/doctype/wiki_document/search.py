@@ -66,13 +66,22 @@ def _filter_hits_by_space_visibility(hits: list[dict]) -> list[dict]:
 	# //// back to anonymous visitors with its title AND its content snippet.
 	# //// Verified on osiris: a search for "configuration" as Guest returned
 	# //// wiki/erpnextswiss-settings-configuration, is_private=1.
+	# //// Neoffice — `is_private` is the LEGACY per-page guest flag: wiki v3 removed it
+	# //// from the DocType (backfill_space_access.py translates it into space access) and
+	# //// only the DB column survives on migrated sites. A fresh v3 site has no such
+	# //// column, and selecting it broke every search there ("Unknown column
+	# //// 'is_private'", CI #196). Read it only where it still exists, like the patch does.
+	has_legacy_private = frappe.db.has_column("Wiki Document", "is_private")
+	fields = ["name", "wiki_space", "is_published"]
+	if has_legacy_private:
+		fields.append("is_private")
 	row_by_name = {
 		row.name: row
 		for row in frappe.get_all(
 			"Wiki Document",
 			filters={"name": ("in", names)},
 			# //// Neoffice — is_published and is_private added; see above.
-			fields=["name", "wiki_space", "is_published", "is_private"],
+			fields=fields,
 		)
 	}
 
@@ -122,7 +131,7 @@ def _filter_hits_by_space_visibility(hits: list[dict]) -> list[dict]:
 			continue
 		# //// Neoffice — and the page's own state, not just its space's. Editors keep
 		# //// their drafts; everyone else sees only what is published and not private.
-		if not (row.is_published and not row.is_private) and not _is_writable(hit_space):
+		if not (row.is_published and not row.get("is_private")) and not _is_writable(hit_space):
 			continue
 		allowed.append(hit)
 	return allowed
