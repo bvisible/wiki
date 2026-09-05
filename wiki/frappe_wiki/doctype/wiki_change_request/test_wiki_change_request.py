@@ -336,7 +336,15 @@ class TestWikiChangeRequest(FrappeTestCase):
 		"""Content-only merges write via raw db.set_value, which skips the
 		on_update hook — the merge must queue the re-index itself, or search
 		keeps serving the pre-merge content."""
-		from frappe.search.sqlite_search import index_docs_in_queue
+		# //// Neoffice — the indexing queue is v16-only; on v15 the merge indexes
+		# //// synchronously (wiki_sqlite_search.enqueue_reindex), so there is no
+		# //// queue to drain and the assertions below hold as they are.
+		try:
+			from frappe.search.sqlite_search import index_docs_in_queue
+		except ImportError:
+
+			def index_docs_in_queue():
+				return None
 
 		from wiki.frappe_wiki.doctype.wiki_document.wiki_sqlite_search import WikiSQLiteSearch
 

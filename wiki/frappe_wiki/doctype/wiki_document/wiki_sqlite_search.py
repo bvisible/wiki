@@ -100,9 +100,18 @@ def enqueue_reindex(docnames: list[str]):
 	if not (search.is_search_enabled() and search.index_exists()):
 		return
 
+	# //// Neoffice — SQLiteSearch.add_to_queue (and the scheduler drain) exist in
+	# //// frappe v16 only; on our v15 fork the call raised, was swallowed below as
+	# //// "Wiki Search Reindex Queue Error", and search kept serving the pre-merge
+	# //// content after every content-only merge. Without the queue, index now,
+	# //// synchronously, with the v15 API. Drop the fallback at the v16 upgrade.
+	queue = getattr(search, "add_to_queue", None)
 	try:
 		for docname in docnames:
-			search.add_to_queue(f"Wiki Document:{docname}")
+			if queue:
+				queue(f"Wiki Document:{docname}")
+			else:
+				search.index_doc("Wiki Document", docname)
 	except Exception:
 		frappe.log_error(
 			title="Wiki Search Reindex Queue Error",
