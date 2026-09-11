@@ -28,6 +28,31 @@ class WikiSQLiteSearch(SQLiteSearch):
 		}
 	}
 
+	# //// Neoffice — added: this app's index stays idempotent HERE, not in frappe.
+	# //// `search_fts` has no unique key on doc_id and `update_doc_index` re-indexes
+	# //// on every save of an indexed field, so a document edited n times sat n times
+	# //// in the index: duplicate hits, and a pre-merge row still answering searches
+	# //// after a content-only merge. Our frappe fork carries the same removal in
+	# //// `SQLiteSearch.index_doc`, but that is the framework's chokepoint, every
+	# //// app's indexing goes through it, and this app is the one that needs it.
+	# //// `update_doc_index` instantiates the class registered in the `sqlite_search`
+	# //// hook — this one — so the override is enough, and the app is correct on an
+	# //// unpatched v15 as well (neoffice-maintenance#343).
+	# ////
+	# //// The removal is conditional ON PURPOSE. `prepare_document` returns nothing
+	# //// for a document that is no longer indexable (an unpublished page: the config
+	# //// filters on `is_published`), and that case must NOT drop the row here —
+	# //// removal on unpublish is deferred to the commit by this app's own hook, and
+	# //// a rolled-back save has to keep its row. Removing unconditionally breaks
+	# //// `test_unpublish_index_removal_discarded_on_rollback` on BOTH forks.
+	# ////
+	# //// Drop this once the fleet is on v16, which drains a queue instead.
+	def index_doc(self, doctype, docname):
+		"""Re-indexing replaces the document's row instead of adding one."""
+		if self.prepare_document(frappe.get_doc(doctype, docname)):
+			self.remove_doc(doctype, docname)
+		super().index_doc(doctype, docname)
+
 	def get_search_filters(self):
 		"""Permission-based filtering - only return published documents"""
 		return {"published": 1}
