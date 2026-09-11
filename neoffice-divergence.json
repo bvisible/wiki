@@ -1,7 +1,10 @@
 {
   "_comment": "Inventory of this fork's divergence from frappe/wiki. Regenerate with: python3 scripts/neoffice-divergence.py --update. A dropped entry is a Neoffice change that an upstream merge ate.",
-  "marked_blocks": 174,
+  "marked_blocks": 233,
   "files": {
+    ".github/workflows/build-frontend.yml": [
+      "wiki-app.html, not wiki.html: wiki v3 renamed the"
+    ],
     ".github/workflows/fork-markers.yml": [
       "` markers: a hunk that changes"
     ],
@@ -51,7 +54,14 @@
       "closes the computed() wrapper; upstream ends a plain array here.",
       "wrapped in computed() because `columns` is now reactive (see",
       "readers can't reach `frappe.client.get_list` on Wiki Space",
-      "reader list is unpaginated"
+      "auto:false, loaded by the watcher below. It used to read",
+      "split in two: the editor's list resource is built here and the",
+      "auto:false; the watcher below loads it once the user store",
+      "reactive, and it has to be. This read `const spaces =",
+      "and the matching side: whichever resource `spaces` now points at",
+      "reader list is unpaginated",
+      ".value: `spaces` is a computed now (see above).",
+      ".value: `spaces` is a computed now (see above). Only an"
     ],
     "frontend/src/components/SpaceTreePanel.vue": [
       "the space name is a switcher, the way the public",
@@ -89,6 +99,8 @@
     "frontend/src/composables/useTheme.js": [
       "rewritten wholesale. Upstream stores useStorage('wiki-theme',",
       "added, part of the rewrite described at the top of this file:",
+      "kept inside our own applyTheme, which also sets the shared",
+      "the rest of our rewrite (block above systemTheme): apply the",
       "added: upstream compared userTheme.value inline in each caller.",
       "reads isDark instead of comparing the raw ref (same icon).",
       "toggling now WRITES the choice (upstream only mutated the",
@@ -116,7 +128,7 @@
       "added. Readers go through upstream's very own read-only path:",
       "the capabilities endpoint needs a session; a reader can",
       "added. Feeds the space switcher in the tree panel's header (we",
-      "readers get 403 on get_wiki_tree (v3 gates it behind the",
+      "`url` below: a reader gets a 403 from get_wiki_tree (v3 gates",
       "get_public_space_info wraps the same payload as {space, tree}.",
       "was `if (isGitSynced.value)`: readers read the tree through the",
       "readers take the same read-only path: no CR to hydrate from.",
@@ -150,7 +162,19 @@
       "allow_guest added (upstream: @frappe.whitelist()). The SPA asks",
       "everything from here to resolve_wiki_path() is ours; upstream",
       "ignore_permissions is safe ONLY because can_read_space()",
-      "this used to return every published space to anyone. It fed"
+      "this used to return every published space to anyone. It fed",
+      "added. The two resolvers below are ours and both allow_guest.",
+      "added. Both resolvers used to climb `parent_wiki_document` in a",
+      "this resolver is ours (pretty URLs) and it is allow_guest. It",
+      "was `if name:`. Any row matching the route was handed",
+      "this raw-SQL fallback bypassed every check above, so a slug",
+      "was `if row: return {\"space_id\": row[0][\"name\"]}`. Filtered",
+      "ours too, and allow_guest like the resolver above. Same hole,",
+      "bounded climb; see climb_to_root_document() above.",
+      "was an unconditional return. It disclosed the",
+      "same filter as resolve_space_slug: a space the caller",
+      "filtered too, and un-LIMIT-ed for the same reason as in",
+      "same as in resolve_space_slug: filtered, and looped instead of"
     ],
     "wiki/api/og_image.py": [
       "guard the frappe.utils.preview import (upstream imports it bare).",
@@ -159,15 +183,40 @@
     ],
     "wiki/api/wiki_space.py": [
       "allow_guest added (upstream: @frappe.whitelist()). Neoffice wikis",
+      "the tree is filtered for the caller. check_permission(\"read\")",
+      "include_drafts added (upstream always returns everything). See",
+      "was `filters={\"name\": (\"in\", documents)}`. The caller may",
       "added (no upstream equivalent). Readers without a wiki role —",
       "enforce the space's own access rules. Filtering on",
       "added (no upstream equivalent). Same reason as",
       "is_published is always 1 given the filter above, but",
-      "a published page still belongs to a space; check that space"
+      "a published page still belongs to a space; check that space",
+      "bounded climb (was a bare `while True`): a cycle in",
+      "fail CLOSED. This used to read `if space_id and not"
+    ],
+    "wiki/frappe_wiki/doctype/wiki_change_request/test_wiki_change_request.py": [
+      "the indexing queue is v16-only; on v15 the merge indexes"
+    ],
+    "wiki/frappe_wiki/doctype/wiki_document/search.py": [
+      "this paragraph used to end \"Orphan documents (no wiki_space)",
+      "is_published and is_private come along now. The space was the",
+      "`is_private` is the LEGACY per-page guest flag: wiki v3 removed it",
+      "is_published and is_private added; see above.",
+      "added, memoised like the one above. Drafts and private pages",
+      "orphan hits (no wiki_space) used to pass unconditionally, so",
+      "a hit with no Wiki Document row is a stale index entry for",
+      "orphan hits (no wiki_space) used to pass unconditionally",
+      "and the page's own state, not just its space's. Editors keep"
     ],
     "wiki/frappe_wiki/doctype/wiki_document/test_wiki_document.py": [
+      "this fork makes a space public through one honest checkbox,",
+      "this fork adds a master switch, Wiki Settings.enable_public_wiki",
+      "restore the master switch, see setUpClass.",
       "added test (no upstream equivalent). Upstream's switcher query",
-      "added test (no upstream equivalent). Upstream offers the Edit"
+      "added test (no upstream equivalent). Upstream offers the Edit",
+      "generated OG cards need a renderer Frappe v15 does not ship",
+      "our process_navbar_items drops a row without a URL instead of",
+      "same as test_empty_url_has_no_icon: the row is dropped."
     ],
     "wiki/frappe_wiki/doctype/wiki_document/wiki_document.py": [
       "skip items with no URL. Upstream renders every row, and the",
@@ -176,10 +225,16 @@
       "docstring reworded (88b1f47). Upstream's text promised the",
       "is_wiki_author added to this import; it is what the guard",
       "Edit is for authors only. Upstream shows it to everyone and",
+      "the `if not space: return` that stood here is gone. It let",
       "routed through _spaces_for_switcher() (see that",
       "og_images_supported added to this import (upstream imports",
       "no renderer on Frappe v15 (see wiki/api/og_image.py), so",
       "pdf_generator added (upstream lets Frappe pick, which"
+    ],
+    "wiki/frappe_wiki/doctype/wiki_document/wiki_sqlite_search.py": [
+      "added: this app's index stays idempotent HERE, not in frappe.",
+      "SQLiteSearch.add_to_queue (and the scheduler drain) exist in",
+      "see the block marker above: v15 queue fallback"
     ],
     "wiki/frappe_wiki/doctype/wiki_revision_item/patches/add_revision_doc_key_index.py": [
       "added file (no upstream equivalent)."
@@ -199,11 +254,16 @@
     "wiki/permissions.py": [
       "added (no upstream equivalent). The line between the two",
       "added. Master switch for anonymous access, off by default.",
-      "anonymous visitors get nothing while the master switch is"
+      "added. THE definition of \"this caller has no account and the",
+      "anonymous visitors get nothing while the master switch is",
+      "the master switch was missing here while can_read_space()",
+      "allow_null was hardcoded True, so every list query got the",
+      "was `return True`, which handed every orphan document to"
     ],
     "wiki/templates/wiki/document.html": [
       "user-facing strings wrapped in _() so they land in the POT",
       "neo-wiki-article added. Hook for our reader CSS, which",
+      "i18n: the same two hardcoded English labels as in macros/buttons.html, which was fixed while this copy was missed. This is the hide_chrome branch (orphan documents), so it renders on a page the space layout never reaches. tojson plus forceescape, not bare quotes, so an apostrophe in a translation cannot break the Alpine expression. #}",
       "i18n: upstream hardcodes this label in English; _() puts it in the POT so the public reader speaks the client's language. #}",
       "i18n: upstream passes these menu labels to the macro as raw English; _() puts them in the POT. #}",
       "i18n: upstream passes these menu labels to the macro as raw English; _() puts them in the POT. #}",
@@ -243,13 +303,22 @@
     "wiki/templates/wiki/layout.html": [
       "brand. Upstream falls back to \"Frappe Wiki\"; this reader is",
       "brand, see the note above: the marker had to be repeated here",
-      "added. Reader styling of ours (wider articles, image size"
+      "added. Reader styling of ours (wider articles, image size",
+      "nginx `deny all`s every /vendor/ path (403 on every instance, breaking Alpine-driven sidebar/header/search/feedback); moved wiki/public/js/vendor/ to third_party/ and updated these paths (ee770cd \"fix(reader): nginx denies every /vendor/ path — move the vendored assets\") #}",
+      "see the block marker above: third_party/ rename #}"
     ],
     "wiki/templates/wiki/macros/buttons.html": [
       "user-facing strings wrapped in _() so they land in the POT",
       "i18n: _() applied to the macro argument (upstream printed",
       "i18n on the aria-label below: upstream hardcodes it in English. #}",
+      "i18n: both labels were hardcoded English next to an already-translated line; tojson plus forceescape, not bare quotes, so an apostrophe in a translation cannot break the Alpine expression. #}",
       "i18n: upstream hardcodes the PDF download description in English. #}"
+    ],
+    "wiki/test_permissions.py": [
+      "public_read is the source of truth for \"this space is on the",
+      "enable_public_wiki is the master switch for the whole",
+      "restore the master switch (see setUp).",
+      "added. The master switch is the one thing standing between a"
     ],
     "wiki/utils.py": [
       "early return added (WI-00297, ab732fd). Upstream gives the"
