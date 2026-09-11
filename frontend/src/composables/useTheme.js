@@ -51,7 +51,26 @@ const theme = ref(savedChoice() || systemTheme());
 
 function applyTheme(t) {
 	if (typeof document !== 'undefined') {
-		document.documentElement.setAttribute('data-theme', t);
+		const root = document.documentElement;
+		// Upstream v3.1.0 (#746): suppress transitions for the swap itself, or every
+		// element with a colour transition animates independently and the page
+		// flashes on its way to the new theme. Two rAFs so the class survives the
+		// style + paint of the swap.
+		//// Neoffice — kept inside our own applyTheme, which also sets the shared
+		//// ref and runs at import time: upstream's version only ran on a toggle, so
+		//// merging it wholesale would have taken the first-paint fix away with it.
+		root.classList.add('no-transition');
+		root.setAttribute('data-theme', t);
+		if (typeof requestAnimationFrame === 'function') {
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					root.classList.remove('no-transition');
+				});
+			});
+		} else {
+			// No rAF at module load in SSR/tests: never leave the class behind.
+			root.classList.remove('no-transition');
+		}
 	}
 	theme.value = t;
 }

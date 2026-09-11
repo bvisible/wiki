@@ -17,9 +17,12 @@
     <!-- Main Content Area -->
     <main class="flex-1 min-w-0 px-4 py-6 lg:px-6 lg:py-8 xl:px-12 flex justify-center">
         {# //// Neoffice — neo-wiki-article added. Hook for our reader CSS, which
-           widens the column past upstream's 100ch: this manual is screenshot-heavy
-           and captures were being scaled down to half their useful size. #}
-        <article class="neo-wiki-article w-full min-w-0 transition-opacity duration-300 xl:max-w-[100ch]"
+           widens the column past upstream's: this manual is screenshot-heavy and
+           captures were being scaled down to half their useful size. Upstream's
+           own value is kept as the base (v3.1.0 narrowed 100ch -> 85ch, #743);
+           our rules override it with `!important` from 1280px up, exactly where
+           the `xl:` utility applies, so the two do not fight. #}
+        <article class="neo-wiki-article min-w-0 w-full transition-opacity duration-300 xl:max-w-[85ch]"
              :class="{ 'opacity-50': $store.navigation.loading, 'xl:!max-w-[100ch]': $store.sidebar?.isCollapsed }">
         <!-- Page Header -->
         <header class="py-6 mb-6 border-b border-[var(--outline-gray-1)]">
@@ -91,7 +94,7 @@
 
         <!-- Page Content -->
         <!-- prose prose-v3 mirrors the SPA editor's EditorContent defaults -->
-        <div class="prose prose-v3 max-w-none text-[15px] [&>*:first-child]:mt-0" id="wiki-content">
+        <div class="prose prose-v3 !max-w-none text-[15px] [&>*:first-child]:mt-0" id="wiki-content">
             {{ rendered_content | safe }}
         </div>
 

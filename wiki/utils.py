@@ -94,4 +94,16 @@ def add_wiki_user_role(doc, event=None):
 	# public wiki do not need it.
 	if doc.user_type != "System User":
 		return
-	doc.add_roles("Wiki User")
+
+	# Upstream v3.1.0 (#734): insert the Has Role row directly instead of
+	# doc.add_roles(), which called User.save() from inside a User hook.
+	if not any(r.role == "Wiki User" for r in doc.get("roles", [])):
+		frappe.get_doc(
+			{
+				"doctype": "Has Role",
+				"parent": doc.name,
+				"parenttype": "User",
+				"parentfield": "roles",
+				"role": "Wiki User",
+			}
+		).insert(ignore_permissions=True)
