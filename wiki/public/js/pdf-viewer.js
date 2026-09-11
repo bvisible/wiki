@@ -15,6 +15,7 @@
 	// browser refuses to execute as a module (strict MIME checking). `.js` is
 	// reliably served as text/javascript, and dynamic import() keys off the MIME
 	// type, not the extension, so these still load as ES modules.
+	// //// Neoffice — nginx `deny all`s every /vendor/ path (403 on every instance); moved wiki/public/js/vendor/ to third_party/ and updated these two paths (ee770cd "fix(reader): nginx denies every /vendor/ path — move the vendored assets")
 	const PDFJS_SRC = '/assets/wiki/js/third_party/pdfjs/pdf.min.js';
 	const WORKER_SRC = '/assets/wiki/js/third_party/pdfjs/pdf.worker.min.js';
 

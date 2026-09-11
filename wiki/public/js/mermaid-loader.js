@@ -3,6 +3,7 @@
   // bare path would keep serving the previously fetched copy after a version
   // bump. Bump this alongside the file in vendor/mermaid/.
   const MERMAID_VERSION = "11.15.0";
+  // //// Neoffice — nginx `deny all`s every /vendor/ path (403 on every instance); moved wiki/public/js/vendor/ to third_party/ and updated this path (ee770cd "fix(reader): nginx denies every /vendor/ path — move the vendored assets")
   const defaultMermaidUrl =
     "/assets/wiki/js/third_party/mermaid/mermaid.min.js?v=" + MERMAID_VERSION;
 
