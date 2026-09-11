@@ -9,7 +9,9 @@ Some changes cannot carry a comment: a JSON DocType, an image, a `.po`, a
 generated bundle, a symlink, an attribute in the middle of a multi-line opening
 tag. **This file is their marker.** `scripts/fork_markers.py` (from
 `bvisible/neoffice-ci`) treats a non-commentable file as marked once this
-manifest names its full path.
+manifest names its full path, skips every artifact named in the first column of
+an `| Artifact |` table, and accepts the marker of an attribute change on its
+element, within three lines above the `<tag` line.
 
 ---
 
@@ -156,17 +158,19 @@ build and silently turn the check red.
 | `wiki/public/frontend/**` (682 files: js, css, maps, fonts) | `frontend/` via vite, by `.github/workflows/build-frontend.yml` |
 | `wiki/www/wiki-app.html` | same |
 | `wiki/public/css/tailwind.css` | `wiki/public/css/main.css` via `yarn tailwind:build` |
-| `wiki/public/css/frappe-ui-tokens.css`, `frappe-ui-prose.css`, `frappe-ui-code.css` | `scripts/generate-public-theme.mjs` / `-prose` / `-lucide`, via `yarn theme:generate` |
+| `wiki/public/css/frappe-ui-tokens.css` | `scripts/generate-public-theme.mjs`, via `yarn theme:generate` |
+| `wiki/public/css/frappe-ui-prose.css`, `wiki/public/css/frappe-ui-code.css` | `scripts/generate-public-prose.mjs`, via `yarn theme:generate` |
 | `wiki/public/js/wiki-highlight.bundle.js` | `frontend/src/public/highlight.js` via `frontend/vite.highlight.config.js` |
 
 `wiki/public/css/neoffice-wiki.css` is **not** in this list: it is hand-written
 reader CSS of ours, carries its own header marker, and is loaded by
 `wiki/templates/wiki/layout.html` (marked there).
 
-> `fork_markers.py` recognises `wiki/public/frontend/**` as built output but not
-> `wiki/public/css/*.css` nor `wiki/public/js/*.bundle.js`, so those five stay
-> flagged on a full-history run. That is a gap in the tool, not an unmarked
-> change.
+> `fork_markers.py` reads this table: every path in its first column (full path
+> or glob) is skipped as build output. Name a new artifact here by its full
+> path — a bare file name excuses nothing. Until neoffice-maintenance#354 the
+> tool ignored the table, and the four stylesheets above were reported on every
+> full-history run.
 
 ---
 
@@ -174,7 +178,9 @@ reader CSS of ours, carries its own header marker, and is loaded by
 
 A comment may never sit **between the attributes of a multi-line opening tag**.
 For each hunk below, the marker is on the enclosing element instead, and the
-hunk is named here.
+hunk is named here. `fork_markers.py` accepts that placement as long as the
+marker ends within three lines above the element's `<tag` line; this table is
+for the reader.
 
 | Hunk | Change | Marker lives on |
 | --- | --- | --- |

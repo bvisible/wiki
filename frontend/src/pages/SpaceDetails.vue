@@ -484,14 +484,13 @@ const spacesForSwitcher = createResource({
 
 const switcherSpaces = computed(() => spacesForSwitcher.data || []);
 
-//// Neoffice — readers get 403 on get_wiki_tree (v3 gates it behind the
-//// space's read permission), so they read the same tree through our
-//// published-only endpoint, which nests it under `.tree`. Both take
-//// `space_id`, so the load path below is shared.
-
 // Managing tabs needs both the permission and a space that uses tabs at all.
 const canManageTabs = computed(() => canWriteSpace.value && tabsEnabled.value);
 
+//// Neoffice — `url` below: a reader gets a 403 from get_wiki_tree (v3 gates
+//// it behind the space's read permission), so the same tree comes from our
+//// published-only endpoint, nested under `.tree`. Both endpoints take
+//// `space_id`, so the load path that follows is shared.
 const readonlyTreeResource = createResource({
 	url: isReader.value
 		? 'wiki.api.wiki_space.get_public_space_info'

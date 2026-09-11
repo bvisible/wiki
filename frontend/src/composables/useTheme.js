@@ -75,6 +75,8 @@ function applyTheme(t) {
 	theme.value = t;
 }
 
+//// Neoffice — the rest of our rewrite (block above systemTheme): apply the
+//// theme at import time, then follow live OS changes until the user chooses.
 // Apply at module load so there is no stale/flashing theme on first paint.
 applyTheme(theme.value);
 
