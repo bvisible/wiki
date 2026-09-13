@@ -398,7 +398,10 @@ def enqueue_og_warmup(doc) -> None:
 
 def warm_og_image(name: str) -> None:
 	"""Render and cache a document's card ahead of the first request."""
-	if not _cards_enabled():
+	# //// Neoffice — nothing to warm on a Frappe without the renderer (v15): the
+	# //// render raised, and each warm-up logged "Wiki OG image generation failed"
+	# //// (ten instances, every night). The request path already omits the card.
+	if not _cards_enabled() or not og_images_supported():
 		return
 
 	doc = frappe.get_cached_doc("Wiki Document", name)
