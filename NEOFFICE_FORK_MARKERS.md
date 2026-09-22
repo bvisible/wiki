@@ -260,3 +260,9 @@ sides (ours: 67 source files, theirs: 44):
 | `.gitignore` | upstream keeps ignoring the build | we un-ignore it — **never take upstream's version blindly** |
 | `package.json` (develop only) | script changes | the build gate |
 | `wiki/patches.txt` (develop only) | new patches | our three patches |
+
+---
+
+## Auto-marked (fork-markers workflow)
+
+- `wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json` — removed the `Guest: read` role permission row (blanket read for anyone, including anonymous visitors) — a signed-in account only sees its own patches (`All` carries `if_owner`), so Guest was strictly wider than authenticated access; no hook or query condition in v3 depends on this doctype (b7925b9f "fix(permissions): a proposed wiki edit was readable by anybody, with no account")
