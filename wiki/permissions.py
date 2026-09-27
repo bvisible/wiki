@@ -244,6 +244,75 @@ def _accessible_space_names(user=None) -> set:
 	return open_spaces | accessible_restricted
 
 
+# //// Neoffice — added (no upstream equivalent). Who may read what is not live
+# //// yet. The Wiki Document hooks below only ever asked "may you read this
+# //// space", so an unpublished page in a Guest-readable space was served whole
+# //// (title, route, content) to any caller of the generic document API, anonymous
+# //// visitors included, and a signed-in account without any wiki role could also
+# //// list the pages of spaces that are not published at all. The reader, the
+# //// tree, the search and get_public_document() all hid them already; the
+# //// permission hooks were the one path left open. Drafts belong to the people
+# //// who write the wiki: an authoring role (they edit drafts in /wiki-app, and
+# //// the change-request tree already hands them every draft) or Write on the space.
+def can_see_drafts(space, user=None) -> bool:
+	"""Whether the user may read the pages of a space that are not live yet."""
+	user = user or frappe.session.user
+	return is_wiki_author(user) or can_write_space(space, user)
+
+
+# //// Neoffice — added. "Live" is what the reader serves: the page is published,
+# //// not flagged private, and its space is published. is_private is the legacy
+# //// per-page flag: wiki v3 dropped it from the DocType but the column survives on
+# //// migrated sites (see search.py), so it is honoured only where it still exists.
+def _document_is_live(doc) -> bool:
+	if not doc.get("is_published") or doc.get("is_private"):
+		return False
+	space = doc.get("wiki_space")
+	if not space:
+		return True
+	return bool(frappe.get_cached_value("Wiki Space", space, "is_published"))
+
+
+# //// Neoffice — added. The spaces can_write_space() says yes to, in one query,
+# //// for the list conditions (same rules: open spaces are written by Wiki
+# //// Approvers, restricted ones by a role holding a Write row).
+def _writable_space_names(user: str) -> set:
+	user_roles = set(frappe.get_roles(user))
+	rows = frappe.get_all(
+		"Wiki Space Role",
+		filters={"parenttype": "Wiki Space"},
+		fields=["parent", "role", "permission_level"],
+	)
+	restricted_spaces = {row.parent for row in rows}
+	writable = {row.parent for row in rows if row.permission_level == "Write" and row.role in user_roles}
+	if "Wiki Approver" in user_roles:
+		all_spaces = set(frappe.get_all("Wiki Space", pluck="name"))
+		writable |= all_spaces - restricted_spaces
+	return writable
+
+
+# //// Neoffice — added. SQL twin of _document_is_live() OR can_see_drafts(), for
+# //// callers that are not wiki authors (the query hook returns early for them).
+def _live_or_writable_clause(table: str, user: str) -> str:
+	live = [f"`{table}`.`is_published` = 1"]
+	if frappe.db.has_column("Wiki Document", "is_private"):
+		live.append(f"ifnull(`{table}`.`is_private`, 0) = 0")
+
+	published_spaces = frappe.get_all("Wiki Space", filters={"is_published": 1}, pluck="name")
+	space_is_live = f"`{table}`.`wiki_space` is null"
+	if published_spaces:
+		escaped = ", ".join(frappe.db.escape(name) for name in published_spaces)
+		space_is_live = f"({space_is_live} or `{table}`.`wiki_space` in ({escaped}))"
+	live.append(space_is_live)
+	live_clause = "(" + " and ".join(live) + ")"
+
+	writable = _writable_space_names(user)
+	if not writable:
+		return live_clause
+	escaped = ", ".join(frappe.db.escape(name) for name in sorted(writable))
+	return f"({live_clause} or `{table}`.`wiki_space` in ({escaped}))"
+
+
 def _space_in_clause(table: str, user: str, allow_null: bool) -> str:
 	"""Build a WHERE fragment restricting ``table`` to spaces the user can read."""
 	names = _accessible_space_names(user)
@@ -296,7 +365,13 @@ def wiki_document_query_conditions(user=None, doctype=None):
 	# //// space" is readable is a question can_read_space already answers
 	# //// (open-space rules: any logged-in user, never a Guest), so ask it rather
 	# //// than assume yes.
-	return _space_in_clause("tabWiki Document", user, allow_null=can_read_space(None, user))
+	space_clause = _space_in_clause("tabWiki Document", user, allow_null=can_read_space(None, user))
+	# //// Neoffice — and only what is live, unless the caller writes the wiki: this
+	# //// clause alone let a Guest list every draft of a public space through the
+	# //// generic document API. See can_see_drafts().
+	if space_clause == "1=0" or is_wiki_author(user):
+		return space_clause
+	return f"({space_clause}) and {_live_or_writable_clause('tabWiki Document', user)}"
 
 
 def wiki_document_has_permission(doc, ptype, user=None):
@@ -311,7 +386,11 @@ def wiki_document_has_permission(doc, ptype, user=None):
 		# //// to the space rules for "no space" — open-space rules: any logged-in
 		# //// user, never an anonymous Guest — so an orphan is read under the same
 		# //// rule as everything else.
-		return can_read_space(None, user)
+		# //// Neoffice — and an orphan that is not live stays with the wiki authors
+		# //// (see can_see_drafts; the list clause applies the same rule).
+		if not can_read_space(None, user):
+			return False
+		return _document_is_live(doc) or is_wiki_author(user)
 
 	if ptype in WRITE_PTYPES:
 		# A git-synced space is read-only; only the sync engine (running under
@@ -319,7 +398,11 @@ def wiki_document_has_permission(doc, ptype, user=None):
 		if not frappe.flags.in_apply_merge_revision and is_git_synced_space(space):
 			return False
 		return can_write_space(space, user)
-	return can_read_space(space, user)
+	# //// Neoffice — was `return can_read_space(space, user)`: reading the space
+	# //// was enough to read any of its pages, drafts included. See can_see_drafts().
+	if not can_read_space(space, user):
+		return False
+	return _document_is_live(doc) or can_see_drafts(space, user)
 
 
 def wiki_cr_query_conditions(user=None, doctype=None):
