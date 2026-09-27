@@ -75,14 +75,15 @@ def get_asset_hash(path: str) -> str:
 def check_app_permission():
 	"""Check if user has permission to access the app (for showing the app on app screen)"""
 
-	if frappe.session.user == "Administrator":
-		return True
+	# //// Neoffice — rewritten. Upstream showed the tile to Wiki Manager only,
+	# //// while /wiki-app lets every wiki author in (wiki.permissions.is_wiki_author:
+	# //// Wiki User and the manager roles). Every desk account holds Wiki User
+	# //// (add_wiki_user_role below), so the tile the access templates list was
+	# //// hidden from nearly everyone who may use the app behind it. The tile now
+	# //// follows the same rule as the page it opens.
+	from wiki.permissions import is_wiki_author
 
-	roles = frappe.get_roles()
-	if "Wiki Manager" in roles:
-		return True
-
-	return False
+	return is_wiki_author()
 
 
 def add_wiki_user_role(doc, event=None):
