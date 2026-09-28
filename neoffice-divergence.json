@@ -1,6 +1,6 @@
 {
   "_comment": "Inventory of this fork's divergence from frappe/wiki. Regenerate with: python3 scripts/neoffice-divergence.py --update. A dropped entry is a Neoffice change that an upstream merge ate.",
-  "marked_blocks": 233,
+  "marked_blocks": 247,
   "files": {
     ".github/workflows/build-frontend.yml": [
       "wiki-app.html, not wiki.html: wiki v3 renamed the"
@@ -179,7 +179,11 @@
     "wiki/api/og_image.py": [
       "guard the frappe.utils.preview import (upstream imports it bare).",
       "added: lets callers ask whether OG cards can be rendered at all",
-      "bail out explicitly when the renderer is missing (v15), so a"
+      "bail out explicitly when the renderer is missing (v15), so a",
+      "nothing to warm on a Frappe without the renderer (v15): the"
+    ],
+    "wiki/api/test_og_image_warm_up.py": [
+      "added file (no upstream equivalent)"
     ],
     "wiki/api/wiki_space.py": [
       "allow_guest added (upstream: @frappe.whitelist()). Neoffice wikis",
@@ -242,6 +246,9 @@
     "wiki/frappe_wiki/patches/init_public_read_from_guest_role.py": [
       "added file (no upstream equivalent)."
     ],
+    "wiki/frappe_wiki/patches/proposed_edits_are_not_public.py": [
+      "added file (no upstream equivalent)."
+    ],
     "wiki/frappe_wiki/patches/redirect_bare_wiki_route_to_app.py": [
       "added file (no upstream equivalent)."
     ],
@@ -249,7 +256,8 @@
       "note, not code. v3 moved the editor SPA from /wiki to /wiki-app,"
     ],
     "wiki/patches.txt": [
-      "patches below are ours; keep them last so an upstream merge"
+      "patches below are ours; keep them last so an upstream merge",
+      "clears the stale `Wiki Page Patch` Custom DocPerm row that"
     ],
     "wiki/permissions.py": [
       "added (no upstream equivalent). The line between the two",
@@ -257,8 +265,15 @@
       "added. THE definition of \"this caller has no account and the",
       "anonymous visitors get nothing while the master switch is",
       "the master switch was missing here while can_read_space()",
+      "added (no upstream equivalent). Who may read what is not live",
+      "added. \"Live\" is what the reader serves: the page is published,",
+      "added. The spaces can_write_space() says yes to, in one query,",
+      "added. SQL twin of _document_is_live() OR can_see_drafts(), for",
       "allow_null was hardcoded True, so every list query got the",
-      "was `return True`, which handed every orphan document to"
+      "and only what is live, unless the caller writes the wiki: this",
+      "was `return True`, which handed every orphan document to",
+      "and an orphan that is not live stays with the wiki authors",
+      "was `return can_read_space(space, user)`: reading the space"
     ],
     "wiki/templates/wiki/document.html": [
       "user-facing strings wrapped in _() so they land in the POT",
@@ -315,10 +330,13 @@
       "i18n: upstream hardcodes the PDF download description in English. #}"
     ],
     "wiki/test_permissions.py": [
+      "imported for the draft tests at the end of the class below.",
       "public_read is the source of truth for \"this space is on the",
+      "two accounts without any wiki role, for the draft tests: a",
       "enable_public_wiki is the master switch for the whole",
       "restore the master switch (see setUp).",
-      "added. The master switch is the one thing standing between a"
+      "added. The master switch is the one thing standing between a",
+      "added. A page that is not live (unpublished, or in an"
     ],
     "wiki/utils.py": [
       "early return added (WI-00297, ab732fd). Upstream gives the"

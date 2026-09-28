@@ -19,6 +19,8 @@ from wiki.permissions import (
 	can_write_space,
 	wiki_cr_has_permission,
 	wiki_document_has_permission,
+	# //// Neoffice — imported for the draft tests at the end of the class below.
+	wiki_document_query_conditions,
 	wiki_space_has_permission,
 )
 
@@ -97,6 +99,11 @@ class TestWikiSpacePermissions(IntegrationTestCase):
 		cls.outsider = _ensure_user("wsac_outsider@example.com", ["Wiki User", OTHER_ROLE])
 		cls.manager = _ensure_user("wsac_manager@example.com", ["Wiki Manager"])
 		cls.approver = _ensure_user("wsac_approver@example.com", ["Wiki User", "Wiki Approver"])
+		# //// Neoffice — two accounts without any wiki role, for the draft tests: a
+		# //// portal account (Website User, no role at all) and a writer of the
+		# //// restricted space who holds no authoring role.
+		cls.portal = _ensure_user("wsac_portal@example.com", [])
+		cls.bare_writer = _ensure_user("wsac_bare_writer@example.com", [WRITER_ROLE])
 		frappe.db.commit()  # nosemgrep: frappe-semgrep-rules.rules.frappe-manual-commit
 
 	def setUp(self):
@@ -311,6 +318,87 @@ class TestWikiSpacePermissions(IntegrationTestCase):
 		frappe.set_user(self.reader)
 		with self.assertRaises(frappe.PermissionError):
 			create_change_request(self.restricted, "Reader proposal")
+
+	# //// Neoffice — added. A page that is not live (unpublished, or in an
+	# //// unpublished space) belongs to the wiki's authors and to the writers of its
+	# //// space. The document hooks only ever checked the space, so the generic
+	# //// document API served drafts whole to anyone who could read the space,
+	# //// anonymous visitors of a public space included.
+
+	def _document(self, space: str, title: str, published: bool):
+		root = frappe.db.get_value("Wiki Space", space, "root_group")
+		doc = frappe.get_doc(
+			{
+				"doctype": "Wiki Document",
+				# The suffix keeps the route unique if an aborted run left a page behind.
+				"title": f"{title} {frappe.generate_hash(length=6)}",
+				"wiki_space": space,
+				"parent_wiki_document": root,
+				"is_published": 1 if published else 0,
+				"content": title,
+			}
+		).insert(ignore_permissions=True)
+		self._docs.append(doc.name)
+		return doc
+
+	def _listed(self, user: str, space: str) -> set:
+		"""What the list-query hook lets `user` see of `space`.
+
+		Called directly: on a stock site neither Guest nor a portal account has a
+		DocPerm on Wiki Document, so frappe.get_list would refuse them before the
+		hook ran — the hub grants Guest read through a Custom DocPerm, which is how
+		the drafts got out, and then this clause is the only gate left.
+		"""
+		condition = wiki_document_query_conditions(user) or "1=1"
+		return set(
+			frappe.db.sql_list(  # nosemgrep
+				f"select name from `tabWiki Document` where wiki_space = %s and {condition}",
+				space,
+			)
+		)
+
+	def test_a_draft_is_hidden_from_a_guest_and_a_portal_account(self):
+		live = self._document(self.public, "WSAC Live", True)
+		draft = self._document(self.public, "WSAC Draft", False)
+		for user in ("Guest", self.portal):
+			self.assertTrue(wiki_document_has_permission(live, "read", user), user)
+			self.assertFalse(wiki_document_has_permission(draft, "read", user), user)
+			listed = self._listed(user, self.public)
+			self.assertIn(live.name, listed, user)
+			self.assertNotIn(draft.name, listed, user)
+
+	def test_a_draft_stays_with_the_authors_and_the_writers_of_its_space(self):
+		draft = self._document(self.restricted, "WSAC Restricted Draft", False)
+		for user in (self.reader, self.writer, self.bare_writer, self.manager):
+			self.assertTrue(wiki_document_has_permission(draft, "read", user), user)
+		self.assertIn(draft.name, self._listed(self.bare_writer, self.restricted))
+		# an author still needs the space: the draft rule adds nothing to it
+		self.assertFalse(wiki_document_has_permission(draft, "read", self.outsider))
+		self.assertNotIn(draft.name, self._listed(self.outsider, self.restricted))
+
+		frappe.set_user(self.reader)
+		listed = set(
+			frappe.get_list("Wiki Document", filters={"wiki_space": self.restricted}, pluck="name", limit=0)
+		)
+		self.assertIn(draft.name, listed)
+
+	def test_an_unpublished_space_is_not_read_by_a_portal_account(self):
+		page = self._document(self.open_space, "WSAC Open Page", True)
+		frappe.db.set_value("Wiki Space", self.open_space, "is_published", 0)
+		frappe.clear_document_cache("Wiki Space", self.open_space)
+
+		self.assertFalse(wiki_document_has_permission(page, "read", self.portal))
+		self.assertNotIn(page.name, self._listed(self.portal, self.open_space))
+		# a wiki author reading the open space keeps it
+		self.assertTrue(wiki_document_has_permission(page, "read", self.outsider))
+		self.assertIn(page.name, self._listed(self.outsider, self.open_space))
+
+	def test_an_orphan_draft_stays_with_the_authors(self):
+		orphan = frappe.get_doc({"doctype": "Wiki Document", "title": "Orphan draft", "wiki_space": None})
+		self.assertFalse(wiki_document_has_permission(orphan, "read", self.portal))
+		self.assertTrue(wiki_document_has_permission(orphan, "read", self.outsider))
+		orphan.is_published = 1
+		self.assertTrue(wiki_document_has_permission(orphan, "read", self.portal))
 
 
 class TestSpaceRolesAPI(IntegrationTestCase):
