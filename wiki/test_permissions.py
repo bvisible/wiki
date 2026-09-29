@@ -24,6 +24,10 @@ from wiki.permissions import (
 	wiki_space_has_permission,
 )
 
+# //// Neoffice — imported for TestAppScreenGate at the end of the file.
+from wiki.permissions import is_wiki_author
+from wiki.utils import check_app_permission
+
 
 def _set_contributions(space: str, allow: bool) -> None:
 	frappe.db.set_value("Wiki Space", space, "allow_contributions", 1 if allow else 0)
@@ -485,3 +489,100 @@ class TestSpaceRolesAPI(IntegrationTestCase):
 		frappe.set_user(self.manager)
 		with self.assertRaises(frappe.PermissionError):
 			set_space_contributions(self.space, 0)
+
+
+# //// Neoffice — added (no upstream equivalent). The wiki tile on the apps screen
+# //// (`add_to_apps_screen` in hooks.py, gated by `check_app_permission`) followed "Wiki Manager"
+# //// alone, while /wiki-app admits every wiki author (`is_wiki_author`), so an account allowed to
+# //// use the app had no tile to reach it (#805). The tile now follows the rule of the page it opens.
+# //// The accounts are yopmail addresses created inside each test's transaction and rolled back at
+# //// the end: nothing persists on the site that runs the suite.
+class TestAppScreenGate(IntegrationTestCase):
+	"""Who sees the wiki tile on the apps screen: the accounts /wiki-app admits, and nobody else."""
+
+	# A role with desk access and no wiki role: what a desk account looks like without Wiki User.
+	DESK_ROLE = "Desk User"
+
+	def setUp(self):
+		self._emails = []
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		frappe.db.rollback()
+		for email in self._emails:
+			frappe.clear_cache(user=email)
+
+	def _account(self, name: str, roles: list[str]) -> str:
+		email = f"wiki-tile-{name}@yopmail.com"
+		self._emails.append(email)
+		return _ensure_user(email, roles)
+
+	def _tile_shown_to(self, user: str) -> bool:
+		frappe.set_user(user)
+		try:
+			return bool(check_app_permission())
+		finally:
+			frappe.set_user("Administrator")
+
+	def test_a_desk_account_holding_wiki_user_sees_the_tile(self):
+		# The case #805 is about: /wiki-app lets a Wiki User in, and upstream hid the tile from them
+		# because they are not a Wiki Manager.
+		author = self._account("author", [self.DESK_ROLE, "Wiki User"])
+		self.assertEqual(frappe.db.get_value("User", author, "user_type"), "System User")
+		self.assertNotIn("Wiki Manager", frappe.get_roles(author))
+		self.assertTrue(self._tile_shown_to(author))
+
+	def test_an_account_holding_only_the_wiki_user_role_sees_the_tile(self):
+		author = self._account("only", ["Wiki User"])
+		self.assertTrue(self._tile_shown_to(author))
+
+	def test_managers_and_administrator_see_the_tile(self):
+		wiki_manager = self._account("wikimanager", ["Wiki Manager"])
+		system_manager = self._account("sysmanager", ["System Manager"])
+		self.assertTrue(self._tile_shown_to(wiki_manager))
+		self.assertTrue(self._tile_shown_to(system_manager))
+		self.assertTrue(self._tile_shown_to("Administrator"))
+
+	def test_a_desk_account_without_a_wiki_role_does_not_see_the_tile(self):
+		desk = self._account("desk", [self.DESK_ROLE])
+		self.assertEqual(frappe.db.get_value("User", desk, "user_type"), "System User")
+		self.assertNotIn("Wiki User", frappe.get_roles(desk))
+		self.assertFalse(self._tile_shown_to(desk))
+
+	def test_a_portal_account_does_not_see_the_tile(self):
+		# A Website User: no desk, no wiki role. They read the wiki at /wiki/..., they get no app tile.
+		portal = self._account("portal", [])
+		self.assertEqual(frappe.db.get_value("User", portal, "user_type"), "Website User")
+		self.assertFalse(self._tile_shown_to(portal))
+
+	def test_guest_does_not_see_the_tile(self):
+		self.assertFalse(self._tile_shown_to("Guest"))
+
+	def test_the_tile_gate_grants_no_document_permission(self):
+		# The gate only decides whether a tile is drawn; it must not become a way in.
+		portal = self._account("nothing-new", [])
+		for user in (portal, "Guest"):
+			self.assertFalse(frappe.has_permission("Wiki Space", "write", user=user))
+			self.assertFalse(frappe.has_permission("Wiki Space", "create", user=user))
+			self.assertFalse(frappe.has_permission("Wiki Document", "create", user=user))
+
+	def test_the_tile_and_the_authoring_page_admit_the_same_accounts(self):
+		# /wiki-app turns away whoever is not is_wiki_author(); the tile must not promise more, or less.
+		accounts = {
+			"Guest": "Guest",
+			"Administrator": "Administrator",
+			"portal": self._account("same-portal", []),
+			"desk": self._account("same-desk", [self.DESK_ROLE]),
+			"author": self._account("same-author", [self.DESK_ROLE, "Wiki User"]),
+			"manager": self._account("same-manager", ["Wiki Manager"]),
+		}
+		for label, user in accounts.items():
+			frappe.set_user(user)
+			try:
+				self.assertEqual(check_app_permission(), is_wiki_author(), msg=label)
+			finally:
+				frappe.set_user("Administrator")
+
+	def test_the_apps_screen_asks_this_gate(self):
+		gates = [tile.get("has_permission") for tile in frappe.get_hooks("add_to_apps_screen", app_name="wiki")]
+		self.assertEqual(gates, ["wiki.utils.check_app_permission"])
