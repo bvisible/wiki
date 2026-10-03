@@ -132,6 +132,7 @@ export const useSpaceStore = defineStore('space', () => {
 		},
 	});
 
+	//// Neoffice — watches isReader as well as the space: a reader answers locally below.
 	watch(
 		[spaceId, isReader],
 		([id, reader]) => {
