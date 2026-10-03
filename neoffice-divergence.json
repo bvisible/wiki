@@ -1,6 +1,6 @@
 {
   "_comment": "Inventory of this fork's divergence from frappe/wiki. Regenerate with: python3 scripts/neoffice-divergence.py --update. A dropped entry is a Neoffice change that an upstream merge ate.",
-  "marked_blocks": 250,
+  "marked_blocks": 261,
   "files": {
     ".github/workflows/build-frontend.yml": [
       "wiki-app.html, not wiki.html: wiki v3 renamed the"
@@ -33,7 +33,7 @@
       ":key added, see viewKey in the script above: without it a"
     ],
     "frontend/src/components/LibrarySidebar.vue": [
-      "\"Wiki\", not \"Frappe Wiki\": we ship this under the Neoffice"
+      "title \"Wiki\", not \"Frappe Wiki\" (brand; our Sidebar.vue did the same until 3.3.0 replaced it; the cockpit is what editors see, this is its fallback) -->"
     ],
     "frontend/src/components/NeoCockpitBridge.vue": [
       "added file (no upstream equivalent). Mounts the shared"
@@ -46,7 +46,8 @@
       "the space name is a switcher, the way the public reader's",
       "v-if added: readers have nothing to contribute from (no draft,",
       "the space name in the header is a switcher (see the template).",
-      "\"Space settings\" is offered to the space's writers only. Upstream"
+      "the options of the space switcher in the header (see the template).",
+      "\"Space settings\" is offered to the space's writers only. Upstream lists it"
     ],
     "frontend/src/components/SpaceTreePanel.vue": [
       "v-if added: readers have no Spaces list to go back to (it is",
@@ -83,6 +84,7 @@
     ],
     "frontend/src/layouts/MainLayout.vue": [
       "added. Shared Neoffice chrome (ADR-015) in place of the",
+      "upstream's `v-else <LibrarySidebar />` is gone: the library",
       "mounted for a wiki manager only (maintenance#1096). Upstream",
       "added. The shared Neoffice chrome (ADR-015) replaces upstream's library",
       "added. Readers are anonymous visitors AND signed-in users"
@@ -105,11 +107,15 @@
     "frontend/src/stores/space.js": [
       "useUserStore added: the reader branch below keys off the authoring role.",
       "added. Readers are anonymous visitors AND signed-in users without",
+      "isReader: see the block above.",
       "added. For a reader, ONE call (get_public_space_info) answers both",
+      "watches isReader as well as the space (see the comment above).",
+      "watches isReader as well as the space: a reader answers locally below.",
       "the capabilities endpoint needs a session, and a reader can",
       "get_public_space_info wraps the same payload as {space, tree}.",
       "a reader's tree comes with the space (see publicInfo above).",
-      "added. Spaces to offer in the space switcher. The caller picks the"
+      "added. Spaces to offer in the space switcher. The caller picks the",
+      "isReader and switcherSpaces are ours (see above)."
     ],
     "frontend/src/stores/user.js": [
       "added. Holds one of the wiki authoring roles. Everyone else —",
@@ -184,6 +190,7 @@
     ],
     "wiki/frappe_wiki/doctype/wiki_document/test_wiki_document.py": [
       "this fork makes a space public through one honest checkbox,",
+      "public_read: see the note above.",
       "this fork adds a master switch, Wiki Settings.enable_public_wiki",
       "restore the master switch, see setUpClass.",
       "added test (no upstream equivalent). Upstream's switcher query",
@@ -294,9 +301,12 @@
       "i18n on the title attribute below: upstream hardcodes it in English. #}",
       "i18n on the aria-label below: upstream hardcodes it in English. #}",
       "the sheet carried the page tree only. A page of this manual has twenty sections and a phone had no way to",
+      "x-show=\"sheetTab === 'pages'\": the sheet's search and tree belong to the \"Pages\" tab (see the tabs above). -#}",
+      "x-show=\"sheetTab === 'pages'\", same as the search above. -#}",
       "the headings of the page (see the tabs above). -#}",
       "the sheet's two tabs (see the markup): the page tree, or the headings of the page being read.",
-      "the headings of the page being read, taken from the page itself each time the sheet opens"
+      "the headings of the page being read, taken from the page itself each time the sheet opens",
+      "the headings of the page for the sheet's second tab (see readHeadings)."
     ],
     "wiki/templates/wiki/includes/page_view.html": [
       "an empty visitor id when fingerprintjs is not there. That library"
@@ -335,6 +345,7 @@
       "imported for the draft tests at the end of the class below.",
       "imported for TestAppScreenGate at the end of the file.",
       "public_read is the source of truth for \"this space is on the",
+      "public_read: see the note above.",
       "two accounts without any wiki role, for the draft tests: a",
       "enable_public_wiki is the master switch for the whole",
       "restore the master switch (see setUp).",
