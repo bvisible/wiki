@@ -335,18 +335,19 @@
 }
 
 /* ============================================================
- * 8. Clips: wider, and a large window on click
- *    (//// Neoffice — the clips of the manual carry `width="720"` in their markup, which kept them at 720px
- *    in a column that can be 1300px wide. CSS beats the attribute: they now fill the column (up to the
- *    article's 1440px; the clips are recorded at 1920px, so they are scaled down, never up). neoffice-video.js opens a large window on a click.)
+ * 8. Clips: as wide as the text, and a large window on click
+ *    (//// Neoffice — the clips of the manual carry `width="720"` in their markup: CSS beats the attribute. They are recorded at 1920px
+ *    and are scaled DOWN to the width of the text above them (`--neo-text-width`, 100ch, about 940px), never up, and sit on its left
+ *    edge, like the captures. Daniel, 03.10: a clip wider than the paragraph read as a different page. neoffice-video.js opens a large
+ *    window on a click, so nothing is lost by the smaller size.)
  * ============================================================ */
 
 #wiki-content video {
 	display: block;
 	width: 100%;
-	max-width: 1440px; /* the article's own maximum: clips are recorded at 1920px (Full HD) and scaled DOWN to the column */
+	max-width: min(100%, var(--neo-text-width, 100ch));
 	height: auto;
-	margin: 1.5rem auto;
+	margin: 1.5rem auto 1.5rem 0;
 	border-radius: 8px;
 	cursor: zoom-in;
 }
