@@ -5,7 +5,9 @@ import re
 import unittest
 from pathlib import Path
 
-LAYOUT = Path(__file__).resolve().parent.parent / "frontend" / "src" / "layouts" / "MainLayout.vue"
+FRONTEND = Path(__file__).resolve().parent.parent / "frontend" / "src"
+LAYOUT = FRONTEND / "layouts" / "MainLayout.vue"
+COCKPIT = FRONTEND / "components" / "NeoCockpitWikiSidebar.vue"
 
 
 class TestTheSettingsDialogIsForManagers(unittest.TestCase):
@@ -13,3 +15,12 @@ class TestTheSettingsDialogIsForManagers(unittest.TestCase):
 		tags = re.findall(r"<WikiSettings\b[^>]*>", LAYOUT.read_text(encoding="utf-8"))
 		self.assertEqual(len(tags), 1, tags)
 		self.assertIn('v-if="userStore.isWikiManager"', tags[0])
+
+	def test_a_manager_opens_it_from_the_cockpit(self):
+		# Under the cockpit the app's own sidebar, which held « Settings », is replaced: on a desktop a manager had no
+		# way left to open the dialog (maintenance#1096). The cockpit's menu offers it to a manager, and to no one else.
+		source = COCKPIT.read_text(encoding="utf-8")
+		gated = re.search(r"if \(userStore\.isWikiManager\) \{(.*?)\n\t\}", source, re.S)
+		self.assertTrue(gated, "no manager-only entry in the cockpit's menu")
+		self.assertIn("openWikiSettings()", gated.group(1))
+		self.assertEqual(source.count("openWikiSettings()"), 1)

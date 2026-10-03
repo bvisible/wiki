@@ -25,11 +25,13 @@ import NeoCockpitBridge from "@/components/NeoCockpitBridge.vue";
 import { useRouter, useRoute } from "vue-router";
 import { ref, computed } from "vue";
 import { useUserStore } from "@/stores/user";
+import { useWikiSettings } from "@/composables/useWikiSettings";
 
 const router = useRouter();
 const route = useRoute();
 const failed = ref(false);
 const userStore = useUserStore();
+const { open: openWikiSettings } = useWikiSettings();
 
 const surfaceApp = {
 	name: "wiki",
@@ -54,13 +56,22 @@ const contextNav = computed(() => {
 			to: { name: "ChangeRequests" },
 		});
 	}
+	// The app's own sidebar held « Settings » for a manager; it is replaced here, so the cockpit offers it
+	// (maintenance#1096: on a desktop a manager had no way left to open the dialog).
+	if (userStore.isWikiManager) {
+		items.push({
+			label: __("Settings"),
+			icon: "lucide-settings",
+			onClick: () => openWikiSettings(),
+		});
+	}
 	return [
 		{
 			items: items.map((item) => ({
 				label: item.label,
 				icon: item.icon,
-				active: route.path.startsWith(router.resolve(item.to).path),
-				onClick: () => router.push(item.to),
+				active: item.to ? route.path.startsWith(router.resolve(item.to).path) : false,
+				onClick: item.onClick || (() => router.push(item.to)),
 			})),
 		},
 	];
