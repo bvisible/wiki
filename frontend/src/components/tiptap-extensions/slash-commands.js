@@ -141,6 +141,16 @@ export const SLASH_COMMANDS = [
 		},
 	},
 	{
+		title: 'Link to Page',
+		icon: 'lucide-file-symlink',
+		group: 'Insert',
+		keywords: ['linkpage', 'wiki link'],
+		// Typing the picker's own trigger opens it (see page-links.js).
+		command: ({ editor, range }) => {
+			editor.chain().focus().deleteRange(range).insertContent('[[').run();
+		},
+	},
+	{
 		title: 'Horizontal Rule',
 		icon: 'lucide-minus',
 		group: 'Insert',
@@ -157,10 +167,7 @@ export const SLASH_COMMANDS = [
 				.chain()
 				.focus()
 				.deleteRange(range)
-				.insertContent({
-					type: 'calloutBlock',
-					attrs: { type: 'note', title: '', content: '' },
-				})
+				.setCallout({ type: 'note' })
 				.run();
 		},
 	},
@@ -173,10 +180,7 @@ export const SLASH_COMMANDS = [
 				.chain()
 				.focus()
 				.deleteRange(range)
-				.insertContent({
-					type: 'calloutBlock',
-					attrs: { type: 'tip', title: '', content: '' },
-				})
+				.setCallout({ type: 'tip' })
 				.run();
 		},
 	},
@@ -189,14 +193,7 @@ export const SLASH_COMMANDS = [
 				.chain()
 				.focus()
 				.deleteRange(range)
-				.insertContent({
-					type: 'calloutBlock',
-					attrs: {
-						type: 'caution',
-						title: '',
-						content: '',
-					},
-				})
+				.setCallout({ type: 'caution' })
 				.run();
 		},
 	},
@@ -209,14 +206,7 @@ export const SLASH_COMMANDS = [
 				.chain()
 				.focus()
 				.deleteRange(range)
-				.insertContent({
-					type: 'calloutBlock',
-					attrs: {
-						type: 'danger',
-						title: '',
-						content: '',
-					},
-				})
+				.setCallout({ type: 'danger' })
 				.run();
 		},
 	},

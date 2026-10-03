@@ -1,0 +1,134 @@
+import { expect, test } from '../fixtures';
+import { createDoc } from '../helpers/frappe';
+import { APP_BASE, appUrl } from '../helpers/routes';
+
+/**
+ * The IA refactor left the app with exactly one navigation column that drills.
+ * At the top level it is the library (every space); entering a space *replaces*
+ * that column with the space's own sidebar, and the back button restores it.
+ *
+ * Two spaces are built below because the load-bearing assertion is a negative
+ * one: inside space A, space B's row must be gone. A single-space fixture would
+ * pass even if the library list were merely appended to rather than replaced.
+ */
+
+const SPACE_A_NAME = 'Drill In Alpha';
+const SPACE_B_NAME = 'Drill In Beta';
+const PAGE_TITLE = 'Alpha First Page';
+
+test.describe('Sidebar drill-in navigation', () => {
+	let spaceA = '';
+	let spaceB = '';
+	let pageName = '';
+
+	test.beforeAll(async ({ wikiSuite }) => {
+		const a = await wikiSuite.space({
+			space_name: SPACE_A_NAME,
+			pages: [{ title: PAGE_TITLE, content: 'Drill-in fixture content.' }],
+		});
+		spaceA = a.name;
+		pageName = a.page(PAGE_TITLE).name;
+
+		// A page gives B a last-edited time; without one it sorts below every
+		// other space and falls off the sidebar's first page on a busy site.
+		spaceB = (
+			await wikiSuite.space({
+				space_name: SPACE_B_NAME,
+				pages: [{ title: 'Beta First Page' }],
+			})
+		).name;
+	});
+
+	test('library lists spaces, entering one replaces the column, back restores it', async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 1440, height: 900 });
+
+		// Every assertion is scoped to the nav column. The Overview page in the
+		// content column lists the same spaces, so an unscoped href locator
+		// matches twice and proves nothing about which column holds the row.
+		const sidebar = page.locator('[data-slot="sidebar"]');
+
+		// Level 0: the library. Both spaces are rows; nothing is drilled into.
+		await page.goto(APP_BASE);
+		const alphaRow = sidebar.locator(`a[href="${appUrl('spaces', spaceA)}"]`);
+		const betaRow = sidebar.locator(`a[href="${appUrl('spaces', spaceB)}"]`);
+		await expect(alphaRow).toBeVisible();
+		await expect(betaRow).toBeVisible();
+		await expect(
+			sidebar.locator('[aria-label="Back to All Spaces"]'),
+		).toHaveCount(0);
+
+		// Level 1: the sidebar *becomes* space A.
+		await alphaRow.click();
+		await expect(page).toHaveURL(new RegExp(`${APP_BASE}/spaces/${spaceA}`));
+		await expect(
+			sidebar.locator('[aria-label="Back to All Spaces"]'),
+		).toBeVisible();
+		await expect(
+			sidebar.getByText(SPACE_A_NAME, { exact: true }).first(),
+		).toBeVisible();
+		// The replacement, not an addition: the sibling space is no longer
+		// reachable from this column.
+		await expect(betaRow).toHaveCount(0);
+
+		// Level 2: the tree in that column opens a page in the content column.
+		await sidebar.getByText(PAGE_TITLE, { exact: true }).first().click();
+		await expect(page).toHaveURL(
+			new RegExp(`${APP_BASE}/spaces/${spaceA}/page/${pageName}`),
+		);
+		// Drilling to a page keeps the space column — it does not drill again.
+		await expect(
+			sidebar.locator('[aria-label="Back to All Spaces"]'),
+		).toBeVisible();
+
+		// Back out: the library returns whole, with both spaces.
+		await sidebar.locator('[aria-label="Back to All Spaces"]').first().click();
+		await expect(page).toHaveURL(new RegExp(`${APP_BASE}/spaces$`));
+		await expect(alphaRow).toBeVisible();
+		await expect(betaRow).toBeVisible();
+		await expect(
+			sidebar.locator('[aria-label="Back to All Spaces"]'),
+		).toHaveCount(0);
+	});
+
+	test('the app opens on the Overview, and /overview still lands there', async ({
+		page,
+	}) => {
+		await page.goto(APP_BASE);
+		await expect(page).toHaveURL(new RegExp(`${APP_BASE}/?$`));
+		await expect(page.getByTestId('overview-chart')).toBeVisible();
+
+		await page.goto(appUrl('overview'));
+		await expect(page).toHaveURL(new RegExp(`${APP_BASE}/?$`));
+		await expect(page.getByTestId('overview-chart')).toBeVisible();
+	});
+
+	test('a Wiki User opens the app on the library, not the Overview', async ({
+		browser,
+		request,
+	}, info) => {
+		const stamp = Date.now().toString(36);
+		const email = `e2e-landing-${stamp}@example.com`;
+		const password = `Landing-${stamp}!`;
+		await createDoc(request, 'User', {
+			email,
+			first_name: 'E2E Landing',
+			new_password: password,
+			send_welcome_email: 0,
+			roles: [{ role: 'Wiki User' }],
+		});
+
+		const context = await browser.newContext({
+			baseURL: info.project.use.baseURL,
+		});
+		await context.request.post('/api/method/login', {
+			form: { usr: email, pwd: password },
+		});
+		const page = await context.newPage();
+		await page.goto(APP_BASE);
+		await expect(page).toHaveURL(new RegExp(`${APP_BASE}/spaces$`));
+
+		await context.close();
+	});
+});

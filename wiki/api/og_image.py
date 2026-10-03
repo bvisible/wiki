@@ -18,6 +18,7 @@ import glob
 import hashlib
 import os
 import re
+import time
 
 import frappe
 from frappe import _
@@ -36,9 +37,12 @@ try:
 except ImportError:
 	get_preview_from_html = None
 
+from wiki.telemetry import capture, duration_bucket
+from wiki.utils import lucide_svg, space_mark
+
 # Bumped whenever the card template or its token block changes; it is part of
 # the cache fingerprint, so a bump invalidates every cached card for free.
-TEMPLATE_VERSION = "4"
+TEMPLATE_VERSION = "7"
 
 OG_WIDTH = 1200
 OG_HEIGHT = 630
@@ -141,16 +145,35 @@ def _title_font_size(title: str) -> int:
 	return 48
 
 
+def _card_mark(space_doc) -> dict:
+	"""The space's mark as the card draws it: an image URL, or an icon on a tint.
+
+	The same resolution the reader header uses, narrowed to what Chromium can
+	fetch. A generated mark is an SVG ``data:`` URI, which the screenshotter
+	renders inline with no request at all; an uploaded logo has to be a
+	site-local path. ``light_mode_logo`` stays as the v2 fallback for spaces
+	that only ever set that one.
+	"""
+	empty = {"logo_url": "", "avatar_url": "", "icon_svg": "", "mark_color": ""}
+
+	mark = space_mark(space_doc)
+	# A generated mark and an uploaded logo are drawn differently -- the first
+	# is a square the card rounds like the reader does, the second is often a
+	# wordmark that must not be cropped -- so they travel as separate keys.
+	if mark["mode"] == "avatar":
+		return {**empty, "avatar_url": mark["image"]}
+	if mark["mode"] == "icon":
+		return {**empty, "icon_svg": lucide_svg(mark["icon"], "og-glyph"), "mark_color": mark["color"]}
+
+	return {**empty, "logo_url": _safe_asset_url(space_doc.app_switcher_logo or space_doc.light_mode_logo)}
+
+
 def _og_context(doc) -> dict:
 	"""The complete set of inputs the card template consumes."""
 	wiki_space = doc.get_wiki_space()
-	logo_url = ""
+	mark = {"logo_url": "", "avatar_url": "", "icon_svg": "", "mark_color": ""}
 	if wiki_space:
-		space_doc = frappe.get_cached_doc("Wiki Space", wiki_space["name"])
-		# app_switcher_logo is the one the reader header actually renders, so
-		# it is the space's real mark; light_mode_logo is a v2 leftover kept as
-		# a fallback for spaces that only ever set that one.
-		logo_url = _safe_asset_url(space_doc.app_switcher_logo or space_doc.light_mode_logo)
+		mark = _card_mark(frappe.get_cached_doc("Wiki Space", wiki_space["name"]))
 
 	# The page's own title, not meta_title: the card is a visual object where
 	# the title reads as a label for the page you are about to open, while
@@ -161,7 +184,7 @@ def _og_context(doc) -> dict:
 		"title_font_size": _title_font_size(title),
 		"breadcrumb_trail": _breadcrumb_trail(doc),
 		"space_name": (wiki_space.get("space_name") if wiki_space else "") or "",
-		"logo_url": logo_url,
+		**mark,
 	}
 
 
@@ -170,7 +193,7 @@ def og_fingerprint(ctx: dict) -> str:
 
 	Fingerprinting inputs rather than ``modified`` means a content-only edit
 	leaves a still-correct card alone, while a title / breadcrumb / space-name /
-	logo change invalidates on its own -- no invalidation hook anywhere.
+	mark change invalidates on its own -- no invalidation hook anywhere.
 	"""
 	parts = [
 		TEMPLATE_VERSION,
@@ -178,6 +201,11 @@ def og_fingerprint(ctx: dict) -> str:
 		ctx["breadcrumb_trail"],
 		ctx["space_name"],
 		ctx["logo_url"],
+		ctx["avatar_url"],
+		# The icon markup, not its name: a space that swaps its tint alone
+		# still has to invalidate, and the colour only reaches the card here.
+		ctx["icon_svg"],
+		ctx["mark_color"],
 		str(OG_WIDTH),
 		str(OG_HEIGHT),
 	]
@@ -192,6 +220,11 @@ def _cache_dir() -> str:
 	path = frappe.get_site_path("private", "files", CACHE_DIR_NAME)
 	os.makedirs(path, exist_ok=True)
 	return path
+
+
+def cached_card_count() -> int:
+	"""How many cards this site holds, for the telemetry scan."""
+	return len(glob.glob(os.path.join(_cache_dir(), "*.jpg")))
 
 
 def _is_safe_doc_key(doc_key: str | None) -> bool:
@@ -306,7 +339,7 @@ def _failure_key(doc_key: str, fingerprint: str) -> str:
 	return frappe.cache().make_key(f"wiki_og_fail:{doc_key}:{fingerprint}")
 
 
-def _generate_and_store(doc_key: str, ctx: dict, fingerprint: str, path: str) -> bytes:
+def _generate_and_store(doc_key: str, ctx: dict, fingerprint: str, path: str, trigger: str) -> bytes:
 	"""Render one card, at most once at a time across the whole bench.
 
 	Chromium is expensive and its cold start is measured in seconds, so a
@@ -323,17 +356,30 @@ def _generate_and_store(doc_key: str, ctx: dict, fingerprint: str, path: str) ->
 	if not cache.set(lock, b"1", nx=True, ex=LOCK_TTL):
 		raise CardBusy
 
+	started = time.monotonic()
 	try:
 		data = generate_og_bytes(ctx)
+		_write_cached(path, data)
+		_prune_old(doc_key, fingerprint)
 	except Exception:
 		cache.set(_failure_key(doc_key, fingerprint), b"1", ex=FAILURE_TTL)
+		capture(
+			"meta_image_generated",
+			outcome="failed",
+			trigger=trigger,
+			duration_bucket=duration_bucket(time.monotonic() - started),
+		)
 		frappe.log_error("Wiki OG image generation failed")
 		raise CardFailed
 	finally:
 		cache.delete(lock)
 
-	_write_cached(path, data)
-	_prune_old(doc_key, fingerprint)
+	capture(
+		"meta_image_generated",
+		outcome="ok",
+		trigger=trigger,
+		duration_bucket=duration_bucket(time.monotonic() - started),
+	)
 	return data
 
 
@@ -416,7 +462,7 @@ def warm_og_image(name: str) -> None:
 	try:
 		# Same lock and failure keys as the request path, so a worker and a
 		# crawler never both launch Chromium for one card.
-		_generate_and_store(doc.doc_key, _og_context(doc), fingerprint, path)
+		_generate_and_store(doc.doc_key, _og_context(doc), fingerprint, path, trigger="warm")
 	except (CardBusy, CardFailed):
 		# Serving never depends on the warm-up; the request path retries.
 		pass
@@ -453,7 +499,7 @@ def og_image(route: str, v: str | None = None):
 	data = _read_cached(path)
 	if data is None:
 		try:
-			data = _generate_and_store(doc.doc_key, ctx, fp, path)
+			data = _generate_and_store(doc.doc_key, ctx, fp, path, trigger="request")
 		except CardBusy:
 			return _transient_response(503, {"Retry-After": "5"})
 		except CardFailed:

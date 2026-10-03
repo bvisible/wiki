@@ -1,10 +1,8 @@
-import { expect, test } from '@playwright/test';
-import { SPACE_URL_RE, appUrl } from '../helpers/routes';
-import {
-	cleanupWikiSpacesByRoute,
-	clickSidebarAddOption,
-	createTestWikiSpace,
-} from '../helpers/wiki';
+import { expect, test } from '../fixtures';
+import { uniqueRoute } from '../helpers/factory';
+import { callMethod } from '../helpers/frappe';
+import { APP_BASE, SPACE_URL_RE, appUrl } from '../helpers/routes';
+import { openNewPageDialog } from '../helpers/wiki';
 
 /**
  * Mobile-friendly SPA (Phases 1-2) tracer + regression guards, on a phone
@@ -25,25 +23,15 @@ async function pageOverflow(page: import('@playwright/test').Page) {
 }
 
 test.describe('Mobile SPA', () => {
-	const createdRoutes: string[] = [];
-
-	test.afterEach(async ({ request }) => {
-		while (createdRoutes.length) {
-			const route = createdRoutes.pop() as string;
-			await cleanupWikiSpacesByRoute(request, route).catch(() => {});
-		}
-	});
-
 	// Phase 1: the bug we guard against is the editor collapsing to a sliver
 	// because the desktop sidebars ate the screen. The tree must live in a
 	// drawer and the editor must fill the width.
 	test('tree opens in a drawer and the editor fills the screen at 375px', async ({
 		page,
+		wiki,
 	}) => {
-		const stamp = Date.now();
-		const spaceRoute = `mobile-spa-${stamp}`;
-		createdRoutes.push(spaceRoute);
-		const pageTitle = `Mobile Page ${stamp}`;
+		const spaceRoute = uniqueRoute('mobile-spa');
+		const pageTitle = `Mobile Page ${Date.now()}`;
 
 		// --- Setup at desktop: create a space with one page ---
 		await page.setViewportSize(DESKTOP);
@@ -61,15 +49,9 @@ test.describe('Mobile SPA', () => {
 		await expect(page).toHaveURL(SPACE_URL_RE);
 		await page.waitForLoadState('networkidle');
 		const spaceUrl = page.url();
+		wiki.adopt(spaceUrl.split('/spaces/')[1].split(/[/?#]/)[0]);
 
-		const createFirstPage = page.locator(
-			'button:has-text("Create First Page")',
-		);
-		if (await createFirstPage.isVisible({ timeout: 2000 }).catch(() => false)) {
-			await createFirstPage.click();
-		} else {
-			await clickSidebarAddOption(page, 'New Page');
-		}
+		await openNewPageDialog(page);
 		await page.getByLabel('Title').fill(pageTitle);
 		await page
 			.getByRole('dialog')
@@ -126,18 +108,16 @@ test.describe('Mobile SPA', () => {
 	// and rows still navigate.
 	test('Spaces and Change Requests render without page overflow; rows navigate', async ({
 		page,
-		request,
+		wiki,
 	}) => {
-		const spaceRoute = `mobile-list-${Date.now()}`;
-		createdRoutes.push(spaceRoute);
-		await createTestWikiSpace(request, { route: spaceRoute });
+		const { route: spaceRoute } = await wiki.space();
 
 		await page.setViewportSize(PHONE);
 		await page.goto(appUrl('spaces'));
 		await page.waitForLoadState('networkidle');
 
 		await expect(
-			page.getByRole('heading', { name: 'Wiki Spaces' }),
+			page.getByRole('heading', { name: 'All Spaces', exact: true }),
 		).toBeVisible();
 		// The header stacks and the table scrolls inside its container, so the
 		// page itself must not gain a horizontal scrollbar.
@@ -157,29 +137,60 @@ test.describe('Mobile SPA', () => {
 		expect(await pageOverflow(page)).toBeLessThanOrEqual(1);
 	});
 
+	// Regression: the bottom nav must mirror the desktop sidebar. Overview was
+	// missing for managers, and a single change request lit no tab at all.
+	test('bottom nav reaches Overview and keeps Change Requests lit on a review', async ({
+		page,
+		request,
+		wiki,
+	}) => {
+		const space = await wiki.space();
+		const draft = await callMethod<{ name: string }>(
+			request,
+			'wiki.frappe_wiki.doctype.wiki_change_request.wiki_change_request.get_or_create_draft_change_request',
+			{ wiki_space: space.name },
+		);
+		const nav = page.locator('[data-slot="mobile-nav"]');
+		// The current tab renders as a button, the others as links.
+		const tab = (name: string) => nav.getByLabel(name, { exact: true });
+
+		await page.setViewportSize(PHONE);
+		await page.goto(appUrl('spaces'));
+		await page.waitForLoadState('networkidle');
+
+		await tab('Overview').click();
+		await expect(page).toHaveURL(new RegExp(`${APP_BASE}/?$`));
+		await expect(tab('Overview')).toHaveAttribute('data-state', 'active');
+
+		await page.goto(appUrl('change-requests', draft.name));
+		await expect(tab('Change Requests')).toHaveAttribute(
+			'data-state',
+			'active',
+		);
+	});
+
 	// Regression: Settings opens from inside the tree drawer. The drawer must
 	// close first, or the settings dialog stacks behind it and the drawer's
 	// backdrop swallows the dialog's outside-click.
 	test('Settings opens on top of the tree drawer, not behind it', async ({
 		page,
-		request,
+		wiki,
 	}) => {
-		const spaceRoute = `mobile-settings-${Date.now()}`;
-		createdRoutes.push(spaceRoute);
-		const space = await createTestWikiSpace(request, { route: spaceRoute });
+		const space = await wiki.space();
 
 		await page.setViewportSize(PHONE);
-		await page.goto(appUrl('spaces', space.name));
+		await page.goto(space.url());
 		await page.waitForLoadState('networkidle');
 
 		// Open the tree drawer, then Settings from inside it.
 		await page.getByRole('button', { name: 'Pages' }).click();
 		const drawer = page.locator('.drawer-content');
 		await expect(drawer).toBeVisible();
-		await drawer.getByTitle('Settings').click();
+		// The trigger carries an aria-label now, not a title attribute.
+		await drawer.getByRole('button', { name: 'Space settings' }).click();
 
 		// Drawer closes; the settings dialog is the only modal left.
 		await expect(drawer).toBeHidden();
-		await expect(page.getByText('Permissions', { exact: true })).toBeVisible();
+		await expect(page.getByText('Access', { exact: true })).toBeVisible();
 	});
 });

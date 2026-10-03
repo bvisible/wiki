@@ -13,12 +13,9 @@ function nextMermaidInstanceId() {
 <script setup>
 import { useNodeViewEditable } from '@/composables/useNodeViewEditable';
 import { NodeViewWrapper } from '@tiptap/vue-3';
-//// Neoffice — useStorage dropped from this import and useTheme added on the
-//// line below: upstream read the theme straight from localStorage, which
-//// bypassed our OS-following theme and re-pinned the diagram to dark.
 import { watchDebounced } from '@vueuse/core';
-import { computed, onMounted, ref, watch } from 'vue';
 import { useTheme } from '@/composables/useTheme';
+import { computed, onMounted, ref, watch } from 'vue';
 import { getMermaid, getMermaidThemeConfig } from './mermaid-loader.js';
 
 const props = defineProps({
@@ -50,14 +47,11 @@ const lastGoodSvg = ref('');
 const errorMessage = ref('');
 const isRendering = ref(false);
 
-//// Neoffice — was useStorage('wiki-theme', 'dark') read directly here, which
-//// bypassed our OS-following theme and re-pinned this component to dark.
-//// Theme is the same signal the rest of the SPA uses (see Sidebar.vue /
-// DiffViewer.vue): the shared useTheme() ref, mirrored to <html data-theme>.
-// We re-render on flips so the diagram picks up the freshly-resolved Frappe UI
-// tokens (the theme itself comes from getMermaidThemeConfig(), not this value).
-//// Neoffice — the shared ref, per the note above.
-const { theme: userTheme } = useTheme();
+// Theme is the same signal the rest of the SPA uses (see Sidebar.vue /
+// DiffViewer.vue): the painted scheme behind <html data-theme>. We re-render on
+// flips so the diagram picks up the freshly-resolved Frappe UI tokens (the theme
+// itself comes from getMermaidThemeConfig(), not this value).
+const { resolvedTheme } = useTheme();
 
 function updateCode(event) {
 	props.updateAttributes({ code: event.target.value });
@@ -129,7 +123,7 @@ async function renderPreview() {
 // Debounce edits so we don't re-render on every keystroke, but re-render
 // immediately when the theme flips.
 watchDebounced(code, renderPreview, { debounce: 300, maxWait: 1000 });
-watch(userTheme, renderPreview);
+watch(resolvedTheme, renderPreview);
 
 onMounted(renderPreview);
 </script>
@@ -245,7 +239,7 @@ onMounted(renderPreview);
 
 .mermaid-figure-error {
 	font-size: 0.8125rem;
-	color: var(--ink-red-6, #b91c1c);
+	color: var(--ink-red-5, #b91c1c);
 }
 
 .mermaid-block {
@@ -312,7 +306,7 @@ onMounted(renderPreview);
 }
 
 .mermaid-block-delete:hover {
-	color: var(--ink-red-5, #dc2626);
+	color: var(--ink-red-4, #dc2626);
 }
 
 .mermaid-block-action-icon {
@@ -398,7 +392,7 @@ onMounted(renderPreview);
 	padding: 0.5rem 0.75rem;
 	border-top: 1px solid var(--outline-gray-2);
 	background: var(--surface-red-1, #fef2f2);
-	color: var(--ink-red-6, #b91c1c);
+	color: var(--ink-red-5, #b91c1c);
 	font-size: 0.75rem;
 	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
 		'Liberation Mono', monospace;

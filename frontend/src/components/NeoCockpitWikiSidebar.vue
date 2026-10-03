@@ -1,8 +1,10 @@
 <!-- //// Neoffice — added file (no upstream equivalent). Wiki flavour of the
-     shared Neoffice chrome; falls back to upstream's own Sidebar when the
-     cockpit cannot boot, so the app never loses its navigation. ADR-015. -->
+     shared Neoffice chrome; falls back to upstream's own library sidebar
+     (LibrarySidebar, the top level of the 3.3.0 drill-in navigation; it was
+     Sidebar.vue until then) when the cockpit cannot boot, so the app never
+     loses its navigation. ADR-015. -->
 <template>
-	<Sidebar v-if="failed" />
+	<LibrarySidebar v-if="failed" />
 	<NeoCockpitBridge
 		v-else
 		:surface-app="surfaceApp"
@@ -14,12 +16,12 @@
 
 <script setup>
 /**
- * Wiki flavor of the shared Neoffice chrome (NeoCockpit). Maps the two
- * nav items into contextNav; native Sidebar kept as auto fallback (and
- * for guests, where the cockpit boot endpoint denies access anyway).
- * Recipe: neoffice ADR-015.
+ * Wiki flavor of the shared Neoffice chrome (NeoCockpit). Maps the nav items
+ * (Overview, Spaces, Change Requests, Settings) into contextNav; the native
+ * library sidebar is kept as auto fallback (and for guests, where the cockpit
+ * boot endpoint denies access anyway). Recipe: neoffice ADR-015.
  */
-import Sidebar from "@/components/Sidebar.vue";
+import LibrarySidebar from "@/components/LibrarySidebar.vue";
 import NeoCockpitBridge from "@/components/NeoCockpitBridge.vue";
 
 import { useRouter, useRoute } from "vue-router";
@@ -46,9 +48,17 @@ function navigate(r) {
 }
 
 const contextNav = computed(() => {
-	const items = [
-		{ label: __("Spaces"), icon: "lucide-rocket", to: { name: "SpaceList" } },
-	];
+	const items = [];
+	// The Overview (page-view analytics, 3.3.0) is the managers' landing page.
+	if (userStore.isWikiManager) {
+		items.push({
+			label: __("Overview"),
+			icon: "lucide-layout-grid",
+			to: { name: "Overview" },
+		});
+	}
+	// "SpaceList" was renamed "AllSpaces" in 3.3.0.
+	items.push({ label: __("Spaces"), icon: "lucide-rocket", to: { name: "AllSpaces" } });
 	if (userStore.data?.is_logged_in) {
 		items.push({
 			label: __("Change Requests"),
@@ -70,7 +80,12 @@ const contextNav = computed(() => {
 			items: items.map((item) => ({
 				label: item.label,
 				icon: item.icon,
-				active: item.to ? route.path.startsWith(router.resolve(item.to).path) : false,
+				// The Overview lives at "/", which every path starts with: match it by name.
+				active: item.to
+					? item.to.name === "Overview"
+						? route.name === "Overview"
+						: route.path.startsWith(router.resolve(item.to).path)
+					: false,
 				onClick: item.onClick || (() => router.push(item.to)),
 			})),
 		},

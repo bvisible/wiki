@@ -1,5 +1,5 @@
 <template>
-    <div class="p-2 w-72 flex items-center gap-2 bg-surface-base shadow-xl rounded-lg border border-outline-gray-2">
+    <div class="p-2 w-72 flex items-center gap-2 bg-surface-base shadow-xl rounded-6 border border-outline-gray-2">
         <TextInput
             v-if="isEditing"
             ref="inputRef"
@@ -10,6 +10,16 @@
             @keydown.enter="saveLink"
             @keydown.escape="cancelEdit"
         />
+        <a
+            v-else-if="page"
+            class="text-ink-gray-7 underline text-sm flex-1 truncate pl-1 flex items-center gap-1.5"
+            :title="page.title"
+            :href="page.href"
+            target="_blank"
+        >
+            <span class="lucide-file-text size-4 shrink-0" aria-hidden="true" />
+            <span class="truncate">{{ page.title }}</span>
+        </a>
         <a
             v-else
             class="text-ink-gray-7 underline text-sm flex-1 truncate pl-1"
@@ -65,7 +75,7 @@
                     variant="subtle"
                 >
                     <template #icon>
-                        <span class="lucide-link-2off size-4" aria-hidden="true" />
+                        <span class="lucide-link-2-off size-4" aria-hidden="true" />
                     </template>
                 </Button>
             </template>
@@ -76,11 +86,17 @@
 <script setup>
 import { Button, TextInput, toast } from 'frappe-ui';
 import { nextTick, onMounted, ref, watch } from 'vue';
+import { docKeyFromHref } from './page-links.js';
 
 const props = defineProps({
 	href: {
 		type: String,
 		default: '',
+	},
+	// The wiki page an internal `wiki:` link points at: { title, href }.
+	page: {
+		type: Object,
+		default: null,
 	},
 	isNew: {
 		type: Boolean,
@@ -99,7 +115,7 @@ function isValidUrl(url) {
 	if (!url) return false;
 	try {
 		// Allow relative URLs or absolute URLs
-		if (url.startsWith('/') || url.startsWith('#')) {
+		if (url.startsWith('/') || url.startsWith('#') || docKeyFromHref(url)) {
 			return true;
 		}
 		new URL(url);
@@ -122,24 +138,25 @@ function startEditing() {
 }
 
 function saveLink() {
-	if (!editUrl.value) {
-		emit('save', '');
+	let url = editUrl.value.trim();
+
+	// Saving '' would leave the text wrapped in a link with no href.
+	if (!url) {
+		emit('remove');
 		return;
 	}
 
-	let url = editUrl.value.trim();
-
 	// Add https:// if no protocol and not a relative URL
 	if (
-		url &&
 		!url.startsWith('/') &&
 		!url.startsWith('#') &&
+		!docKeyFromHref(url) &&
 		!url.match(/^[a-zA-Z]+:\/\//)
 	) {
-		url = 'https://' + url;
+		url = `https://${url}`;
 	}
 
-	if (url === '' || isValidUrl(url)) {
+	if (isValidUrl(url)) {
 		currentHref.value = url;
 		isEditing.value = false;
 		emit('save', url);
@@ -151,7 +168,7 @@ function cancelEdit() {
 		isEditing.value = false;
 		editUrl.value = currentHref.value;
 	} else {
-		emit('save', '');
+		emit('cancel');
 	}
 }
 

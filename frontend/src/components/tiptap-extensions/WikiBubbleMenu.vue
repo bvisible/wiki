@@ -1,6 +1,9 @@
 <template>
+	<!-- Held back until the scroll container is known: tiptap reads the floating
+	     options once, when the menu mounts, so a menu that mounts first is stuck
+	     listening to the window and never moves with the editor's own scroll. -->
 	<EditorBubbleMenu
-		v-if="editor"
+		v-if="editor && scrollBoundary"
 		class="wiki-bubble-menu"
 		:editor="editor"
 		:items="bubbleItems"
@@ -26,6 +29,7 @@ import {
 	Separator,
 	Strike,
 } from 'frappe-ui/editor';
+import { computed, nextTick, onMounted, ref } from 'vue';
 
 const props = defineProps({
 	editor: {
@@ -35,6 +39,13 @@ const props = defineProps({
 });
 
 const { isMobile } = useMobile();
+
+const UnderlineItem = {
+	icon: 'lucide-underline',
+	label: 'Underline',
+	action: (editor) => editor.chain().focus().toggleUnderline().run(),
+	isActive: (editor) => editor.isActive('underline'),
+};
 
 const CodeBlockItem = {
 	icon: 'lucide-square-code',
@@ -46,6 +57,7 @@ const CodeBlockItem = {
 const bubbleItems = [
 	Bold,
 	Italic,
+	UnderlineItem,
 	Strike,
 	InlineCode,
 	Separator,
@@ -66,10 +78,11 @@ const bubbleItems = [
 // flip boundary clears the toolbar band with room to spare.
 const TOOLBAR_HEIGHT = 56;
 
-// Nearest scrollable ancestor of the editor. The sticky toolbar pins to the top
-// of this element, so it's the boundary Floating UI must measure against. Falls
-// back to <body> (a valid, always-connected boundary) when none is found, so the
-// resolved value caches once instead of re-walking the tree on every compute.
+// Nearest scrollable ancestor of the editor: the page's one scroller (a
+// ScrollArea viewport). The sticky toolbar pins to its top edge, so it is both
+// the boundary Floating UI must measure against and the element whose scroll
+// moves the selection under the menu. Falls back to <body>, which always
+// scrolls with the document.
 function getScrollParent(node) {
 	let el = node?.parentElement;
 	while (el) {
@@ -80,15 +93,17 @@ function getScrollParent(node) {
 	return document.body;
 }
 
-// Resolve (and cache) the scroll ancestor lazily. The ProseMirror DOM isn't
-// attached when this component mounts, so we resolve on first position compute
-// (a selection, always post-mount) by which point it's in the tree.
-let cachedBoundary = null;
+// The ProseMirror DOM is attached a tick after this component mounts, so the
+// container is resolved there rather than in setup — and the menu itself waits
+// for it (see the template).
+const scrollBoundary = ref(null);
+onMounted(async () => {
+	await nextTick();
+	scrollBoundary.value = getScrollParent(props.editor?.view?.dom);
+});
+
 function resolveScrollBoundary() {
-	if (!cachedBoundary || !cachedBoundary.isConnected) {
-		cachedBoundary = getScrollParent(props.editor?.view?.dom);
-	}
-	return cachedBoundary;
+	return scrollBoundary.value || document.body;
 }
 
 function shouldShowBubbleMenu({ editor, state }) {
@@ -110,16 +125,22 @@ function shouldShowBubbleMenu({ editor, state }) {
 }
 
 // EditorBubbleMenu is positioned by Floating UI, so config goes through
-// `options`. By default flip measures against the viewport, which never sees
+// `options`. frappe-ui's own vocabulary is `side`/`align` plus booleans; the
+// rest of the bag is spread straight into TipTap, which is how the derivable
+// flip/shift/hide below still reach Floating UI. They have no supported
+// equivalent, so that passthrough is load-bearing: `bubble-menu.spec.ts` is
+// what tells us if a frappe-ui release starts filtering the bag.
+//
+// By default flip measures against the viewport, which never sees
 // the sticky toolbar — so a selection just under the toolbar places the menu
 // on top of it and never flips. We pin the flip/shift boundary to the scroll
 // container (whose top edge is the toolbar) and pad that top by the toolbar's
 // height, so such a selection overflows upward and flips the menu below.
 // flip/shift are Floating UI "derivable" options (functions) so the boundary
 // is resolved at compute time, not at mount.
-const floatingOptions = {
+const floatingOptions = computed(() => ({
 	strategy: 'fixed',
-	placement: 'top',
+	side: 'top',
 	offset: 8,
 	flip: () => ({
 		fallbackPlacements: ['bottom'],
@@ -127,13 +148,40 @@ const floatingOptions = {
 		boundary: resolveScrollBoundary(),
 	}),
 	shift: () => ({ padding: 8, boundary: resolveScrollBoundary() }),
+	// Without this the menu only repositions on window scroll, so scrolling the
+	// editor leaves it parked mid-page looking like a second toolbar.
+	scrollTarget: scrollBoundary.value,
+	// And once the selection scrolls out of the container the menu goes with it
+	// instead of hovering over unrelated text.
+	//
+	// The boundary is the container alone, with no toolbar padding: Floating
+	// UI's `hide` reports a reference as hidden when it overflows on *any*
+	// side, so padding the top by the toolbar's height hid the menu for a
+	// selection merely tucked under the toolbar — which is the case `flip`
+	// exists to handle by putting the menu below it.
+	hide: () => ({ boundary: resolveScrollBoundary() }),
 	shouldShow: shouldShowBubbleMenu,
-};
+}));
 </script>
 
 <style scoped>
 .wiki-bubble-menu {
-    /* Appended to <body>, so it must clear the editor chrome and sidebar. */
+    /* tiptap appends the menu to the editor's own parent — the prose column —
+       not to <body>, so it must clear the editor chrome and the sidebar. */
     z-index: 60;
+
+    /* Load-bearing, `!important` included — it is beating an inline style.
+       On mount tiptap writes `el.style.position = "absolute"`, and only after
+       positioning does it write back the strategy we asked for. Floating UI
+       picks the box its coordinates are relative to by reading the floating
+       element's computed position: anything but `fixed` and it measures
+       against the nearest positioned ancestor. So the first computePosition
+       answered in coordinates relative to the prose column's `relative`
+       wrapper, tiptap then stamped `position: fixed` on top of that answer,
+       and the menu landed up and to the left of the selection by exactly that
+       wrapper's origin. Every later selection was correct, because by then
+       the element was already fixed — which is why this only ever showed up
+       on the first selection after opening a page. */
+    position: fixed !important;
 }
 </style>
