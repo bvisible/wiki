@@ -131,6 +131,7 @@ const props = defineProps({
 
 const spaceStore = useSpaceStore();
 const { open: openSpaceSettings } = useSpaceSettings();
+//// Neoffice — the options of the space switcher in the header (see the template).
 const { switcherOptions } = useSpaceSwitcher();
 
 const spaceName = computed(
@@ -142,19 +143,19 @@ const spaceName = computed(
 const saveIdentity = useSpaceIdentitySaver(() => spaceStore.space);
 
 const spaceActions = computed(() => {
-	const options = [];
-	//// Neoffice — "Space settings" is offered to the space's writers only. Upstream
-	//// lists it for everyone who can see the space; on neoservice an anonymous
-	//// visitor got the full Space Settings panel (Published toggle, feedback widget,
-	//// logo upload, bulk route rewrite, Clone space, Permissions tab). The writes
-	//// were refused server-side, but none of it is a reader's business.
-	if (spaceStore.canWriteSpace) {
-		options.push({
+	const options = [
+		{
 			label: __('Space settings'),
 			icon: 'lucide-settings',
 			onClick: openSpaceSettings,
-		});
-	}
+		},
+	];
+	//// Neoffice — "Space settings" is offered to the space's writers only. Upstream lists it
+	//// for everyone who can see the space; on neoservice an anonymous visitor got the full
+	//// Space Settings panel (Published toggle, feedback widget, logo upload, bulk route
+	//// rewrite, Clone space, Permissions tab). The writes were refused server-side, but none
+	//// of it is a reader's business. (Upstream's own array above, so the diff stays one line.)
+	if (!spaceStore.canWriteSpace) options.shift();
 	if (spaceStore.doc?.route) {
 		options.push({
 			label: __('View live site'),

@@ -64,10 +64,9 @@
 					<NeoCockpitWikiSidebar />
 				</template>
 				<template #sidebar>
-					<!-- One navigation column that drills into a space: the space's
-					     own tree, once you are inside one. (Upstream's library level,
-					     LibrarySidebar, is what the shared Neoffice chrome above replaces:
-					     see the rail slot.) -->
+					<!-- //// Neoffice — upstream's `v-else <LibrarySidebar />` is gone: the library
+					     level is what the shared Neoffice chrome in the rail slot above replaces
+					     (LibrarySidebar is that chrome's own fallback). Inside a space: the tree. -->
 					<SpaceSidebar v-if="spaceId" :key="spaceId" :space-id="spaceId" />
 				</template>
 				<slot></slot>

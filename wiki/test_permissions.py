@@ -76,6 +76,7 @@ def _make_space(test_case, name: str, roles: list[tuple[str, str]]) -> str:
 		space_name=name,
 		route=frappe.scrub(name).replace("_", "-"),
 		roles=roles,
+		# //// Neoffice — public_read: see the note above.
 		public_read=1 if any(role == "Guest" for role, _level in roles) else 0,
 	)
 	test_case._spaces.append(space.name)

@@ -73,6 +73,7 @@ def create_test_wiki_space(test_case, space_name, route, root_group, **kwargs):
 		route=route,
 		root_group=root_group,
 		roles=roles,
+		# //// Neoffice — public_read: see the note above.
 		public_read=1 if any((role or "") == "Guest" for role, _level in roles) else 0,
 		show_in_switcher=kwargs.get("show_in_switcher", True),
 		is_published=kwargs.get("is_published", True),

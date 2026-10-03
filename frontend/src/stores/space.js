@@ -32,6 +32,7 @@ export const useSpaceStore = defineStore('space', () => {
 	const userStore = useUserStore();
 
 	const route = router.currentRoute;
+	//// Neoffice — isReader: see the block above.
 	const isReader = computed(
 		() => !userStore.isWikiEditor || route.value.query.preview === '1',
 	);
@@ -48,6 +49,7 @@ export const useSpaceStore = defineStore('space', () => {
 	//// methods of the editor resource (updateRoutes, cloneWikiSpace, syncNow) are
 	//// editor actions a reader can never trigger.
 	const publicInfo = ref(null);
+	//// Neoffice — watches isReader as well as the space (see the comment above).
 	watch(
 		[spaceId, isReader],
 		([id, reader]) => {
@@ -402,6 +404,7 @@ export const useSpaceStore = defineStore('space', () => {
 
 	return {
 		spaceId,
+		//// Neoffice — isReader and switcherSpaces are ours (see above).
 		isReader,
 		switcherSpaces,
 		space,

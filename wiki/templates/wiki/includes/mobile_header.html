@@ -209,6 +209,7 @@
             size lg + subtle, with a prefix slot (h-10, ps-10 for the icon).
             It filters the tree in place, like the docs sheet; full-text search
             stays on the header's ⌘K button. -#}
+        {#- //// Neoffice — x-show="sheetTab === 'pages'": the sheet's search and tree belong to the "Pages" tab (see the tabs above). -#}
         <div class="px-3 pt-2 pb-1 shrink-0" x-show="sheetTab === 'pages'">
             <div class="relative flex items-center w-full">
                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 text-[var(--ink-gray-8)]">
@@ -226,6 +227,7 @@
         </div>
 
         <!-- Bottom Sheet Navigation -->
+        {#- //// Neoffice — x-show="sheetTab === 'pages'", same as the search above. -#}
         <nav class="px-3 pt-2 pb-6 flex-1 overflow-y-auto" x-ref="sheetNav" x-show="sheetTab === 'pages'" @click="handleNavClick($event)">
             <div x-show="!navHasResults" x-cloak class="px-2 py-6 text-md text-[var(--ink-gray-5)] text-center">
                 {{ _("No results for") }} "<span x-text="navQuery"></span>"
@@ -353,6 +355,7 @@
                 this.sidebarOpen = !this.sidebarOpen;
                 document.body.style.overflow = this.sidebarOpen ? 'hidden' : '';
                 if (this.sidebarOpen) {
+                    // //// Neoffice — the headings of the page for the sheet's second tab (see readHeadings).
                     this.tocItems = this.readHeadings();
                     if (!this.tocItems.length) this.sheetTab = 'pages';
                     // Drawer content is only measurable once it is visible

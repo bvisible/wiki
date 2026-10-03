@@ -7,10 +7,7 @@
 	     with PageHeader, so it goes straight into Sidebar. Padding belongs on the
 	     scroll region and the footer instead. -->
 	<Sidebar>
-		<!-- //// Neoffice — "Wiki", not "Frappe Wiki": we ship this under the Neoffice
-		     brand, upstream product names don't belong in the UI. (Our Sidebar.vue carried
-		     the same change before 3.3.0 replaced it with this component; the cockpit is
-		     what editors see, this one is its fallback.) -->
+		<!-- //// Neoffice — title "Wiki", not "Frappe Wiki" (brand; our Sidebar.vue did the same until 3.3.0 replaced it; the cockpit is what editors see, this is its fallback) -->
 		<SidebarHeader
 			:title="__('Wiki')"
 			:subtitle="userStore.data?.full_name"
