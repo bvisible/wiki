@@ -78,7 +78,15 @@
 			</div>
 		</div>
 
-		<WikiSettings v-model="showWikiSettings" :initial-tab="initialTab" />
+		<!-- //// Neoffice — mounted for a wiki manager only (maintenance#1096). Upstream
+		//// mounts it for everyone, and it reads « Wiki Settings » as soon as it is
+		//// mounted, dialog closed: a Wiki User may not read it, so every opening of
+		//// the app raised a PermissionError. Only managers have its menu entry. -->
+		<WikiSettings
+			v-if="userStore.isWikiManager"
+			v-model="showWikiSettings"
+			:initial-tab="initialTab"
+		/>
 	</div>
 </template>
 
