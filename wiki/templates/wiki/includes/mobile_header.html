@@ -251,13 +251,25 @@
         </div>
         {% endif %}
 
+        {#- //// Neoffice — the sheet carried the page tree only. A page of this manual has twenty sections and a phone had no way to
+            //// jump to one (the "On this page" dropdown of the header reads `$root.headings`, which is this component itself, so it
+            //// never shows). Two tabs: "Pages" (the tree, as before) and "On this page" (the headings of the page being read, read from
+            //// the page when the sheet opens, so it is right after a client-side navigation too). Styles: .neo-sheet-* in
+            //// neoffice-wiki.css (a class that is not in the committed tailwind.css would not exist). -#}
+        <div class="neo-sheet-tabs" x-show="tocItems.length > 0" x-cloak role="tablist">
+            <button type="button" role="tab" class="neo-sheet-tab" :class="sheetTab === 'pages' ? 'is-active' : ''"
+                    :aria-selected="sheetTab === 'pages'" @click="sheetTab = 'pages'" data-testid="mobile-tab-pages">{{ _("Pages") }}</button>
+            <button type="button" role="tab" class="neo-sheet-tab" :class="sheetTab === 'toc' ? 'is-active' : ''"
+                    :aria-selected="sheetTab === 'toc'" @click="sheetTab = 'toc'" data-testid="mobile-tab-toc">{{ _("On this page") }}</button>
+        </div>
+
         {#- Sheet search — frappe-ui docs hides the navbar search field below md
             and puts this in the drawer instead, so it's the only search bar
             that ever renders on mobile. Markup is frappe-ui TextInput,
             size lg + subtle, with a prefix slot (h-10, ps-10 for the icon).
             It filters the tree in place, like the docs sheet; full-text search
             stays on the header's ⌘K button. -#}
-        <div class="px-3 pt-2 pb-1 shrink-0">
+        <div class="px-3 pt-2 pb-1 shrink-0" x-show="sheetTab === 'pages'">
             <div class="relative flex items-center w-full">
                 <div class="absolute inset-y-0 start-0 flex items-center ps-3 text-[var(--ink-gray-8)]">
                     {{ render_icon("search", "size-[18px] text-[var(--ink-gray-5)]") }}
@@ -274,7 +286,7 @@
         </div>
 
         <!-- Bottom Sheet Navigation -->
-        <nav class="px-3 pt-2 pb-6 flex-1 overflow-y-auto" x-ref="sheetNav" @click="handleNavClick($event)">
+        <nav class="px-3 pt-2 pb-6 flex-1 overflow-y-auto" x-ref="sheetNav" x-show="sheetTab === 'pages'" @click="handleNavClick($event)">
             <div x-show="!navHasResults" x-cloak class="px-2 py-6 text-md text-[var(--ink-gray-5)] text-center">
                 {{ _("No results for") }} "<span x-text="navQuery"></span>"
             </div>
@@ -292,6 +304,14 @@
             {% else %}
             {{ render_wiki_tree(other_nodes, current_route=doc.route if doc else '', dense=False) }}
             {% endif %}
+        </nav>
+
+        {#- //// Neoffice — the headings of the page (see the tabs above). -#}
+        <nav class="neo-sheet-toc px-3 pt-2 pb-6 flex-1 overflow-y-auto" x-show="sheetTab === 'toc'" x-cloak data-testid="mobile-toc-list">
+            <template x-for="item in tocItems" :key="item.id">
+                <a :href="'#' + item.id" @click.prevent="goToHeading(item.id)" class="neo-sheet-toc-link"
+                   :class="'is-level-' + item.level" x-text="item.text"></a>
+            </template>
         </nav>
 
         {% if navbar_items %}
@@ -324,6 +344,9 @@
     function mobileNav() {
         return {
             sidebarOpen: false,
+            // //// Neoffice — the sheet's two tabs (see the markup): the page tree, or the headings of the page being read.
+            sheetTab: 'pages',
+            tocItems: [],
             tocOpen: false,
             spaceSwitcherOpen: false,
             navQuery: '',
@@ -384,10 +407,26 @@
                 });
             },
 
+            // //// Neoffice — the headings of the page being read, taken from the page itself each time the sheet opens
+            // (right after a client-side navigation too). Level 2 to 4, as the desktop column does.
+            readHeadings() {
+                return Array.from(document.querySelectorAll('#wiki-content h2[id], #wiki-content h3[id], #wiki-content h4[id]'))
+                    .map((h) => ({ id: h.id, text: (h.textContent || '').replace(/^\s*#\s*/, '').trim(), level: Number(h.tagName.slice(1)) }))
+                    .filter((h) => h.text);
+            },
+
+            // Close the sheet, then go to the heading (the sheet locks the page's scroll while it is open).
+            goToHeading(id) {
+                this.closeSidebar();
+                this.$nextTick(() => this.scrollToHeading(id));
+            },
+
             toggleSidebar() {
                 this.sidebarOpen = !this.sidebarOpen;
                 document.body.style.overflow = this.sidebarOpen ? 'hidden' : '';
                 if (this.sidebarOpen) {
+                    this.tocItems = this.readHeadings();
+                    if (!this.tocItems.length) this.sheetTab = 'pages';
                     // Drawer content is only measurable once it is visible
                     this.$nextTick(() => {
                         const el = this.$root.querySelector(`[data-route="${this.currentRoute}"]`);

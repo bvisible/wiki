@@ -192,6 +192,7 @@ for the reader.
 | `frontend/src/pages/SpaceDetails.vue` — `:readonly` of both `<SpaceTreePanel>` | was `isGitSynced`, now `isReadOnly` (git-synced **or** reader) | each `<SpaceTreePanel>` tag |
 | `frontend/src/pages/SpaceDetails.vue` — `:spaces` of both `<SpaceTreePanel>` | added: feeds the header space switcher | each `<SpaceTreePanel>` tag |
 | `wiki/frappe_wiki/doctype/wiki_document/wiki_document.py` canonical address (`_public_url`, `canonical_url` in `get_web_context`) | upstream builds it from the site's `host_name` (the hub's own name) | the manual under its own public host would be declared a copy of a page elsewhere: `wiki_canonical_host` (site_config) wins when set, unset = upstream | the `//// Neoffice` comments on `_public_url` and on the `canonical_url` line |
+| `wiki/templates/wiki/includes/mobile_header.html` — the sheet's two tabs « Pages » / « On this page » (`sheetTab`, `tocItems`, `readHeadings()`, `goToHeading()`) | upstream's sheet holds the page tree only, and its header « On this page » dropdown reads `$root.headings` (which is the component itself) so it never shows: a phone could not jump to a section | the `{#- //// Neoffice` comment above the tabs and the `// //// Neoffice` comments in the component; styles `.neo-sheet-*` in `neoffice-wiki.css` section 9 |
 
 ### Not markable at all
 
