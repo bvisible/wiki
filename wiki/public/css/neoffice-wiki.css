@@ -51,6 +51,8 @@
  * Drop it if upstream's tailwind.css ever carries `!max-w-none`. */
 #wiki-content.prose {
 	max-width: none;
+	/* //// Neoffice — one name for "how wide the text is allowed to be": paragraphs and images read it, so they stop at the same line. */
+	--neo-text-width: 100ch;
 }
 
 /* //// Neoffice — keep a readable line length now that the column is wide.
@@ -62,7 +64,7 @@
  * page (the manual's home, a list of links) jammed in the left corner of a wide
  * screen, with a third of the article empty. */
 #wiki-content > :where(p, ul, ol, dl, blockquote):not(:has(img, video, iframe, table, figure)) {
-	max-width: 100ch;
+	max-width: var(--neo-text-width, 100ch);
 }
 
 /* //// Neoffice — the right-hand "On this page" column (300px + padding) took a
@@ -146,11 +148,16 @@
  * 2. Image defaults — responsive, never wider than the column
  * ============================================================ */
 
+/* //// Neoffice — a capture never goes wider than the text above it (about 940px). On a large screen the column is 1280-1440px and a
+ * full-page capture filled all of it, 400px wider than the paragraph over it: it looked like a different page. The image viewer
+ * (a click on the capture) shows it large. Narrower captures keep their own width. Aligned on the text's left edge, not centred in the
+ * column: a centred capture under left-aligned text is offset by half the spare width. `img-center` still centres, and an `img-*`
+ * size class (below, more specific) still wins. */
 #wiki-content img {
-	max-width: 100%;
+	max-width: min(100%, var(--neo-text-width, 100ch));
 	height: auto;
 	border-radius: 8px;
-	margin: 1.5rem auto;
+	margin: 1.5rem auto 1.5rem 0;
 	display: block;
 }
 
@@ -226,9 +233,9 @@
  * ============================================================ */
 
 #wiki-content figure {
-	margin: 2rem auto;
+	margin: 2rem auto 2rem 0;
 	text-align: center;
-	max-width: 100%;
+	max-width: min(100%, var(--neo-text-width, 100ch));
 }
 
 #wiki-content figure img {
