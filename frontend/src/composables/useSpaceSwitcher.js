@@ -20,8 +20,9 @@ export function useSpaceSwitcher() {
 		const options = (spaceStore.switcherSpaces || []).map((space) => ({
 			label: space.space_name || space.name,
 			// The active space is marked rather than hidden, so the list always
-			// answers "where am I" as well as "where can I go".
-			icon: space.name === spaceStore.spaceId ? 'check' : null,
+			// answers "where am I" as well as "where can I go". (lucide- names: frappe-ui
+			// 1.0 no longer renders the bare ones the pre-3.3.0 switcher used.)
+			icon: space.name === spaceStore.spaceId ? 'lucide-check' : null,
 			onClick: () => {
 				if (space.name === spaceStore.spaceId) return;
 				router.push({ name: 'SpaceDetails', params: { spaceId: space.name } });
@@ -34,7 +35,7 @@ export function useSpaceSwitcher() {
 		if (!spaceStore.isReader) {
 			options.push({
 				label: __('All spaces'),
-				icon: 'grid',
+				icon: 'lucide-layout-grid',
 				onClick: () => router.push({ name: 'AllSpaces' }),
 			});
 		}
