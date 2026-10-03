@@ -223,7 +223,7 @@ Each carries a header marker unless noted.
 | `wiki/frappe_wiki/patches/redirect_bare_wiki_route_to_app.py` | per-instance `/wiki` redirect |
 | `wiki/frappe_wiki/doctype/wiki_revision_item/patches/add_revision_doc_key_index.py` | index on `(revision, doc_key)` |
 | `wiki/public/css/neoffice-wiki.css` | reader styling (wider article, image sizes, captions) |
-| `wiki/public/js/neoffice-images.js` | the reader shows an image narrower than 1000px (a dialog, a panel) at 600px at most; loaded from `layout.html` (marked there). Needed because the editor's S/M/L/XL width is not written to the markdown |
+| `wiki/public/js/neoffice-images.js` | the reader shows an image between 400 and 1000px wide (a dialog, a panel) at 70% of its real size; loaded from `layout.html` (marked there). Needed because the editor's S/M/L/XL width is not written to the markdown |
 | `wiki/frappe_wiki/patches/__init__.py` | **empty on purpose, unmarked** — a package marker, nothing to explain |
 
 ### `.github/` — listed here, never marked
