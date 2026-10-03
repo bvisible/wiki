@@ -171,7 +171,11 @@
             copied: false,
             downloadInProgress: false,
 
+            //// Neoffice — upstream's `get markdown()` is not here: a store is not wikiPage. It stays in
+            //// wikiPage below, with its body unchanged.
             copyMarkdown() {
+                //// Neoffice — a store has no `this.markdown`: read the pageContent store, and return the
+                //// promise so the top bar's button can wait for the copy.
                 const markdown = Alpine.store('pageContent')?.markdown || '';
                 return navigator.clipboard.writeText(markdown).then(() => {
                     this.copied = true;
@@ -241,6 +245,8 @@
                 return this.$store.pageContent?.markdown || '';
             },
 
+            //// Neoffice — the actions are the store's (above): wikiPage keeps their names so the in-article
+            //// menu, which calls them from wikiPage's scope, works as upstream's did.
             copyMarkdown() { return Alpine.store('pageActions').copyMarkdown(); },
             downloadPage() { return Alpine.store('pageActions').downloadPage(); },
             getAIUrl(provider) { return Alpine.store('pageActions').getAIUrl(provider); },

@@ -116,6 +116,7 @@
 </script>
 
 <!-- Sidebar Toggle Button (appears on hover at sidebar edge, always visible when collapsed) -->
+{# //// Neoffice — the toggle follows the sidebar's width: it sits at the --neo-sidebar-w variable (18rem stays the fallback), set by the drag handle's script above, no longer at a fixed 18rem. #}
 <div x-data="{ hovered: false }"
      class="wiki-sidebar-toggle hidden lg:flex items-center fixed z-40 top-[var(--wiki-chrome-h)] h-[calc(100vh-var(--wiki-chrome-h))] transition-[left] duration-300 ease-in-out"
      :style="$store.sidebar.isCollapsed ? 'left: 0.5rem;' : 'left: calc(var(--neo-sidebar-w, 18rem) - 0.25rem);'"
