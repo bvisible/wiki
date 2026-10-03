@@ -1,7 +1,7 @@
 {# //// Neoffice — user-facing strings wrapped in _() so they land in the POT
    and get translated. Upstream ships them hardcoded in English, which left the
    whole public reader untranslatable. #}
-{% from "templates/wiki/macros/buttons.html" import render_icon %}
+{% from "templates/wiki/macros/buttons.html" import render_icon, page_actions_dropdown, page_action_item, download_action_item, dropdown_end %}
 
 {#- The bottom rule belongs to whichever row ends the chrome, so exactly one
     hairline runs across the window and the sidebar's own border meets it
@@ -9,7 +9,8 @@
     includes/tabs.html); without them it's this navbar. -#}
 {% set has_tabs = space_tabs and space_tabs|length %}
 <header class="hidden lg:flex items-center gap-3 py-3 px-6 bg-[var(--surface-base)] sticky top-0 z-30 h-[53px]{% if not has_tabs %} border-b border-[var(--outline-gray-1)]{% endif %}"
-        x-data>
+        {# //// Neoffice — was a bare `x-data`: the page actions below (macros/buttons.html) call copyMarkdown(), downloadPage(), getAIUrl() and read `copied` / `downloadInProgress` from the enclosing scope, which is wikiPage on the article but nothing up here. wikiHeaderActions (bottom of this file) hands them on to the shared pageActions store. #}
+        x-data="wikiHeaderActions">
     {#- Space logo + switcher. Lives here rather than in the sidebar's own
         header because the navbar now spans the full window: the sidebar starts
         below the tab row, so it has no top-of-window strip to put a logo in.
@@ -106,6 +107,18 @@
             {% endif %}
         {% endfor %}
 
+        {# //// Neoffice — added block: the page actions (Edit / Copy, PDF, open in an AI) moved up from the title row, where the split button took a line of the column and pushed the heading around. Same macros as the in-article menu shown under 1024px, so labels, translations and the edit-link refresh on SPA navigation (.wiki-edit-link) are the same code. Only on a document page: other pages have no `doc`. #}
+        {% if doc is defined and doc %}
+        {{ page_actions_dropdown(edit_href=doc.get_edit_link(), show_edit=can_edit, edit_external=wiki_space.git_synced) }}
+            {{ download_action_item() }}
+            {% if can_edit %}
+            {{ page_action_item(text=_("Copy page"), description=_("Copy page as Markdown for LLMs"), icon="clipboard", click="copyMarkdown(); open = false") }}
+            {% endif %}
+            {{ page_action_item(text=_("Open in ChatGPT"), description=_("Ask ChatGPT about this page"), icon="openai", href_expr="getAIUrl('openai')", target="_blank") }}
+            {{ page_action_item(text=_("Open in Claude"), description=_("Ask Claude about this page"), icon="claude", href_expr="getAIUrl('claude')", target="_blank") }}
+        {{ dropdown_end() }}
+        {% endif %}
+
         {# Theme toggle — ghost icon button (sun when dark / moon-star when light) #}
         {# //// Neoffice — i18n on the aria-label below: upstream hardcodes it in English. #}
         <button @click="$store.theme.toggle()"
@@ -133,3 +146,16 @@
         {% endfor %}
     </nav>
 </header>
+
+{# //// Neoffice — scope of the top bar. The page actions are implemented once, in the `pageActions` store that document.html registers; this object only forwards to it, so the bar and the in-article menu share one `copied` / `downloadInProgress`. The store does not exist on pages without a document, where the actions are not rendered either, hence the guards. #}
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('wikiHeaderActions', () => ({
+            get copied() { return Alpine.store('pageActions')?.copied || false; },
+            get downloadInProgress() { return Alpine.store('pageActions')?.downloadInProgress || false; },
+            copyMarkdown() { return Alpine.store('pageActions')?.copyMarkdown(); },
+            downloadPage() { return Alpine.store('pageActions')?.downloadPage() || Promise.resolve(); },
+            getAIUrl(provider) { return Alpine.store('pageActions')?.getAIUrl(provider) || '#'; },
+        }));
+    });
+</script>

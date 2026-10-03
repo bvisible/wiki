@@ -38,7 +38,8 @@
                 <template x-if="copied">
                     {{ render_icon("check", "w-4 h-4 text-[var(--ink-green-8)]") }}
                 </template>
-                <span x-text="copied ? 'Copied!' : 'Copy'"></span>
+                {# //// Neoffice — i18n: both labels of the primary Copy button were hardcoded English, and this is the one a signed-out reader sees (no edit right). tojson + forceescape, as for the Download row below, so an apostrophe in a translation cannot break the Alpine expression. #}
+                <span x-text="copied ? {{ _('Copied!') | tojson | forceescape }} : {{ _('Copy') | tojson | forceescape }}"></span>
             </button>
             {% endif %}
             <!-- Dropdown toggle button -->

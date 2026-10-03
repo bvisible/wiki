@@ -74,8 +74,9 @@
             <div class="flex items-center justify-between gap-4">
                 <h1 id="wiki-page-title" class="text-4xl-semibold text-[var(--ink-gray-9)]">{{ doc.title }}</h1>
 
+                {# //// Neoffice — from 1024px up these actions are in the top bar (includes/header.html), where they cost no room: beside the title the split button took a line of the column and pushed the heading around. Between 640 and 1023px there is no top bar (it is `hidden lg:flex`), so the menu stays here. #}
                 <!-- Desktop: Edit beside title -->
-                <div class="hidden sm:block">
+                <div class="hidden sm:block lg:hidden">
                     {{ page_actions_dropdown(edit_href=doc.get_edit_link(), show_edit=can_edit, edit_external=wiki_space.git_synced) }}
                         {{ download_action_item() }}
                         {% if can_edit %}
@@ -161,18 +162,18 @@
             markdown: {{ raw_markdown | tojson }}
         });
 
-        // Combined component for wiki document page (wikiDocument + tocScrollSpy)
-        Alpine.data('wikiPage', () => ({
-            // wikiDocument properties
+        //// Neoffice — the page actions (copy as Markdown, PDF, "open in an AI") live in a
+        //// store instead of in wikiPage. They moved to the top bar (includes/header.html,
+        //// outside wikiPage's x-data scope) so the title row is only the title; the bar and
+        //// the in-article menu shown under 1024px must share ONE state (copied, busy) and
+        //// one implementation. Bodies are upstream's, unchanged.
+        Alpine.store('pageActions', {
             copied: false,
             downloadInProgress: false,
 
-            get markdown() {
-                return this.$store.pageContent?.markdown || '';
-            },
-
             copyMarkdown() {
-                navigator.clipboard.writeText(this.markdown).then(() => {
+                const markdown = Alpine.store('pageContent')?.markdown || '';
+                return navigator.clipboard.writeText(markdown).then(() => {
                     this.copied = true;
                     setTimeout(() => {
                         this.copied = false;
@@ -227,7 +228,22 @@
                     'perplexity': `https://www.perplexity.ai/search?q=${encodedPrompt}`
                 };
                 return urls[provider] || '#';
+            }
+        });
+
+        // Combined component for wiki document page (wikiDocument + tocScrollSpy)
+        Alpine.data('wikiPage', () => ({
+            // wikiDocument properties — //// Neoffice: delegated to the pageActions store above
+            get copied() { return Alpine.store('pageActions').copied; },
+            get downloadInProgress() { return Alpine.store('pageActions').downloadInProgress; },
+
+            get markdown() {
+                return this.$store.pageContent?.markdown || '';
             },
+
+            copyMarkdown() { return Alpine.store('pageActions').copyMarkdown(); },
+            downloadPage() { return Alpine.store('pageActions').downloadPage(); },
+            getAIUrl(provider) { return Alpine.store('pageActions').getAIUrl(provider); },
 
             // tocScrollSpy properties - works with server-rendered TOC
             headingIds: [],

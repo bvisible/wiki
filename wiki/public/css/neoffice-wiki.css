@@ -36,6 +36,59 @@
 	}
 }
 
+@media (min-width: 1700px) {
+	.neo-wiki-article {
+		max-width: 1440px !important;
+	}
+}
+
+/* //// Neoffice — the REAL cap on the column was never the article.
+ * document.html gives #wiki-content `!max-w-none` to cancel typography's
+ * `.prose { max-width: 65ch }`, but that utility is not in the committed
+ * tailwind.css (built before the class was added to the template), so the cap
+ * stayed: 613px of text and screenshots inside a 1117px article, whatever the
+ * window. Cancelled here in plain CSS, which has no build step to forget.
+ * Drop it if upstream's tailwind.css ever carries `!max-w-none`. */
+#wiki-content.prose {
+	max-width: none;
+}
+
+/* //// Neoffice — keep a readable line length now that the column is wide.
+ * Prose stops at 100ch (about 940px, the upper end of what a line can be and
+ * still read well); screenshots, tables, videos and embeds use the whole
+ * article width, which is the point: the manual is screenshot-heavy and the
+ * text inside a capture has to be legible. A paragraph, list or quote that
+ * holds one of those blocks is left alone. 80ch was tried first and left a text
+ * page (the manual's home, a list of links) jammed in the left corner of a wide
+ * screen, with a third of the article empty. */
+#wiki-content > :where(p, ul, ol, dl, blockquote):not(:has(img, video, iframe, table, figure)) {
+	max-width: 100ch;
+}
+
+/* //// Neoffice — the right-hand "On this page" column (300px + padding) took a
+ * quarter of a laptop screen from the text and the captures. Narrower, and gone
+ * below 1500px: there it costs a capture a third of its width (816px against
+ * 1056px at 1440), which is the legibility this file exists for. The page's
+ * headings stay reachable from the search and the sidebar tree. */
+@media (min-width: 1024px) {
+	#wiki-toc:not(.w-0) {
+		width: 260px;
+	}
+}
+
+@media (max-width: 1499px) {
+	#wiki-toc {
+		display: none;
+	}
+}
+
+/* //// Neoffice — the image viewer capped a capture at 60vw: a click on a
+ * screenshot to read it opened it smaller than the page it came from. */
+#image-viewer-img {
+	max-width: 94vw;
+	max-height: 92vh;
+}
+
 /* ============================================================
  * 2. Image defaults — responsive, never wider than the column
  * ============================================================ */
