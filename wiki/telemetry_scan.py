@@ -14,7 +14,20 @@ from bisect import bisect_right
 
 import frappe
 from frappe.utils import add_days, date_diff, now_datetime
-from frappe.utils.telemetry import is_pulse_enabled, site_age
+
+# //// Neoffice — is_pulse_enabled exists on Frappe v16 only. On the v15 our fleet runs,
+# //// importing it raised ImportError, so the daily `send_site_profile` job of hooks.py
+# //// was reported as "not a valid method" by every bench migrate and could never run.
+# //// Without Pulse there is nothing to send, which is what "disabled" means: the job
+# //// stays valid and does nothing. Drop the fallback at the v16 move.
+try:
+	from frappe.utils.telemetry import is_pulse_enabled, site_age
+except ImportError:
+	from frappe.utils.telemetry import site_age
+
+	def is_pulse_enabled() -> bool:
+		return False
+
 
 from wiki import analytics_store
 from wiki.api.og_image import cached_card_count
