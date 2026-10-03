@@ -191,6 +191,7 @@ for the reader.
 | `frontend/src/components/tiptap-extensions/ImageNodeView.vue` — `:style` / `@click` of `<img>` | `@click` re-pointed from `selectNode` to `handleImageClick` (select in edit mode, lightbox in read mode) | the `<img>` tag |
 | `frontend/src/pages/SpaceDetails.vue` — `:readonly` of both `<SpaceTreePanel>` | was `isGitSynced`, now `isReadOnly` (git-synced **or** reader) | each `<SpaceTreePanel>` tag |
 | `frontend/src/pages/SpaceDetails.vue` — `:spaces` of both `<SpaceTreePanel>` | added: feeds the header space switcher | each `<SpaceTreePanel>` tag |
+| `wiki/frappe_wiki/doctype/wiki_document/wiki_document.py` canonical address (`_public_url`, `canonical_url` in `get_web_context`) | upstream builds it from the site's `host_name` (the hub's own name) | the manual under its own public host would be declared a copy of a page elsewhere: `wiki_canonical_host` (site_config) wins when set, unset = upstream | the `//// Neoffice` comments on `_public_url` and on the `canonical_url` line |
 
 ### Not markable at all
 
@@ -226,6 +227,7 @@ Each carries a header marker unless noted.
 | `wiki/public/js/neoffice-images.js` | the reader shows an image between 400 and 1000px wide (a dialog, a panel) at 70% of its real size; loaded from `layout.html` (marked there). Needed because the editor's S/M/L/XL width is not written to the markdown |
 | `wiki/public/js/neoffice-video.js` | a click on a clip opens it in a large window over the page (carries the playing position both ways); the browser's full-screen button is taken off the small player; markup of the window in `layout.html` (marked there), styles in `neoffice-wiki.css` section 8, one new msgid `Click to enlarge` |
 | `wiki/frappe_wiki/patches/__init__.py` | **empty on purpose, unmarked** — a package marker, nothing to explain |
+| `wiki/www/wiki-sitemap.xml`, `wiki/www/wiki_sitemap.py` | the sitemap of the public manual (only what a signed-out visitor can read, under `wiki_canonical_host`); the manual's host maps `/sitemap.xml` onto it |
 
 ### `.github/` — listed here, never marked
 

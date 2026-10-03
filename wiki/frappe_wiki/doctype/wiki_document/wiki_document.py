@@ -55,6 +55,12 @@ KNOWN_SERVICE_ICONS = {
 }
 
 
+# //// Neoffice — see the canonical_url line in get_web_context().
+def _public_url(path: str) -> str:
+	host = frappe.conf.get("wiki_canonical_host")
+	return f"https://{host}{path}" if host else frappe.utils.get_url(path)
+
+
 def process_navbar_items(navbar_items: list) -> list:
 	"""
 	Process navbar items to add icon detection for known services.
@@ -576,7 +582,10 @@ class WikiDocument(NestedSet):
 
 		context["metatags"] = {key: value for key, value in metatags.items() if value}
 		context["metatags"] = MetaTags(self.route, context).tags
-		context["canonical_url"] = frappe.utils.get_url("/" + self.route) if self.route else None
+		# //// Neoffice — the canonical address is built from `wiki_canonical_host` (site_config) when it is set. Upstream always
+		# //// uses the site's `host_name`, which on the hub is the hub's own name: a manual served under its own public host
+		# //// (wiki.neoffice.ch) would tell every search engine that it is a copy of a page elsewhere. Unset = upstream behaviour.
+		context["canonical_url"] = _public_url("/" + self.route) if self.route else None
 
 		if not wiki_space:
 			return context

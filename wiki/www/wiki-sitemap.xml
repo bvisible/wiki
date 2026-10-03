@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- //// Neoffice — added file (no upstream equivalent): the sitemap of the public manual, in the name of its public host. See wiki_sitemap.py. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+	{% for link in links %}
+	<url>
+		<loc>{{ link.loc }}</loc>
+		<lastmod>{{ link.lastmod }}</lastmod>
+	</url>
+	{% endfor %}
+</urlset>
