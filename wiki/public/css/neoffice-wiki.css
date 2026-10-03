@@ -161,6 +161,14 @@
 	display: block;
 }
 
+/* //// Neoffice — a table written in markdown has no <colgroup>, and the theme's `.prose table { table-layout: fixed }` (made for the
+ * editor, whose tables carry column widths) gave all its columns the SAME width: a "Repère" column holding one digit took a third of the
+ * page and the long text was squeezed into the last third. Content decides the widths again (the typography plugin's own default,
+ * `auto`) for every table that does not carry its own column widths. */
+#wiki-content table:not(:has(colgroup)) {
+	table-layout: auto;
+}
+
 /* ============================================================
  * 3. Size classes — authors set these on the <img> in the page source
  * ============================================================ */
