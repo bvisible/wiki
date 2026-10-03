@@ -6,7 +6,13 @@
             visitorId ||= import('/assets/frappe/js/lib/fingerprintjs.js')
                 .then((fingerprint) => fingerprint.load())
                 .then((agent) => agent.get())
-                .then((result) => result.visitorId);
+                .then((result) => result.visitorId)
+                // //// Neoffice — an empty visitor id when fingerprintjs is not there. That library
+                // //// ships with Frappe v16 only; on the v15 our fleet runs the import fails with a 404
+                // //// and, uncaught, the view was never sent: page view tracking was silently dead.
+                // //// make_view_log accepts an empty visitor_id (the view counts, it is just never a
+                // //// "new visitor"). Drop the catch at the v16 move.
+                .catch(() => '');
             return visitorId;
         }
 

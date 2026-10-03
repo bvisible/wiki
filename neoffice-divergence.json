@@ -1,6 +1,6 @@
 {
   "_comment": "Inventory of this fork's divergence from frappe/wiki. Regenerate with: python3 scripts/neoffice-divergence.py --update. A dropped entry is a Neoffice change that an upstream merge ate.",
-  "marked_blocks": 244,
+  "marked_blocks": 250,
   "files": {
     ".github/workflows/build-frontend.yml": [
       "wiki-app.html, not wiki.html: wiki v3 renamed the"
@@ -31,6 +31,9 @@
       "computed + useRoute added for the viewKey below (header space switcher).",
       "added. SpaceDetails reads props.spaceId once, at setup: its space",
       ":key added, see viewKey in the script above: without it a"
+    ],
+    "frontend/src/components/LibrarySidebar.vue": [
+      "\"Wiki\", not \"Frappe Wiki\": we ship this under the Neoffice"
     ],
     "frontend/src/components/NeoCockpitBridge.vue": [
       "added file (no upstream equivalent). Mounts the shared"
@@ -149,6 +152,9 @@
       "bail out explicitly when the renderer is missing (v15), so a",
       "nothing to warm on a Frappe without the renderer (v15): the"
     ],
+    "wiki/api/search.py": [
+      "`modified` qualified with its table. The fields above join Wiki Space"
+    ],
     "wiki/api/test_og_image_warm_up.py": [
       "added file (no upstream equivalent)"
     ],
@@ -224,6 +230,9 @@
       "patches below are ours; keep them last so an upstream merge",
       "clears the stale `Wiki Page Patch` Custom DocPerm row that"
     ],
+    "wiki/patches/update_desktop_icon_link.py": [
+      "skip when the column is absent. `icon_type` belongs to the"
+    ],
     "wiki/permissions.py": [
       "added (no upstream equivalent). The line between the two",
       "added. Master switch for anonymous access, off by default.",
@@ -239,6 +248,9 @@
       "was `return True`, which handed every orphan document to",
       "and an orphan that is not live stays with the wiki authors",
       "was `return can_read_space(space, user)`: reading the space"
+    ],
+    "wiki/telemetry_scan.py": [
+      "is_pulse_enabled exists on Frappe v16 only. On the v15 our fleet runs,"
     ],
     "wiki/templates/wiki/document.html": [
       "user-facing strings wrapped in _() so they land in the POT",
@@ -286,6 +298,9 @@
       "the sheet's two tabs (see the markup): the page tree, or the headings of the page being read.",
       "the headings of the page being read, taken from the page itself each time the sheet opens"
     ],
+    "wiki/templates/wiki/includes/page_view.html": [
+      "an empty visitor id when fingerprintjs is not there. That library"
+    ],
     "wiki/templates/wiki/includes/sidebar.html": [
       "added: the sidebar's width can be dragged (handle at the end of the sidebar, below) and is remembered per browser. Applied here, before the sidebar paints, so a reload does not flash the default width. 240 to 520px: under 240 the titles wrap to nothing, over 520 the sidebar eats the page. #}",
       "the width is --neo-sidebar-w (set by the script above this block, from the reader's own drag handle at the bottom of it); 18rem stays the fallback, so nothing changes until someone drags. #}",
@@ -329,6 +344,9 @@
     ],
     "wiki/test_settings_dialog.py": [
       "added file (no upstream equivalent). The settings dialog is mounted for a wiki manager only"
+    ],
+    "wiki/tests/test_telemetry.py": [
+      "a Guest never gets as far as the app shell here: a private wiki"
     ],
     "wiki/utils.py": [
       "rewritten. Upstream showed the tile to Wiki Manager only,",
