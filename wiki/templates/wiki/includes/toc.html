@@ -1,6 +1,7 @@
 {# //// Neoffice — user-facing strings wrapped in _() so they land in the POT
    and get translated. Upstream ships them hardcoded in English, which left the
    whole public reader untranslatable. #}
+{% from "templates/wiki/macros/buttons.html" import render_icon %}
 <!-- Table of Contents (Right Sidebar) - Server-rendered for reliability -->
 {#- Mirrors frappe-ui docs' OnThisPage (vitepress/components/Docs/OnThisPage.vue):
     a faint left rail per link, the active heading darkening its own segment.
@@ -29,6 +30,35 @@
     </nav>
 {% endif %}
 </aside>
+{#- //// Neoffice — added: between 1024 and 1499px the "On this page" column is not drawn (it would take a quarter of a laptop screen from the
+    captures, see neoffice-wiki.css), and a reader who loses it altogether loses the way around a long page. This button, shown only in that range
+    and only when the page has headings, opens the same list as a panel over the page; the aside itself (and its scroll-spy) is unchanged. -#}
+<button id="wiki-toc-toggle" type="button" aria-expanded="false" aria-controls="wiki-toc">
+    {{ render_icon("list", "shrink-0") }}
+    <span>{{ _("On this page") }}</span>
+</button>
+<script>
+    (function () {
+        var toc = document.getElementById('wiki-toc');
+        var btn = document.getElementById('wiki-toc-toggle');
+        if (!toc || !btn) return;
+        function setOpen(open) {
+            toc.classList.toggle('neo-toc-open', open);
+            btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            setOpen(!toc.classList.contains('neo-toc-open'));
+        });
+        // A click on a heading link, or anywhere outside the panel, or Escape, closes it.
+        document.addEventListener('click', function (e) {
+            if (toc.classList.contains('neo-toc-open') && (e.target.closest('a[data-toc-link]') || !toc.contains(e.target))) setOpen(false);
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') setOpen(false);
+        });
+    })();
+</script>
 
 <style>
     /* Active TOC link: darken its rail segment + text (frappe-ui outline-gray-7). */

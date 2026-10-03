@@ -990,6 +990,10 @@ msgstr ""
 msgid "Draft not found"
 msgstr ""
 
+#: wiki/templates/wiki/includes/sidebar.html
+msgid "Drag to resize the sidebar, double-click to reset"
+msgstr ""
+
 #: wiki/frappe_wiki/doctype/wiki_change_request/wiki_change_request.py:1112
 msgid "Each operation must be an object"
 msgstr ""
@@ -2784,6 +2788,10 @@ msgstr ""
 
 #: wiki/frappe_wiki/doctype/wiki_change_request/wiki_change_request.py:1415
 msgid "Requested changes: {0}"
+msgstr ""
+
+#: wiki/templates/wiki/includes/sidebar.html
+msgid "Resize the sidebar"
 msgstr ""
 
 #. Label of a Select field in DocType 'Wiki Merge Conflict'

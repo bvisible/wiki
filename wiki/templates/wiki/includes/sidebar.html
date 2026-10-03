@@ -9,9 +9,19 @@
     from the content with a hairline (`border-r` at the default outline-gray-1),
     and without one a white sidebar on a white page has nothing to sit against.
     The border width animates to 0 on collapse so no hairline is left behind. -#}
+{# //// Neoffice — added: the sidebar's width can be dragged (handle at the end of the sidebar, below) and is remembered per browser. Applied here, before the sidebar paints, so a reload does not flash the default width. 240 to 520px: under 240 the titles wrap to nothing, over 520 the sidebar eats the page. #}
+<script>
+    (function () {
+        try {
+            var w = parseInt(localStorage.getItem('wiki-sidebar-width'), 10);
+            if (w >= 240 && w <= 520) document.documentElement.style.setProperty('--neo-sidebar-w', w + 'px');
+        } catch (e) { /* storage blocked: the default width */ }
+    })();
+</script>
 <div class="wiki-sidebar hidden lg:flex w-72 bg-[var(--surface-base)] border-r border-[var(--outline-gray-1)] flex-col flex-shrink-0 transition-[width,border-width] duration-300 ease-in-out overflow-hidden sticky top-[var(--wiki-chrome-h)] h-[calc(100vh-var(--wiki-chrome-h))]"
      x-data="wikiSidebar()"
-     :style="isCollapsed ? 'width: 0; border-right-width: 0;' : 'width: 18rem;'">
+     {# //// Neoffice — the width is --neo-sidebar-w (set by the script above this block, from the reader's own drag handle at the bottom of it); 18rem stays the fallback, so nothing changes until someone drags. #}
+     :style="isCollapsed ? 'width: 0; border-right-width: 0;' : 'width: var(--neo-sidebar-w, 18rem);'">
 
     {#- Only the active tab's subtree renders. Visibility is driven by Alpine
         off $store.navigation.currentRoute rather than re-rendered, so SPA
@@ -57,12 +67,58 @@
         {{ render_wiki_tree(other_nodes, current_route=current_route, expanded_nodes=expanded_nodes or set()) }}
         {% endif %}
     </nav>
+
+    {# //// Neoffice — added: drag handle on the sidebar's right edge (double-click: back to the default width; arrow keys when focused). The tree's titles wrap instead of being cut (neoffice-wiki.css), and this is for whoever wants them on fewer lines. #}
+    <div id="wiki-sidebar-resize" role="separator" aria-orientation="vertical" aria-label="{{ _('Resize the sidebar') }}" tabindex="0" title="{{ _('Drag to resize the sidebar, double-click to reset') }}"></div>
 </div>
+<script>
+    (function () {
+        var handle = document.getElementById('wiki-sidebar-resize');
+        var side = handle && handle.closest('.wiki-sidebar');
+        if (!side) return;
+        var MIN = 240, MAX = 520, root = document.documentElement;
+        function apply(w, save) {
+            w = Math.max(MIN, Math.min(MAX, Math.round(w)));
+            root.style.setProperty('--neo-sidebar-w', w + 'px');
+            if (save) { try { localStorage.setItem('wiki-sidebar-width', String(w)); } catch (e) {} }
+            return w;
+        }
+        function reset() {
+            root.style.removeProperty('--neo-sidebar-w');
+            try { localStorage.removeItem('wiki-sidebar-width'); } catch (e) {}
+        }
+        handle.addEventListener('pointerdown', function (e) {
+            e.preventDefault();
+            handle.setPointerCapture(e.pointerId);
+            root.classList.add('neo-resizing-sidebar');
+            var left = side.getBoundingClientRect().left, last = side.getBoundingClientRect().width;
+            function move(ev) { last = apply(ev.clientX - left, false); }
+            function up() {
+                handle.removeEventListener('pointermove', move);
+                handle.removeEventListener('pointerup', up);
+                handle.removeEventListener('pointercancel', up);
+                root.classList.remove('neo-resizing-sidebar');
+                apply(last, true);
+            }
+            handle.addEventListener('pointermove', move);
+            handle.addEventListener('pointerup', up);
+            handle.addEventListener('pointercancel', up);
+        });
+        handle.addEventListener('dblclick', reset);
+        handle.addEventListener('keydown', function (e) {
+            if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+            e.preventDefault();
+            // From the target width (the variable), not the measured one: the sidebar animates its width for 300ms and a held key would crawl.
+            var current = parseInt(root.style.getPropertyValue('--neo-sidebar-w'), 10) || 288;
+            apply(current + (e.key === 'ArrowRight' ? 16 : -16), true);
+        });
+    })();
+</script>
 
 <!-- Sidebar Toggle Button (appears on hover at sidebar edge, always visible when collapsed) -->
 <div x-data="{ hovered: false }"
      class="wiki-sidebar-toggle hidden lg:flex items-center fixed z-40 top-[var(--wiki-chrome-h)] h-[calc(100vh-var(--wiki-chrome-h))] transition-[left] duration-300 ease-in-out"
-     :style="$store.sidebar.isCollapsed ? 'left: 0.5rem;' : 'left: calc(18rem - 0.25rem);'"
+     :style="$store.sidebar.isCollapsed ? 'left: 0.5rem;' : 'left: calc(var(--neo-sidebar-w, 18rem) - 0.25rem);'"
      @mouseenter="hovered = true"
      @mouseleave="hovered = false">
     <!-- Hover zone -->

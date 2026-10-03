@@ -66,19 +66,72 @@
 }
 
 /* //// Neoffice — the right-hand "On this page" column (300px + padding) took a
- * quarter of a laptop screen from the text and the captures. Narrower, and gone
- * below 1500px: there it costs a capture a third of its width (816px against
- * 1056px at 1440), which is the legibility this file exists for. The page's
- * headings stay reachable from the search and the sidebar tree. */
+ * quarter of a laptop screen from the text and the captures. From 1500px it is
+ * a 260px column. Between 1024 and 1499px (laptops, and any screen with the
+ * browser zoomed) it would cost a capture a third of its width, so it is not
+ * drawn: a button at the top right (includes/toc.html) opens the same list as a
+ * panel over the page. Nothing is lost, only folded away. Under 1024px the
+ * aside is `hidden` by Tailwind and the mobile menu carries the list. */
 @media (min-width: 1024px) {
 	#wiki-toc:not(.w-0) {
 		width: 260px;
 	}
 }
 
-@media (max-width: 1499px) {
+#wiki-toc-toggle {
+	display: none;
+}
+
+@media (min-width: 1024px) and (max-width: 1499px) {
 	#wiki-toc {
 		display: none;
+	}
+
+	#wiki-toc.neo-toc-open {
+		display: block;
+		position: fixed;
+		top: calc(var(--wiki-chrome-h) + 56px);
+		right: 16px;
+		width: 300px;
+		max-height: calc(100vh - var(--wiki-chrome-h) - 80px);
+		overflow-y: auto;
+		padding: 12px 8px 12px 0;
+		background: var(--surface-base);
+		border: 1px solid var(--outline-gray-2);
+		border-radius: 10px;
+		box-shadow: 0 8px 24px rgb(0 0 0 / 12%);
+		z-index: 45;
+	}
+
+	/* the list sticks and scrolls by itself in the column; in the panel the panel scrolls */
+	#wiki-toc.neo-toc-open nav {
+		position: static;
+		max-height: none;
+	}
+
+	/* only when the page has headings: an empty aside has no nav */
+	#wiki-toc:has(nav) + #wiki-toc-toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		position: fixed;
+		top: calc(var(--wiki-chrome-h) + 12px);
+		right: 16px;
+		height: 32px;
+		padding: 0 10px;
+		z-index: 45;
+		cursor: pointer;
+		font-size: 14px;
+		font-weight: 500;
+		color: var(--ink-gray-8);
+		background: var(--surface-base);
+		border: 1px solid var(--outline-gray-2);
+		border-radius: 8px;
+	}
+
+	#wiki-toc:has(nav) + #wiki-toc-toggle:hover {
+		border-color: var(--outline-gray-3);
+		background: var(--surface-gray-2);
 	}
 }
 
@@ -195,4 +248,73 @@
 	content: "";
 	display: table;
 	clear: both;
+}
+
+/* ============================================================
+ * 7. Sidebar tree: titles wrap, the width can be dragged, the fold is visible
+ *    (//// Neoffice — upstream cuts every title to one line with an ellipsis and
+ *    fixes the sidebar at 18rem. The manual's titles are sentences ("Valider,
+ *    imprimer (QR) et envoyer une facture"), and a reader had no way to see the
+ *    end of one. Wrapping reads all of them at any width; the drag handle
+ *    (includes/sidebar.html) and the fold are for people who want the width back.)
+ * ============================================================ */
+
+.wiki-tree .wiki-item-content {
+	height: auto;
+	min-height: 1.75rem;
+	padding-top: 0.2rem;
+	padding-bottom: 0.2rem;
+	align-items: flex-start;
+}
+
+/* the mobile sheet's rows are touch targets: keep their height and centring */
+.wiki-tree .wiki-item-content.h-11 {
+	min-height: 2.75rem;
+	align-items: center;
+}
+
+.wiki-tree .wiki-title {
+	white-space: normal;
+	overflow: visible;
+	text-overflow: clip;
+	line-height: 1.35;
+	overflow-wrap: anywhere;
+}
+
+/* Inset by 4px from the edge: the fold button's hover zone (.wiki-sidebar-toggle, fixed, z-40)
+ * starts 4px inside the sidebar and would cover a handle sitting right on the edge. */
+#wiki-sidebar-resize {
+	position: absolute;
+	top: 0;
+	right: 4px;
+	bottom: 0;
+	width: 8px;
+	cursor: col-resize;
+	touch-action: none;
+	z-index: 5;
+}
+
+#wiki-sidebar-resize:hover,
+#wiki-sidebar-resize:focus-visible,
+.neo-resizing-sidebar #wiki-sidebar-resize {
+	background: var(--outline-gray-3);
+	outline: none;
+}
+
+/* no width animation while the handle is being dragged, and no text selection under the pointer */
+.neo-resizing-sidebar .wiki-sidebar,
+.neo-resizing-sidebar .wiki-sidebar-toggle {
+	transition: none !important;
+}
+
+.neo-resizing-sidebar,
+.neo-resizing-sidebar * {
+	user-select: none;
+	cursor: col-resize;
+}
+
+/* the fold button only showed on hover, and nobody knew it was there: always faintly visible */
+.wiki-sidebar-toggle:not(:hover) button {
+	opacity: 0.5;
+	transform: none;
 }
