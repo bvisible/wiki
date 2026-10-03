@@ -36,9 +36,14 @@
 	}
 }
 
+/* //// Neoffice — on a Full HD screen the article is no wider than the text plus a margin for the tables of six columns or more
+ * (1100px: the text itself stops at --neo-text-width, 1000px), and it is CENTRED between the menu and the right-hand column. At the
+ * old 1440px maximum the text ran to the left and a 330px empty band sat between it and the "On this page" column (Daniel, 03.10). */
 @media (min-width: 1700px) {
 	.neo-wiki-article {
-		max-width: 1440px !important;
+		max-width: 1100px !important;
+		margin-left: auto;
+		margin-right: auto;
 	}
 }
 
@@ -52,6 +57,18 @@
 /* //// Neoffice — the text width is declared as a typed length: a font-relative value (100ch) is then resolved ONCE, where it is set
  * (the article's own font size), and every consumer inherits the same pixels. As a plain custom property it was re-resolved at each
  * use, in the consumer's own font, and a table (smaller type than the paragraphs) stopped at 809px while the text ran to 944px. */
+/* //// Neoffice — the width of the text, declared on the article so that its title (and the line under it), the previous / next
+ * buttons and the footer line up with the text, not with the whole article. */
+.neo-wiki-article {
+	--neo-text-width: 1000px;
+}
+
+.neo-wiki-article > header,
+.neo-wiki-article > #wiki-nav-buttons,
+.neo-wiki-article > div:not(#wiki-content) {
+	max-width: var(--neo-text-width);
+}
+
 @property --neo-text-width {
 	syntax: "<length>";
 	inherits: true;
@@ -61,7 +78,7 @@
 #wiki-content.prose {
 	max-width: none;
 	/* //// Neoffice — one name for "how wide the text is allowed to be": paragraphs and images read it, so they stop at the same line. */
-	--neo-text-width: 100ch;
+	--neo-text-width: 1000px;
 }
 
 /* //// Neoffice — keep a readable line length now that the column is wide.
@@ -86,6 +103,14 @@
 @media (min-width: 1024px) {
 	#wiki-toc:not(.w-0) {
 		width: 260px;
+	}
+}
+
+/* //// Neoffice — the "On this page" column is wider on a Full HD screen: its entries ("Cas 2. Le client ne rapporte qu'une partie…")
+ * wrapped on three lines at 260px. */
+@media (min-width: 1800px) {
+	#wiki-toc:not(.w-0) {
+		width: 320px;
 	}
 }
 
@@ -183,6 +208,23 @@
  * the line. A table of six columns or more keeps the whole article: it needs the room. Left-aligned on the text's edge. */
 #wiki-content table:not(:has(th:nth-child(6), td:nth-child(6))) {
 	max-width: min(100%, var(--neo-text-width, 100ch));
+}
+
+/* //// Neoffice — on a phone a table of six or eight columns was squeezed to 40px per column (no sideways scroll, so nothing was
+ * cut, but nothing could be read). It now scrolls sideways inside its own box, each cell keeps a readable minimum width, and the page
+ * itself never scrolls sideways. */
+@media (max-width: 767px) {
+	#wiki-content table {
+		display: block;
+		max-width: 100%;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	#wiki-content table th,
+	#wiki-content table td {
+		min-width: 6.5rem;
+	}
 }
 
 /* ============================================================
