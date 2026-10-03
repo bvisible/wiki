@@ -2,8 +2,8 @@
 //
 // A window or a panel captured on its own is narrower than a whole-page capture: about 930px for a "send by e-mail" dialog, against 1440px
 // for a full screen. Shown at its own size in a wide column it looks far too big next to the text, and the "fill the column" rule that
-// is right for a full page (small print stays legible) is wrong for it. So the reader shows an image narrower than 1000px at 720px at
-// most (the editor's "L" preset), unless the author gave it a width or an img-* class. A click still opens it large in the
+// is right for a full page (small print stays legible) is wrong for it. So the reader shows an image narrower than 1000px at 600px at
+// most (between the editor's "M" 480 and "L" 720 presets; was 720, still a bit big for Daniel on 2026-10-03), unless the author gave it a width or an img-* class. A click still opens it large in the
 // image viewer. Wider images are untouched.
 //
 // Why here and not in the pages: the editor's S/M/L/XL buttons set a width that is NOT saved in the markdown (image-extension.js
@@ -11,7 +11,7 @@
 // reader holds for every page, the old ones and the next ones, whoever wrote them.
 (function () {
 	var NARROW = 1000;
-	var SHOWN = 720;
+	var SHOWN = 600;
 
 	function fit(img) {
 		if (!img.matches || !img.matches('#wiki-content img')) return;
