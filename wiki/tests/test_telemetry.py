@@ -55,7 +55,12 @@ class TestTelemetry(IntegrationTestCase):
 		frappe.set_user("Guest")
 
 		with patch.object(wiki_app, "capture") as capture:
-			wiki_app.get_context()
+			# //// Neoffice — a Guest never gets as far as the app shell here: a private wiki
+			# //// sends them to the login page, and a public one sends every non-author (a
+			# //// Guest is never one) to the reader. Upstream's shell served them the SPA, so
+			# //// get_context() returned; ours raises the redirect. Either way no active_site.
+			with self.assertRaises(frappe.Redirect):
+				wiki_app.get_context()
 
 		capture.assert_not_called()
 

@@ -32,7 +32,11 @@ def search_pages(query: str) -> list[dict]:
 			"wiki_space.space_name as space_name",
 			"wiki_space.route as space_route",
 		],
-		order_by="modified desc",
+		# //// Neoffice — `modified` qualified with its table. The fields above join Wiki Space
+		# //// (`wiki_space.space_name`), which has a `modified` of its own; Frappe v15 emits the
+		# //// bare column in ORDER BY and MariaDB answers 1052 "ambiguous", so the palette's page
+		# //// search raised on every call. Qualified, it is the same order on v15 and v16.
+		order_by="`tabWiki Document`.modified desc",
 		limit=PAGE_SEARCH_LIMIT,
 	)
 	capture("search_performed", interval="1d", surface="app", hits=bool(pages))
