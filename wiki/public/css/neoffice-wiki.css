@@ -49,6 +49,15 @@
  * stayed: 613px of text and screenshots inside a 1117px article, whatever the
  * window. Cancelled here in plain CSS, which has no build step to forget.
  * Drop it if upstream's tailwind.css ever carries `!max-w-none`. */
+/* //// Neoffice — the text width is declared as a typed length: a font-relative value (100ch) is then resolved ONCE, where it is set
+ * (the article's own font size), and every consumer inherits the same pixels. As a plain custom property it was re-resolved at each
+ * use, in the consumer's own font, and a table (smaller type than the paragraphs) stopped at 809px while the text ran to 944px. */
+@property --neo-text-width {
+	syntax: "<length>";
+	inherits: true;
+	initial-value: 940px;
+}
+
 #wiki-content.prose {
 	max-width: none;
 	/* //// Neoffice — one name for "how wide the text is allowed to be": paragraphs and images read it, so they stop at the same line. */
@@ -167,6 +176,13 @@
  * `auto`) for every table that does not carry its own column widths. */
 #wiki-content table:not(:has(colgroup)) {
 	table-layout: auto;
+}
+
+/* //// Neoffice — a table of up to five columns stops at the width of the text, like a capture or a clip: at the full width of the
+ * article (up to 1440px) its text column ran 140 characters long, far wider than the paragraphs above and below it, and the eye lost
+ * the line. A table of six columns or more keeps the whole article: it needs the room. Left-aligned on the text's edge. */
+#wiki-content table:not(:has(th:nth-child(6), td:nth-child(6))) {
+	max-width: min(100%, var(--neo-text-width, 100ch));
 }
 
 /* ============================================================
