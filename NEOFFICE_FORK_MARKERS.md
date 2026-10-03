@@ -224,6 +224,7 @@ Each carries a header marker unless noted.
 | `wiki/frappe_wiki/doctype/wiki_revision_item/patches/add_revision_doc_key_index.py` | index on `(revision, doc_key)` |
 | `wiki/public/css/neoffice-wiki.css` | reader styling (wider article, image sizes, captions) |
 | `wiki/public/js/neoffice-images.js` | the reader shows an image between 400 and 1000px wide (a dialog, a panel) at 70% of its real size; loaded from `layout.html` (marked there). Needed because the editor's S/M/L/XL width is not written to the markdown |
+| `wiki/public/js/neoffice-video.js` | a click on a clip opens it in a large window over the page (carries the playing position both ways); the browser's full-screen button is taken off the small player; markup of the window in `layout.html` (marked there), styles in `neoffice-wiki.css` section 8, one new msgid `Click to enlarge` |
 | `wiki/frappe_wiki/patches/__init__.py` | **empty on purpose, unmarked** — a package marker, nothing to explain |
 
 ### `.github/` — listed here, never marked
@@ -252,7 +253,7 @@ sides (ours: 67 source files, theirs: 44):
 | `frontend/src/composables/useTheme.js` | `a7a9aef` *prevent flash while switching theme* | **rewritten wholesale** (OS-following theme) — expect a full-file conflict |
 | `wiki/utils.py` | `dcc5592` *assign Wiki User role without triggering nested User.save()* | our early return that refuses the role to Website Users (WI-00297) — same function |
 | `wiki/public/node_modules` | `6c5b6dc` *untrack the symlink* | our relative retarget — take the deletion |
-| `wiki/templates/wiki/layout.html`, `document.html` | `1132fc8` *reader column widths on wide screens* | `neo-wiki-article` class + our CSS `<link>` + brand `<title>` + our `neoffice-images.js` script tag |
+| `wiki/templates/wiki/layout.html`, `document.html` | `1132fc8` *reader column widths on wide screens* | `neo-wiki-article` class + our CSS `<link>` + brand `<title>` + our `neoffice-images.js` and `neoffice-video.js` script tags + the `#video-viewer` window |
 | `wiki/templates/wiki/includes/toc.html`, `sidebar.html`, `mobile_header.html` | `bbcc5b6` editor TOC, `6bbefb9` per-space tab flag | i18n wrapping |
 | `wiki/templates/wiki/document.html`, `includes/header.html`, `macros/buttons.html` | page-actions menu (Edit / Copy, PDF, open in an AI) beside the title, logic in the `wikiPage` Alpine component | **03.10**: the logic lives in an Alpine **store `pageActions`** (`wikiPage` delegates to it) so the actions can sit in the top bar, which is outside `wikiPage`'s scope; `header.html` renders them with the same macros and gets `x-data="wikiHeaderActions"`; the in-article menu stays for 640–1023px (`lg:hidden`). `buttons.html`: the primary Copy label wrapped in `_()` |
 | `wiki/templates/wiki/includes/sidebar.html` | the SPA half of the TOC (`updateToc`) hardcodes `On this page` | wrapped in `_()` — upstream's server-rendered half already was |

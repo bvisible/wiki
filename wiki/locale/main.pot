@@ -529,6 +529,10 @@ msgstr ""
 msgid "Clear search"
 msgstr ""
 
+#: wiki/templates/wiki/layout.html
+msgid "Click to enlarge"
+msgstr ""
+
 #. Label of a Data field in DocType 'Wiki Settings'
 #: frontend/src/components/WikiSettings/GitHubAppPanel.vue:23
 #: wiki/public/frontend/assets/index-DiI8vgI8.js:47

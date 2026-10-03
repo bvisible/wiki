@@ -318,3 +318,69 @@
 	opacity: 0.5;
 	transform: none;
 }
+
+/* ============================================================
+ * 8. Clips: wider, and a large window on click
+ *    (//// Neoffice — the clips of the manual carry `width="720"` in their markup, which kept them at 720px
+ *    in a column that can be 1300px wide. CSS beats the attribute: they now fill the column up to their
+ *    own size (1280px), never beyond. neoffice-video.js opens a large window on a click.)
+ * ============================================================ */
+
+#wiki-content video {
+	display: block;
+	width: 100%;
+	max-width: 1280px;
+	height: auto;
+	margin: 1.5rem auto;
+	border-radius: 8px;
+	cursor: zoom-in;
+}
+
+#video-viewer {
+	position: fixed;
+	inset: 0;
+	z-index: 9999;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	background: rgb(0 0 0 / 78%);
+	cursor: zoom-out;
+}
+
+#video-viewer.active {
+	display: flex;
+}
+
+/* The window, not the clip, sets the size: as wide as 92vw allows without the height passing 88vh (--neo-ratio is the clip's
+ * width / height, set by neoffice-video.js); it enlarges a clip on a small screen as well as a big one. */
+#video-viewer-video {
+	width: min(92vw, calc(88vh * var(--neo-ratio, 1.7778)));
+	height: auto;
+	background: #000;
+	border-radius: 10px;
+	box-shadow: 0 20px 60px rgb(0 0 0 / 50%);
+	cursor: default;
+}
+
+#video-viewer-close {
+	position: absolute;
+	top: 14px;
+	right: 18px;
+	width: 40px;
+	height: 40px;
+	font-size: 28px;
+	line-height: 1;
+	color: #fff;
+	background: rgb(255 255 255 / 14%);
+	border: 0;
+	border-radius: 999px;
+	cursor: pointer;
+}
+
+#video-viewer-close:hover {
+	background: rgb(255 255 255 / 28%);
+}
+
+body.video-viewer-open {
+	overflow: hidden;
+}
