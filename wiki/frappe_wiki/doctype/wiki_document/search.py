@@ -43,6 +43,7 @@ def search(query: str, space: str | None = None) -> dict:
 			item["anchor"] = _best_heading(r["name"], query)
 		results.append(item)
 
+	# //// Neoffice — the results are the list built above (same items as upstream, plus the anchor of the first hits).
 	return {
 		"results": results,
 		"total": len(hits),
