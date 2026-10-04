@@ -1,8 +1,12 @@
 import re
+
+# //// Neoffice — unicodedata: accents are folded to compare a title with what was typed (see the ranking block below).
 import unicodedata
 from typing import ClassVar
 
 import frappe
+
+# //// Neoffice — the two title boosts are reused by our own _get_title_boost (see the ranking block below).
 from frappe.search.sqlite_search import (
 	TITLE_EXACT_MATCH_BOOST,
 	TITLE_PARTIAL_MATCH_BOOST,
