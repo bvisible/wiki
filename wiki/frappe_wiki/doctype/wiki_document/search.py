@@ -25,19 +25,67 @@ def search(query: str, space: str | None = None) -> dict:
 
 	hits = _filter_hits_by_space_visibility(result["results"])
 
+	# //// Neoffice — each of the first hits also says WHERE in the page the typed words are: `anchor` is the id of the
+	# //// heading that holds most of them (an id of the page's own table of contents, the one the reader scrolls to),
+	# //// so that a result, or an assistant quoting the page, can land on the right section instead of the top.
+	# //// Upstream returns the page only. The rest of the list gets no anchor: the render is cached per page, but a
+	# //// first render of eighty pages for one search would not be.
+	results = []
+	for index, r in enumerate(hits):
+		item = {
+			"name": r["name"],
+			"title": r["title"],
+			"route": r.get("route", ""),
+			"content": r["content"],
+			"score": r["score"],
+		}
+		if index < ANCHOR_HITS:
+			item["anchor"] = _best_heading(r["name"], query)
+		results.append(item)
+
 	return {
-		"results": [
-			{
-				"name": r["name"],
-				"title": r["title"],
-				"route": r.get("route", ""),
-				"content": r["content"],
-				"score": r["score"],
-			}
-			for r in hits
-		],
+		"results": results,
 		"total": len(hits),
 	}
+
+
+# //// Neoffice — added (see the block above): how many hits are given an anchor.
+ANCHOR_HITS = 8
+_ANCHOR_STOPWORDS = frozenset(
+	"a au aux avec ce ces cet cette d dans de des du en et l la le les ou par pour sur un une vos votre the of to for in and or".split()
+)
+
+
+# //// Neoffice — added (see the block above).
+def _fold(text: str) -> list[str]:
+	import re
+	import unicodedata
+
+	text = unicodedata.normalize("NFD", text or "")
+	text = "".join(c for c in text if not unicodedata.combining(c)).lower()
+	return re.sub(r"[^a-z0-9]+", " ", text).split()
+
+
+# //// Neoffice — added (see the block above).
+def _best_heading(doc_name: str, query: str) -> str | None:
+	"""Id of the heading of this page that holds most of the typed words, or None when no heading holds one."""
+	from wiki.frappe_wiki.doctype.wiki_document.wiki_document import get_rendered_content
+
+	words = [w for w in _fold(query) if w not in _ANCHOR_STOPWORDS] or _fold(query)
+	if not words:
+		return None
+	try:
+		content = frappe.db.get_value("Wiki Document", doc_name, "content") or ""
+		_html, toc = get_rendered_content(doc_name, content)
+	except Exception:
+		return None
+	best, best_score = None, 0
+	for heading in toc or []:
+		heading_words = _fold(heading.get("text", ""))
+		score = sum(1 for w in words if any(h.startswith(w) for h in heading_words))
+		if score > best_score:
+			best, best_score = heading.get("id"), score
+	return best
 
 
 def _filter_hits_by_space_visibility(hits: list[dict]) -> list[dict]:
