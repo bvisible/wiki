@@ -78,7 +78,14 @@ class WikiSQLiteSearch(SQLiteSearch):
 	# //// FTS query builder, nothing in the index changes).
 	STOPWORDS: ClassVar[frozenset] = frozenset(
 		"a au aux avec ce ces cet cette d dans de des du en et l la le les ma mes mon ne ou par pas pour qu que qui sa "
-		"ses son sur un une vos votre notre the an of to for in on and or my our with at by".split()
+		"ses son sur un une vos votre notre the an of to for in on and or my our with at by "
+		# //// Neoffice — the words of a question say nothing either (2026-10-05): « comment rapprocher la banque ? »
+		# //// required « comment » and lost « Le rapprochement bancaire », a page that does not hold it, and
+		# //// « comment créer un devis ? » put « Envoyer un devis… » before « Créer un devis ». The Quick Chat's
+		# //// Help button searches the question as it was typed, and so does a person in the search bar.
+		"comment quel quelle quels quelles quoi pourquoi quand combien est sont c j je m n s t y on il elle nous "
+		"vous faire fait faut peut peux puis dois doit how what why when where which who do does did can i is are"
+		.split()
 	)
 	# what people type -> what the manual calls it (one way: « note de crédit » must not find every « avoir »)
 	SYNONYMS: ClassVar[dict] = {"avoir": "note de crédit", "avoirs": "notes de crédit"}
