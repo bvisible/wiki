@@ -2,6 +2,7 @@
 # For license information, please see license.txt
 
 import json
+import re
 from urllib.parse import quote, urlparse
 
 import frappe
@@ -14,6 +15,7 @@ from frappe.website.utils import clear_cache as clear_website_cache
 from frappe.website.website_components.metatags import MetaTags
 from werkzeug.wrappers import Response
 
+from wiki.telemetry import capture
 from wiki.wiki.markdown import render_markdown, render_markdown_with_toc
 
 WIKI_DOCUMENT_PRINT_FORMAT = "Standard Wiki Document"
@@ -30,9 +32,8 @@ WIKI_TREE_CACHE_KEY = "wiki_public_tree"
 # Per-document rendered HTML + TOC, keyed by document name.
 WIKI_CONTENT_CACHE_KEY = "wiki_rendered_content"
 
-# The synthetic "Home" tab standing for a space's untabbed top-level content.
-# Kept in sync with GENERAL_KEY in frontend/src/lib/spaceTabs.js.
-WIKI_HOME_TAB_KEY = "__general__"
+# An internal link, `[Label](wiki:<doc_key>)`, as render_markdown emits it.
+WIKI_LINK_PATTERN = re.compile(r'<a data-wiki-link="(\w+)"([^>]*)>(.*?)</a>', re.DOTALL)
 
 # Markdown is served under the page's own permissions, so a shared cache must
 # never hold it -- the same URL yields 404 for a reader without space access.
@@ -120,17 +121,6 @@ def sanitize_route(route: str | None) -> str:
 	return "/".join(segment for segment in segments if segment)
 
 
-def is_top_level_group(parent_name: str | None) -> bool:
-	"""True when `parent_name` is a Wiki Space's root_group.
-
-	Top-level == direct child of the space root, which is what makes a node
-	eligible to be a tab.
-	"""
-	if not parent_name:
-		return False
-	return bool(frappe.db.exists("Wiki Space", {"root_group": parent_name}))
-
-
 class WikiDocument(NestedSet):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
@@ -141,6 +131,7 @@ class WikiDocument(NestedSet):
 		from frappe.types import DF
 
 		content: DF.Code | None
+		disable_indexing: DF.Check
 		doc_key: DF.Data | None
 		is_group: DF.Check
 		is_published: DF.Check
@@ -156,7 +147,7 @@ class WikiDocument(NestedSet):
 		slug: DF.Data | None
 		sort_order: DF.Int
 		tab_icon: DF.Data | None
-		title: DF.Data
+		title: DF.SmallText
 		wiki_space: DF.Link | None
 	# end: auto-generated types
 
@@ -167,28 +158,41 @@ class WikiDocument(NestedSet):
 		self.set_route()
 		self.remove_leading_slash_from_route()
 		self.validate_unique_route_for_leaves()
-		self.validate_tab()
 		self.set_boilerplate_content()
 
-	def validate_tab(self):
-		"""A tab is a top-level group. Both halves of that are hard rules.
-
-		Enforced here rather than only in the UI because a tab restructures the
-		whole space's navigation: a leaf tab or a nested tab has no place to
-		render, so the tab bar would silently drop it.
-		"""
-		if not self.is_tab:
+	def after_insert(self):
+		# A space's root group is scaffolding, not something anyone authored.
+		if not self.parent_wiki_document:
 			return
+		capture(
+			"document_created",
+			kind=self.document_kind(),
+			source="git_sync" if getattr(frappe.flags, "in_wiki_git_sync", False) else "editor",
+		)
 
-		if not self.is_group:
-			frappe.throw(_("Only a group can be marked as a tab."))
-
-		if not is_top_level_group(self.parent_wiki_document):
-			frappe.throw(_("Only a top-level group can be marked as a tab. Nested tabs are not supported."))
+	def document_kind(self) -> str:
+		if self.is_external_link:
+			return "external_link"
+		if self.is_tab:
+			return "tab"
+		return "group" if self.is_group else "page"
 
 	def validate_unique_route_for_leaves(self):
 		"""Ensure no two leaf documents (non-groups) share the same route."""
 		if self.is_group or not self.route:
+			return
+
+		# The route resolver only serves published local pages, so a draft or an
+		# external link can't take a route from anyone.
+		if not self.is_published or self.is_external_link:
+			return
+
+		# Of the rest, only a save that moves the page onto a route it wasn't already
+		# serving can introduce a clash, and merges re-save every document in the space.
+		if not any(
+			self.has_value_changed(field)
+			for field in ("route", "is_group", "is_published", "is_external_link")
+		):
 			return
 
 		filters = {
@@ -319,6 +323,9 @@ class WikiDocument(NestedSet):
 			"Wiki Space", {"root_group": root_group}, ["name", "space_name", "route"], as_dict=True
 		)
 
+	def get_space_name(self) -> str | None:
+		return self.wiki_space or (self.get_wiki_space() or {}).get("name")
+
 	def get_edit_link(self) -> str:
 		wiki_space = self.get_wiki_space()
 		if not wiki_space:
@@ -365,6 +372,14 @@ class WikiDocument(NestedSet):
 				"is_published",
 				"light_mode_logo",
 				"app_switcher_logo",
+				# //// Neoffice — space_icon, space_color and avatar added with the 3.3.0
+				# //// merge: upstream's switcher mark is resolved through
+				# //// wiki.utils.space_mark(), which reads these three. They are
+				# //// presentation only (an icon name, a colour, a generated-avatar
+				# //// seed), so listing them under ignore_permissions leaks nothing.
+				"space_icon",
+				"space_color",
+				"avatar",
 			],
 			or_filters={"show_in_switcher": 1, "name": current_space},
 			order_by="switcher_order asc, space_name asc",
@@ -432,15 +447,18 @@ class WikiDocument(NestedSet):
 		"""
 		from wiki.permissions import can_read_space, can_write_space
 
-		space = self.wiki_space or (self.get_wiki_space() or {}).get("name")
+		space = self.get_space_name()
 		# //// Neoffice — the `if not space: return` that stood here is gone. It let
 		# //// an orphan document (no owning space) render for anyone, Guest
 		# //// included, so enable_public_wiki did NOT close the whole anonymous
 		# //// surface the way its comment in permissions.py claims. can_read_space
 		# //// and can_write_space are both well-defined for a missing space — they
 		# //// fall back to the open-space rules, i.e. any logged-in user and never
-		# //// an anonymous Guest — so the line below covers orphans too and there
-		# //// is one rule instead of two.
+		# //// an anonymous Guest — so the line below covers orphans too and there is
+		# //// one rule instead of two. (Upstream's "Orphan documents stay readable by
+		# //// all (preserves chromeless pages)" early return is still there in 3.3.0,
+		# //// behind its new get_space_name() helper; we use the helper and still
+		# //// do not return early.)
 		allowed = can_write_space(space, user) if ptype == "write" else can_read_space(space, user)
 		if not allowed:
 			frappe.throw(_("Page not found"), frappe.DoesNotExistError)
@@ -528,6 +546,7 @@ class WikiDocument(NestedSet):
 		# The TOC toggle is applied here, after the lookup, so it needs no cache
 		# invalidation.
 		rendered_content, toc_headings = get_rendered_content(self.name, self.content or "")
+		rendered_content = resolve_wiki_links(rendered_content, self.get_space_name())
 		if not frappe.db.get_single_value("Wiki Settings", "enable_table_of_contents"):
 			toc_headings = []
 
@@ -548,7 +567,6 @@ class WikiDocument(NestedSet):
 			"head_html": frappe.get_cached_value("Wiki Settings", "Wiki Settings", "head_html"),
 			"raw_markdown": self.content or "",
 			"nested_tree": [],
-			"space_tabs": [],
 			"expanded_nodes": expanded_nodes,
 			"prev_doc": None,
 			"next_doc": None,
@@ -558,6 +576,7 @@ class WikiDocument(NestedSet):
 			"hide_chrome": not wiki_space,
 			"can_edit": False,
 			"breadcrumbs": None,
+			"disable_indexing": self.disable_indexing,
 		}
 
 		metatags = {
@@ -606,7 +625,6 @@ class WikiDocument(NestedSet):
 				else [],
 				"favicon": wiki_space_doc.favicon,
 				"nested_tree": nested_tree,
-				"space_tabs": get_space_tabs(wiki_space.name),
 				"prev_doc": adjacent_docs["prev"],
 				"next_doc": adjacent_docs["next"],
 				# Escape "<" so user-supplied titles can't close the
@@ -700,7 +718,36 @@ class WikiDocument(NestedSet):
 
 	def before_print(self, print_settings=None):
 		"""Render markdown content so the print format can drop it in as HTML."""
-		self.rendered_content_for_pdf = render_markdown(self.content or "")
+		self.rendered_content_for_pdf = resolve_wiki_links(
+			render_markdown(self.content or ""), self.get_space_name()
+		)
+
+	@frappe.whitelist()
+	def update_meta(
+		self,
+		meta_title: str | None = None,
+		meta_description: str | None = None,
+		meta_image: str | None = None,
+		disable_indexing: int | None = None,
+	) -> None:
+		"""Write the fields no change request carries.
+
+		A git-synced page denies every document write, but the repo never carries
+		these fields, so a space writer may still set them here.
+		"""
+		from wiki.permissions import can_write_space
+
+		if not self.wiki_space or not can_write_space(self.wiki_space):
+			frappe.throw(_("You don't have permission to edit this page"), frappe.PermissionError)
+
+		values = {
+			"meta_title": meta_title,
+			"meta_description": meta_description,
+			"meta_image": meta_image,
+			"disable_indexing": disable_indexing,
+		}
+		self.update({field: value for field, value in values.items() if value is not None})
+		self.save(ignore_permissions=True)
 
 	@frappe.whitelist()
 	def get_children_count(self) -> int:
@@ -768,9 +815,9 @@ class WikiDocumentRenderer(BaseRenderer):
 		# A group / Wiki Space route with no page of its own: redirect to the first
 		# page in sidebar order (sort_order at each level), so the space URL lands
 		# on the same document the sidebar shows first.
-		first_page = get_landing_page_for_route(self.path)
-		if first_page:
-			frappe.redirect("/" + first_page["route"])
+		landing_route = get_landing_redirect_for_route(self.path)
+		if landing_route:
+			redirect_to_landing_page("/" + landing_route)
 
 		return False
 
@@ -792,6 +839,7 @@ class WikiDocumentRenderer(BaseRenderer):
 		frappe.db.commit()  # nosemgrep
 
 		context["csrf_token"] = csrf_token
+		context["enable_view_tracking"] = frappe.get_website_settings("enable_view_tracking")
 
 		html = frappe.render_template("templates/wiki/document.html", context)
 		response = self.build_response(html)
@@ -814,6 +862,8 @@ def build_markdown_response(doc) -> Response:
 	response.data = doc.as_markdown()
 	response.headers["Content-Type"] = "text/markdown; charset=utf-8"
 	response.headers["Cache-Control"] = MARKDOWN_CACHE_CONTROL
+	if doc.disable_indexing:
+		response.headers["X-Robots-Tag"] = "noindex"
 	return response
 
 
@@ -825,8 +875,6 @@ def build_nested_wiki_tree(documents: list[str]):
 			"name",
 			"title",
 			"is_group",
-			"is_tab",
-			"tab_icon",
 			"parent_wiki_document",
 			"route",
 			"sort_order",
@@ -924,6 +972,47 @@ def get_rendered_content(doc_name: str, content: str) -> tuple[str, list]:
 	return html, toc
 
 
+def resolve_wiki_links(html: str, wiki_space: str | None) -> str:
+	"""Point each internal link (`data-wiki-link`) at the target page's current route.
+
+	Runs after the render cache, so a page that moves or is unpublished never
+	leaves stale links in other pages' cached HTML. A link to a page that isn't
+	live renders as its plain label rather than a dead link.
+
+	Only pages in `wiki_space`, the linking page's own space, resolve. Access is
+	granted per space, so a reader of this page can read those; a page in
+	another space may be one they are not allowed to see, route included.
+	"""
+	doc_keys = {doc_key for doc_key, _attrs, _label in WIKI_LINK_PATTERN.findall(html)}
+	if not doc_keys:
+		return html
+
+	routes = {}
+	if wiki_space:
+		routes = dict(
+			frappe.get_all(
+				"Wiki Document",
+				filters={
+					"doc_key": ("in", doc_keys),
+					"wiki_space": wiki_space,
+					"is_published": 1,
+					"is_group": 0,
+					"is_external_link": 0,
+				},
+				fields=["doc_key", "route"],
+				as_list=True,
+			)
+		)
+
+	def replace(match):
+		doc_key, attrs, label = match.groups()
+		if not routes.get(doc_key):
+			return label
+		return f'<a href="/{quote(routes[doc_key])}"{attrs}>{label}</a>'
+
+	return WIKI_LINK_PATTERN.sub(replace, html)
+
+
 def clear_wiki_content_cache(doc_name: str | None = None):
 	"""Drop the rendered-content cache — one document's entry, or all of it.
 
@@ -938,6 +1027,24 @@ def clear_wiki_content_cache(doc_name: str | None = None):
 	else:
 		cache.delete_value(WIKI_CONTENT_CACHE_KEY)
 		frappe.db.after_commit.add(lambda: frappe.cache().delete_value(WIKI_CONTENT_CACHE_KEY))
+
+
+def redirect_to_landing_page(location: str):
+	"""302, not 301: the landing page moves whenever the sidebar is reordered."""
+	frappe.flags.redirect_location = location
+	raise frappe.Redirect(302)
+
+
+def get_landing_redirect_for_route(route: str) -> str | None:
+	"""Landing route for a group / Wiki Space URL, never the route itself.
+
+	It can be: the leaf lookup reads the live table, the landing page comes from
+	the cached tree, and a same-route index leaf makes them disagree.
+	"""
+	first_page = get_landing_page_for_route(route)
+	if not first_page or first_page["route"] == route:
+		return None
+	return first_page["route"]
 
 
 def get_landing_page_for_route(route: str) -> dict | None:
@@ -971,154 +1078,27 @@ def get_landing_page_for_route(route: str) -> dict | None:
 	return get_first_published_page(root_group) if root_group else None
 
 
+def get_noindex_documents() -> set[str]:
+	"""Names of every page hidden from search engines."""
+	return set(frappe.get_all("Wiki Document", filters={"disable_indexing": 1}, pluck="name"))
+
+
 def get_first_published_page(root_group: str) -> dict | None:
 	"""First non-group, non-external page in sidebar order — the document a
 	space URL should land on. Walks the same tree the sidebar renders, so the
 	two can't disagree."""
-	return _first_published_leaf(get_public_wiki_tree(root_group))
+	return first_published_leaf(get_public_wiki_tree(root_group))
 
 
-def _first_published_leaf(nodes: list) -> dict | None:
+def first_published_leaf(nodes: list) -> dict | None:
 	"""First non-group, non-external page in sidebar order within `nodes`."""
 	for node in nodes:
 		if not node["is_group"] and not node.get("is_external_link"):
 			return node
-		found = _first_published_leaf(node["children"])
+		found = first_published_leaf(node["children"])
 		if found:
 			return found
 	return None
-
-
-def _tab_landing_route(tab: dict, node: dict | None, index_routes: set) -> str | None:
-	"""Where clicking a tab should go.
-
-	A group is never served at its own route — the renderer redirects it to its
-	first child — so the "tab group's own content page" only exists as a
-	published leaf sitting at the group's route (the README/index case that
-	git-sync produces). Prefer that, else the first published leaf in the tab's
-	subtree, mirroring get_first_published_page.
-
-	`index_routes` is the set of tab routes that have such an index leaf, fetched
-	once by the caller so this stays O(1) rather than a query per tab.
-	"""
-	if tab.get("route") and tab["route"] in index_routes:
-		return tab["route"]
-
-	if not node:
-		return None
-	first = _first_published_leaf(node.get("children") or [])
-	return first["route"] if first else None
-
-
-@frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
-def get_space_tabs(space: str) -> list[dict]:
-	"""Ordered top-level tab groups for a Wiki Space, each with its landing route.
-
-	Reads the same cached public tree the sidebar renders, so a tab can never
-	point somewhere the sidebar doesn't show.
-	"""
-	from wiki.permissions import can_read_space
-
-	if not can_read_space(space):
-		return []
-
-	space_doc = frappe.db.get_value(
-		"Wiki Space",
-		space,
-		["root_group", "enable_tabs", "home_tab_title", "home_tab_icon"],
-		as_dict=True,
-	)
-	root_group = space_doc and space_doc.root_group
-	if not root_group:
-		return []
-
-	# Tabs are opt-in per space. Node-level is_tab flags are left alone when the
-	# space turns them off, so flipping the switch back restores the same bar;
-	# every reader surface (bar, mobile header, chrome height, sidebar gating)
-	# already branches on an empty list, so this one gate covers all of them.
-	if not space_doc.enable_tabs:
-		return []
-
-	tabs = frappe.get_all(
-		"Wiki Document",
-		filters={
-			"parent_wiki_document": root_group,
-			"is_tab": 1,
-			"is_group": 1,
-			"is_published": 1,
-		},
-		fields=["name", "doc_key", "title", "route", "tab_icon"],
-		order_by="sort_order asc, title asc",
-	)
-	if not tabs:
-		return []
-
-	# A tab whose subtree has no published page is dropped from the public tree by
-	# remove_empty_groups. Such a tab has nowhere to land, so it's excluded here
-	# too rather than shown as a dead, empty tab.
-	tree = get_public_wiki_tree(root_group)
-	nodes_by_name = {node["name"]: node for node in tree}
-
-	# One query for every tab's README/index leaf instead of a db.exists per tab
-	# (this runs on every reader render and every SPA call to this endpoint).
-	tab_route_list = [t["route"] for t in tabs if t.get("route")]
-	index_routes = (
-		set(
-			frappe.get_all(
-				"Wiki Document",
-				filters={
-					"route": ["in", tab_route_list],
-					"is_group": 0,
-					"is_published": 1,
-					"is_external_link": 0,
-				},
-				pluck="route",
-			)
-		)
-		if tab_route_list
-		else set()
-	)
-
-	result = [
-		{
-			"name": tab["name"],
-			"doc_key": tab["doc_key"],
-			"title": tab["title"],
-			"route": tab["route"],
-			"tab_icon": tab["tab_icon"],
-			"landing_route": _tab_landing_route(tab, nodes_by_name[tab["name"]], index_routes),
-		}
-		for tab in tabs
-		if tab["name"] in nodes_by_name
-	]
-
-	# Home leads the bar only alongside at least one real (non-empty) tab and some
-	# untabbed top-level content to land on. With no real tabs there's nothing to
-	# navigate between, and a fully-tabbed space has nowhere for Home to point
-	# (_home_tab_entry returns None) — both omit it.
-	if result:
-		home = _home_tab_entry(tree, space_doc.home_tab_title, space_doc.home_tab_icon)
-		if home:
-			result.insert(0, home)
-
-	return result
-
-
-def _home_tab_entry(tree: list, title: str | None = None, icon: str | None = None) -> dict | None:
-	"""The synthetic Home tab pointing at the space's untabbed top-level content,
-	or None when there is no such content to land on."""
-	untabbed = [node for node in tree if not node.get("is_tab")]
-	landing = _first_published_leaf(untabbed)
-	if not landing:
-		return None
-	return {
-		"name": None,
-		"doc_key": WIKI_HOME_TAB_KEY,
-		"title": title or _("Home"),
-		"route": landing["route"],
-		"tab_icon": icon or "lucide-house",
-		"landing_route": landing["route"],
-	}
 
 
 def clear_wiki_tree_cache():
@@ -1198,9 +1178,12 @@ def download_pdf(route: str):
 def on_wiki_document_update(doc, method):
 	"""Stamp the owning Wiki Space and sync desk edits to the revision system."""
 	from wiki.api.og_image import enqueue_og_warmup
+	from wiki.frappe_wiki.doctype.wiki_revision.wiki_revision import REVISION_FIELDS
 
-	stamp_wiki_space(doc)
-	_sync_document_to_revision(doc)
+	touch_space_last_edited(stamp_wiki_space(doc))
+	# A save that changes no snapshotted field would only produce an identical revision.
+	if any(doc.has_value_changed(field) for field in REVISION_FIELDS):
+		_sync_document_to_revision(doc)
 	_clear_stale_website_cache(doc)
 	clear_wiki_tree_cache()
 	if doc.has_value_changed("content"):
@@ -1232,6 +1215,21 @@ def stamp_wiki_space(doc):
 	space_name = _get_wiki_space_for_document(doc.name)
 	if doc.get("wiki_space") != space_name:
 		frappe.db.set_value("Wiki Document", doc.name, "wiki_space", space_name, update_modified=False)
+	return space_name
+
+
+def touch_space_last_edited(space_name: str | None):
+	"""Record that a page in `space_name` just changed.
+
+	The sidebar orders spaces by this, so it has to move on every path that
+	changes a page: desk and editor saves come through on_update, deletions
+	through on_trash, and content-only merges call it directly because they
+	write with raw set_value. The space's own `modified` is left alone -- a page
+	edit is not an edit of the space's settings.
+	"""
+	if not space_name:
+		return
+	frappe.db.set_value("Wiki Space", space_name, "last_edited", frappe.utils.now(), update_modified=False)
 
 
 def stamp_wiki_space_subtree(root_doc_name):
@@ -1247,6 +1245,7 @@ def stamp_wiki_space_subtree(root_doc_name):
 
 def on_wiki_document_trash(doc, method):
 	"""Sync desk deletions to the revision system."""
+	touch_space_last_edited(doc.get("wiki_space"))
 	_sync_document_to_revision(doc)
 	_clear_stale_website_cache(doc, deleted=True)
 	clear_wiki_tree_cache()
@@ -1296,7 +1295,7 @@ def _clear_stale_website_cache(doc, deleted=False):
 
 
 def _sync_document_to_revision(doc):
-	"""Find the owning Wiki Space and refresh its main_revision.
+	"""Find the owning Wiki Space and queue a refresh of its main_revision.
 
 	Skips when called during merge or reorder — those flows manage revisions
 	themselves via guard flags.
@@ -1306,13 +1305,13 @@ def _sync_document_to_revision(doc):
 	if getattr(frappe.flags, "in_reorder_wiki_documents", False):
 		return
 
-	from wiki.api.wiki_space import _get_wiki_space_for_document, _sync_main_revision_for_space
+	from wiki.api.wiki_space import _get_wiki_space_for_document, queue_main_revision_sync
 
 	space_name = _get_wiki_space_for_document(doc.name)
 	if not space_name:
 		return
 
-	_sync_main_revision_for_space(space_name)
+	queue_main_revision_sync(space_name)
 
 
 def get_adjacent_documents(nested_tree: list, current_route: str) -> dict:

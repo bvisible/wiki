@@ -1,5 +1,7 @@
 import frappe
 
+from wiki.telemetry import capture
+
 
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def search(query: str, space: str | None = None) -> dict:
@@ -42,6 +44,8 @@ def search(query: str, space: str | None = None) -> dict:
 		if index < ANCHOR_HITS:
 			item["anchor"] = _best_heading(r["name"], query)
 		results.append(item)
+
+	capture("search_performed", interval="1d", surface="reader", hits=bool(hits))
 
 	# //// Neoffice — the results are the list built above (same items as upstream, plus the anchor of the first hits).
 	return {

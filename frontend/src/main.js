@@ -1,16 +1,19 @@
+//// Neoffice — telemetryPlugin import removed: see the telemetry block below.
+//// Neoffice — watchEffect no longer imported: it only started the telemetry (see below).
 import { createApp } from 'vue';
 
 import App from './App.vue';
 import router from './router';
 import { initSocket } from './socket';
 import { pinia } from './stores';
+//// Neoffice — useSessionStore no longer imported: it only gated the telemetry (see below).
 
+//// Neoffice — trackPageviews import removed: see the telemetry block below.
 //// Neoffice — translationsReady added to this import; it is what the mount
 //// below waits on.
 import translationPlugin, { translationsReady } from './translation';
 
 import {
-	Alert,
 	Badge,
 	Button,
 	Dialog,
@@ -18,7 +21,6 @@ import {
 	FormControl,
 	TextInput,
 	frappeRequest,
-	pageMetaPlugin,
 	resourcesPlugin,
 	setConfig,
 } from 'frappe-ui';
@@ -32,7 +34,6 @@ const globalComponents = {
 	FormControl,
 	ErrorMessage,
 	Dialog,
-	Alert,
 	Badge,
 };
 
@@ -44,7 +45,13 @@ app.use(pinia);
 app.use(router);
 app.use(translationPlugin);
 app.use(resourcesPlugin);
-app.use(pageMetaPlugin);
+
+//// Neoffice — upstream's telemetry is not started (v3.3.0 starts it for every signed-in author).
+//// Its plugin first asks frappe.utils.telemetry.pulse.client.boot_config, which our Frappe v15 does
+//// not have, then imports https://pulse.m.frappe.cloud/assets/pulse/js/pulse_client.js anyway: Frappe
+//// Cloud's JavaScript would run on our domain with the author's session, telemetry switched off or
+//// not. Nothing of our wikis is sent anywhere. Drop this when upstream stops loading a third-party
+//// script before it knows telemetry is on.
 
 const socket = initSocket();
 app.config.globalProperties.$socket = socket;

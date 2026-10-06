@@ -1,6 +1,6 @@
 {
   "_comment": "Inventory of this fork's divergence from frappe/wiki. Regenerate with: python3 scripts/neoffice-divergence.py --update. A dropped entry is a Neoffice change that an upstream merge ate.",
-  "marked_blocks": 247,
+  "marked_blocks": 261,
   "files": {
     ".github/workflows/build-frontend.yml": [
       "wiki-app.html, not wiki.html: wiki v3 renamed the"
@@ -21,7 +21,8 @@
     ],
     "NEOFFICE_FORK_MARKERS.md": [
       "` comment",
-      "` marker block in the"
+      "` marker block in the",
+      "` comments on `_public_url` and on the `canonical_url` line |"
     ],
     "frontend/index.html": [
       "brand. Upstream ships \"Frappe Wiki\"; this title is what a"
@@ -31,9 +32,8 @@
       "added. SpaceDetails reads props.spaceId once, at setup: its space",
       ":key added, see viewKey in the script above: without it a"
     ],
-    "frontend/src/components/DiffViewer.vue": [
-      "useStorage('wiki-theme') import dropped, useTheme() imported",
-      "was useStorage('wiki-theme', 'dark'); now the shared ref (see"
+    "frontend/src/components/LibrarySidebar.vue": [
+      "title \"Wiki\", not \"Frappe Wiki\" (brand; our Sidebar.vue did the same until 3.3.0 replaced it; the cockpit is what editors see, this is its fallback) -->"
     ],
     "frontend/src/components/NeoCockpitBridge.vue": [
       "added file (no upstream equivalent). Mounts the shared"
@@ -41,42 +41,27 @@
     "frontend/src/components/NeoCockpitWikiSidebar.vue": [
       "added file (no upstream equivalent). Wiki flavour of the"
     ],
-    "frontend/src/components/Sidebar.vue": [
-      "\"Wiki\", not \"Frappe Wiki\": we ship this under the",
-      "added. Anonymous visitors and signed-in users without a wiki",
-      "nothing to log out of when browsing anonymously.",
-      "change requests need a wiki role; readers only get the reading"
-    ],
-    "frontend/src/components/SpaceList.vue": [
-      "added. Readers are anonymous visitors AND signed-in users",
-      "readers only ever see published spaces, so the Status column",
-      "the Status column is spread in only for editors (see the note",
-      "closes the computed() wrapper; upstream ends a plain array here.",
-      "wrapped in computed() because `columns` is now reactive (see",
-      "readers can't reach `frappe.client.get_list` on Wiki Space",
-      "auto:false, loaded by the watcher below. It used to read",
-      "split in two: the editor's list resource is built here and the",
-      "auto:false; the watcher below loads it once the user store",
-      "reactive, and it has to be. This read `const spaces =",
-      "and the matching side: whichever resource `spaces` now points at",
-      "reader list is unpaginated",
-      ".value: `spaces` is a computed now (see above).",
-      ".value: `spaces` is a computed now (see above). Only an"
+    "frontend/src/components/SpaceSidebar.vue": [
+      "v-if added: readers have no All Spaces list to go back to",
+      "the space name is a switcher, the way the public reader's",
+      "v-if added: readers have nothing to contribute from (no draft,",
+      "the space name in the header is a switcher (see the template).",
+      "the options of the space switcher in the header (see the template).",
+      "\"Space settings\" is offered to the space's writers only. Upstream lists it"
     ],
     "frontend/src/components/SpaceTreePanel.vue": [
+      "v-if added: readers have no Spaces list to go back to (it is",
       "the space name is a switcher, the way the public",
       "added. The theme toggle used to sit in this header and",
-      "gated on canManageTabs (the space's can_write). Upstream",
-      "the v-if on the next line is ours; the reason is in the",
-      "Dropdown, computed and useRouter added for the space switcher",
+      "v-if added, gated on can_write (the space's",
+      "Dropdown added for the space switcher this header carries (see the",
       "added: the theme toggle we put back in this header needs it.",
-      "props captured (upstream calls defineProps without binding it):",
-      "added. Spaces to offer in the header switcher. The parent",
+      "the can_write gate on the gear and the reader flag come from the space store.",
       "everything below is ours: the space switcher and the theme"
     ],
     "frontend/src/components/WikiDocumentPanel.vue": [
       "added button. Server-side PDF of this article",
-      "v-if added. The menu holds authoring actions only (rename,",
+      "useUserStore is ours again: upstream stopped importing it here, our reader",
       "createResource added: the reader branch below fetches through a",
       "added. Anonymous visitors and signed-in users without a wiki",
       "readers can't read Wiki Document through frappe.client.get",
@@ -91,27 +76,17 @@
       "styles for the added size controls */",
       "lightbox styles. Global (not scoped) on purpose: the markup"
     ],
-    "frontend/src/components/tiptap-extensions/MermaidBlockView.vue": [
-      "useStorage dropped from this import and useTheme added on the",
-      "was useStorage('wiki-theme', 'dark') read directly here, which",
-      "the shared ref, per the note above."
+    "frontend/src/composables/useSpaceSwitcher.js": [
+      "added file (no upstream equivalent). The space switcher: the options"
     ],
     "frontend/src/composables/useTheme.js": [
-      "rewritten wholesale. Upstream stores useStorage('wiki-theme',",
-      "added, part of the rewrite described at the top of this file:",
-      "kept inside our own applyTheme, which also sets the shared",
-      "the rest of our rewrite (block above systemTheme): apply the",
-      "added: upstream compared userTheme.value inline in each caller.",
-      "reads isDark instead of comparing the raw ref (same icon).",
-      "toggling now WRITES the choice (upstream only mutated the",
-      "applyTheme also sets the ref now, so upstream's trailing",
-      "added. Drops the explicit choice and hands the theme back to",
-      "applies the module ref (upstream applied the storage ref).",
-      "return widened: upstream returns userTheme/themeIcon/"
+      "added. Until the 3.3.0 merge our fork kept the author's EXPLICIT"
     ],
     "frontend/src/layouts/MainLayout.vue": [
-      "added. Shared Neoffice chrome (ADR-015); it falls",
-      "was `import Sidebar from '../components/Sidebar.vue'`. The",
+      "added. Shared Neoffice chrome (ADR-015) in place of the",
+      "upstream's `v-else <LibrarySidebar />` is gone: the library",
+      "mounted for a wiki manager only (maintenance#1096). Upstream",
+      "added. The shared Neoffice chrome (ADR-015) replaces upstream's library",
       "added. Readers are anonymous visitors AND signed-in users"
     ],
     "frontend/src/main.js": [
@@ -119,27 +94,28 @@
       "mount AFTER the translations land. __() is not reactive: any"
     ],
     "frontend/src/pages/SpaceDetails.vue": [
-      "readers have nothing to contribute from: no draft,",
-      "two props of this component are ours and are listed in",
-      "same two props as the desktop panel above (:readonly",
-      ":readonly below was `isGitSynced`: a reader must get the",
-      "added. Readers are anonymous visitors AND signed-in users",
-      "added branch. Readers can't read Wiki Space through",
-      "added. Readers go through upstream's very own read-only path:",
-      "the capabilities endpoint needs a session; a reader can",
-      "added. Feeds the space switcher in the tree panel's header (we",
-      "`url` below: a reader gets a 403 from get_wiki_tree (v3 gates",
-      "get_public_space_info wraps the same payload as {space, tree}.",
-      "was `if (isGitSynced.value)`: readers read the tree through the",
-      "readers take the same read-only path: no CR to hydrate from.",
-      "same widening as in treeData: a reader's refresh must re-run"
+      "v-if widened with !spaceStore.isReader: readers have nothing"
     ],
     "frontend/src/router.js": [
       "added route. Pretty URL routing: our wikis are linked as",
       "rewritten guard. Upstream bounces EVERY route to /login when",
       "signed in but with no wiki role (portal Website User):",
+      "the Overview (3.3.0 opens the app on it) is the managers'",
       "added. Readers land directly in the first public space rather",
       "single terminal next(). Upstream ended on an if/else that only"
+    ],
+    "frontend/src/stores/space.js": [
+      "useUserStore added: the reader branch below keys off the authoring role.",
+      "added. Readers are anonymous visitors AND signed-in users without",
+      "isReader: see the block above.",
+      "added. For a reader, ONE call (get_public_space_info) answers both",
+      "watches isReader as well as the space (see the comment above).",
+      "watches isReader as well as the space: a reader answers locally below.",
+      "the capabilities endpoint needs a session, and a reader can",
+      "get_public_space_info wraps the same payload as {space, tree}.",
+      "a reader's tree comes with the space (see publicInfo above).",
+      "added. Spaces to offer in the space switcher. The caller picks the",
+      "isReader and switcherSpaces are ours (see above)."
     ],
     "frontend/src/stores/user.js": [
       "added. Holds one of the wiki authoring roles. Everyone else —",
@@ -182,6 +158,9 @@
       "bail out explicitly when the renderer is missing (v15), so a",
       "nothing to warm on a Frappe without the renderer (v15): the"
     ],
+    "wiki/api/search.py": [
+      "`modified` qualified with its table. The fields above join Wiki Space"
+    ],
     "wiki/api/test_og_image_warm_up.py": [
       "added file (no upstream equivalent)"
     ],
@@ -198,9 +177,6 @@
       "bounded climb (was a bare `while True`): a cycle in",
       "fail CLOSED. This used to read `if space_id and not"
     ],
-    "wiki/frappe_wiki/doctype/wiki_change_request/test_wiki_change_request.py": [
-      "the indexing queue is v16-only; on v15 the merge indexes"
-    ],
     "wiki/frappe_wiki/doctype/wiki_document/search.py": [
       "this paragraph used to end \"Orphan documents (no wiki_space)",
       "is_published and is_private come along now. The space was the",
@@ -214,6 +190,7 @@
     ],
     "wiki/frappe_wiki/doctype/wiki_document/test_wiki_document.py": [
       "this fork makes a space public through one honest checkbox,",
+      "public_read: see the note above.",
       "this fork adds a master switch, Wiki Settings.enable_public_wiki",
       "restore the master switch, see setUpClass.",
       "added test (no upstream equivalent). Upstream's switcher query",
@@ -223,22 +200,23 @@
       "same as test_empty_url_has_no_icon: the row is dropped."
     ],
     "wiki/frappe_wiki/doctype/wiki_document/wiki_document.py": [
+      "see the canonical_url line in get_web_context().",
       "skip items with no URL. Upstream renders every row, and the",
       "added (upstream inlined a bare frappe.get_all in",
       "\" (is_published=0) to anonymous visitors — the content 404'd, but",
+      "space_icon, space_color and avatar added with the 3.3.0",
       "docstring reworded (88b1f47). Upstream's text promised the",
       "is_wiki_author added to this import; it is what the guard",
       "Edit is for authors only. Upstream shows it to everyone and",
       "the `if not space: return` that stood here is gone. It let",
+      "the canonical address is built from `wiki_canonical_host` (site_config) when it is set. Upstream always",
       "routed through _spaces_for_switcher() (see that",
       "og_images_supported added to this import (upstream imports",
       "no renderer on Frappe v15 (see wiki/api/og_image.py), so",
       "pdf_generator added (upstream lets Frappe pick, which"
     ],
     "wiki/frappe_wiki/doctype/wiki_document/wiki_sqlite_search.py": [
-      "added: this app's index stays idempotent HERE, not in frappe.",
-      "SQLiteSearch.add_to_queue (and the scheduler drain) exist in",
-      "see the block marker above: v15 queue fallback"
+      "added: this app's index stays idempotent HERE, not in frappe."
     ],
     "wiki/frappe_wiki/doctype/wiki_revision_item/patches/add_revision_doc_key_index.py": [
       "added file (no upstream equivalent)."
@@ -259,6 +237,9 @@
       "patches below are ours; keep them last so an upstream merge",
       "clears the stale `Wiki Page Patch` Custom DocPerm row that"
     ],
+    "wiki/patches/update_desktop_icon_link.py": [
+      "skip when the column is absent. `icon_type` belongs to the"
+    ],
     "wiki/permissions.py": [
       "added (no upstream equivalent). The line between the two",
       "added. Master switch for anonymous access, off by default.",
@@ -275,6 +256,9 @@
       "and an orphan that is not live stays with the wiki authors",
       "was `return can_read_space(space, user)`: reading the space"
     ],
+    "wiki/telemetry_scan.py": [
+      "is_pulse_enabled exists on Frappe v16 only. On the v15 our fleet runs,"
+    ],
     "wiki/templates/wiki/document.html": [
       "user-facing strings wrapped in _() so they land in the POT",
       "neo-wiki-article added. Hook for our reader CSS, which",
@@ -282,9 +266,15 @@
       "i18n: upstream hardcodes this label in English; _() puts it in the POT so the public reader speaks the client's language. #}",
       "i18n: upstream passes these menu labels to the macro as raw English; _() puts them in the POT. #}",
       "i18n: upstream passes these menu labels to the macro as raw English; _() puts them in the POT. #}",
+      "from 1024px up these actions are in the top bar (includes/header.html), where they cost no room: beside the title the split button took a line of the column and pushed the heading around. Between 640 and 1023px there is no top bar (it is `hidden lg:flex`), so the menu stays here. #}",
       "i18n: same dropdown as above, desktop copy; upstream labels are raw English. #}",
       "i18n: same dropdown as above, desktop copy; upstream labels are raw English. #}",
-      "i18n: upstream concatenated the English words with the date; _() with a placeholder lets a translator move the date. #}"
+      "i18n: upstream concatenated the English words with the date; _() with a placeholder lets a translator move the date. #}",
+      "the page actions (copy as Markdown, PDF, \"open in an AI\") live in a",
+      "upstream's `get markdown()` is not here: a store is not wikiPage. It stays in",
+      "a store has no `this.markdown`: read the pageContent store, and return the",
+      ": delegated to the pageActions store above",
+      "the actions are the store's (above): wikiPage keeps their names so the in-article"
     ],
     "wiki/templates/wiki/includes/feedback_widget.html": [
       "user-facing strings wrapped in _() so they land in the",
@@ -296,49 +286,81 @@
     ],
     "wiki/templates/wiki/includes/header.html": [
       "user-facing strings wrapped in _() so they land in the POT",
+      "was a bare `x-data`: the page actions below (macros/buttons.html) call copyMarkdown(), downloadPage(), getAIUrl() and read `copied` / `downloadInProgress` from the enclosing scope, which is wikiPage on the article but nothing up here. wikiHeaderActions (bottom of this file) hands them on to the shared pageActions store. #}",
       "i18n on the title attribute of this button: upstream hardcodes",
       "i18n on the aria-label below: upstream hardcodes it in English. #}",
       "i18n: upstream hardcodes the search placeholder in English. #}",
-      "i18n on the aria-label below: upstream hardcodes it in English. #}"
+      "added block: the page actions (Edit / Copy, PDF, open in an AI) moved up from the title row, where the split button took a line of the column and pushed the heading around. Same macros as the in-article menu shown under 1024px, so labels, translations and the edit-link refresh on SPA navigation (.wiki-edit-link) are the same code. Only on a document page: other pages have no `doc`. #}",
+      "i18n on the aria-label below: upstream hardcodes it in English. #}",
+      "scope of the top bar. The page actions are implemented once, in the `pageActions` store that document.html registers; this object only forwards to it, so the bar and the in-article menu share one `copied` / `downloadInProgress`. The store does not exist on pages without a document, where the actions are not rendered either, hence the guards. #}"
     ],
     "wiki/templates/wiki/includes/mobile_header.html": [
       "user-facing strings wrapped in _() so they land in the POT",
       "i18n: upstream hardcodes this label in English. #}",
       "i18n on the aria-label of this button: upstream hardcodes it in",
       "i18n on the title attribute below: upstream hardcodes it in English. #}",
-      "i18n on the aria-label below: upstream hardcodes it in English. #}"
+      "i18n on the aria-label below: upstream hardcodes it in English. #}",
+      "the sheet carried the page tree only. A page of this manual has twenty sections and a phone had no way to",
+      "x-show=\"sheetTab === 'pages'\": the sheet's search and tree belong to the \"Pages\" tab (see the tabs above). -#}",
+      "x-show=\"sheetTab === 'pages'\", same as the search above. -#}",
+      "the headings of the page (see the tabs above). -#}",
+      "the sheet's two tabs (see the markup): the page tree, or the headings of the page being read.",
+      "the headings of the page being read, taken from the page itself each time the sheet opens",
+      "the headings of the page for the sheet's second tab (see readHeadings)."
+    ],
+    "wiki/templates/wiki/includes/page_view.html": [
+      "an empty visitor id when fingerprintjs is not there. That library"
     ],
     "wiki/templates/wiki/includes/sidebar.html": [
-      "was the English literal 'Last updated '; translated here so"
+      "added: the sidebar's width can be dragged (handle at the end of the sidebar, below) and is remembered per browser. Applied here, before the sidebar paints, so a reload does not flash the default width. 240 to 520px: under 240 the titles wrap to nothing, over 520 the sidebar eats the page. #}",
+      "the width is --neo-sidebar-w (set by the script above this block, from the reader's own drag handle at the bottom of it); 18rem stays the fallback, so nothing changes until someone drags. #}",
+      "added: drag handle on the sidebar's right edge (double-click: back to the default width; arrow keys when focused). The tree's titles wrap instead of being cut (neoffice-wiki.css), and this is for whoever wants them on fewer lines. #}",
+      "the toggle follows the sidebar's width: it sits at the --neo-sidebar-w variable (18rem stays the fallback), set by the drag handle's script above, no longer at a fixed 18rem. #}",
+      "was the English literal 'Last updated '; translated here so",
+      "i18n: the SPA half of the TOC rebuilt the heading in English after every navigation, while the server-rendered half (includes/toc.html) says \"Sur cette page\". A reader saw the label flip language on the first click in the tree."
     ],
     "wiki/templates/wiki/includes/toc.html": [
       "user-facing strings wrapped in _() so they land in the POT",
-      "i18n: upstream hardcodes this heading in English. #}"
+      "i18n: upstream hardcodes this heading in English. #}",
+      "added: between 1024 and 1499px the \"On this page\" column is not drawn (it would take a quarter of a laptop screen from the"
     ],
     "wiki/templates/wiki/layout.html": [
       "brand. Upstream falls back to \"Frappe Wiki\"; this reader is",
       "brand, see the note above: the marker had to be repeated here",
       "added. Reader styling of ours (wider articles, image size",
       "nginx `deny all`s every /vendor/ path (403 on every instance, breaking Alpine-driven sidebar/header/search/feedback); moved wiki/public/js/vendor/ to third_party/ and updated these paths (ee770cd \"fix(reader): nginx denies every /vendor/ path — move the vendored assets\") #}",
-      "see the block marker above: third_party/ rename #}"
+      "see the block marker above: third_party/ rename #}",
+      "added: the large window a clip opens in when it is clicked (public/js/neoffice-video.js). Server-rendered so that its two labels are translated. #}",
+      "added: images narrower than 1000px (dialogs, panels) are shown at 70% of their size; see the file's header. #}"
     ],
     "wiki/templates/wiki/macros/buttons.html": [
       "user-facing strings wrapped in _() so they land in the POT",
       "i18n: _() applied to the macro argument (upstream printed",
+      "i18n: both labels of the primary Copy button were hardcoded English, and this is the one a signed-out reader sees (no edit right). tojson + forceescape, as for the Download row below, so an apostrophe in a translation cannot break the Alpine expression. #}",
       "i18n on the aria-label below: upstream hardcodes it in English. #}",
       "i18n: both labels were hardcoded English next to an already-translated line; tojson plus forceescape, not bare quotes, so an apostrophe in a translation cannot break the Alpine expression. #}",
       "i18n: upstream hardcodes the PDF download description in English. #}"
     ],
     "wiki/test_permissions.py": [
       "imported for the draft tests at the end of the class below.",
+      "imported for TestAppScreenGate at the end of the file.",
       "public_read is the source of truth for \"this space is on the",
+      "public_read: see the note above.",
       "two accounts without any wiki role, for the draft tests: a",
       "enable_public_wiki is the master switch for the whole",
       "restore the master switch (see setUp).",
       "added. The master switch is the one thing standing between a",
-      "added. A page that is not live (unpublished, or in an"
+      "added. A page that is not live (unpublished, or in an",
+      "added (no upstream equivalent). The wiki tile on the apps screen"
+    ],
+    "wiki/test_settings_dialog.py": [
+      "added file (no upstream equivalent). The settings dialog is mounted for a wiki manager only"
+    ],
+    "wiki/tests/test_telemetry.py": [
+      "a Guest never gets as far as the app shell here: a private wiki"
     ],
     "wiki/utils.py": [
+      "rewritten. Upstream showed the tile to Wiki Manager only,",
       "early return added (WI-00297, ab732fd). Upstream gives the"
     ],
     "wiki/wiki/doctype/wiki_page/sqlite_search.py": [
@@ -358,12 +380,18 @@
     "wiki/www/wiki-app.html": [
       "brand. Upstream ships \"Frappe Wiki\"; this title is what a"
     ],
+    "wiki/www/wiki-sitemap.xml": [
+      "added file (no upstream equivalent): the sitemap of the public manual, in the name of its public host. See wiki_sitemap.py. -->"
+    ],
     "wiki/www/wiki_app.py": [
       "added: the SPA shell is served to visitors without an account",
       "no anonymous access while the wiki is private: send them to",
       "a reader never enters the authoring app. /wiki-app is ours;",
       "upstream calls frappe.local.response_headers.set() directly.",
       "added (no upstream equivalent). Translates an authoring-app URL"
+    ],
+    "wiki/www/wiki_sitemap.py": [
+      "added file (no upstream equivalent)"
     ]
   }
 }

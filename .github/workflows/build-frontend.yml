@@ -28,9 +28,27 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # 24, as upstream's own CI builds this frontend (frappe-ui beta.76 era, v3.3.0).
+          node-version: 24
           cache: yarn
           cache-dependency-path: frontend/yarn.lock
+
+      # frontend/package.json links @framework/ui to ../../frappe/ui, i.e. the ui/
+      # package of a frappe checkout that sits NEXT TO this repository. It exists on
+      # frappe develop and version-16 only (not on version-15, which our fleet runs),
+      # and it is not on npm. Pinned to the commit the committed build was made with
+      # (frappe develop, 2026-09-28): move the pin deliberately, with a rebuild.
+      - name: Fetch @framework/ui (frappe/ui)
+        env:
+          FRAPPE_UI_SHA: 87aa8410de3365eb7c31c25525a815c5bf397739
+        run: |
+          git init "$GITHUB_WORKSPACE/../frappe"
+          cd "$GITHUB_WORKSPACE/../frappe"
+          git remote add origin https://github.com/frappe/frappe.git
+          git sparse-checkout set ui
+          git fetch --depth 1 --filter=blob:none origin "$FRAPPE_UI_SHA"
+          git checkout FETCH_HEAD
+          ls ui/package.json
 
       - name: Create common_site_config stub
         run: |

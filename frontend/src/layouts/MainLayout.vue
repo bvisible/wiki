@@ -1,5 +1,11 @@
 <template>
-	<div class="h-screen w-full bg-surface-sidebar">
+	<!-- The app is a fixed frame: the sidebar and the open page each own a
+	     scroller, and nothing scrolls the layout itself. The frame is both
+	     `relative` and `overflow-hidden`: the clip only catches an absolutely
+	     positioned stray — frappe-ui Tree's aria-live region, for one — when the
+	     frame is its containing block. Without `relative` the stray resolves
+	     against the page, grows the document, and drags the whole chrome up. -->
+	<div class="relative h-screen w-full overflow-hidden bg-surface-sidebar">
 		<template v-if="isLoading"></template>
 		<template v-else-if="hasAccess">
 			<MobileShell v-if="isMobile" class="wiki-mobile-shell">
@@ -8,8 +14,20 @@
 				<template #nav>
 					<MobileNav>
 						<MobileNavItem
+							v-if="userStore.isWikiManager"
+							:label="__('Overview')"
+							:route="{ name: 'Overview' }"
+							:active="route.name === 'Overview'"
+						>
+							<template #default="{ active }">
+								<span
+									class="lucide-layout-grid size-6"
+									:class="active ? 'text-ink-gray-8' : 'text-ink-gray-5'" aria-hidden="true" />
+							</template>
+						</MobileNavItem>
+						<MobileNavItem
 							:label="__('Spaces')"
-							:to="{ name: 'SpaceList' }"
+							:route="{ name: 'AllSpaces' }"
 							:active="isSpacesRoute"
 						>
 							<template #default="{ active }">
@@ -20,8 +38,8 @@
 						</MobileNavItem>
 						<MobileNavItem
 							:label="__('Change Requests')"
-							:to="{ name: 'ChangeRequests' }"
-							:active="route.name === 'ChangeRequests'"
+							:route="{ name: 'ChangeRequests' }"
+							:active="['ChangeRequests', 'ChangeRequestReview'].includes(route.name)"
 						>
 							<template #default="{ active }">
 								<span
@@ -33,14 +51,23 @@
 				</template>
 			</MobileShell>
 			<DesktopShell v-else class="wiki-desktop-shell h-full">
+				<!-- //// Neoffice — added. Shared Neoffice chrome (ADR-015) in place of the
+				     library sidebar upstream mounts at the top level (LibrarySidebar); it
+				     falls back to that sidebar on its own if the cockpit fails to boot.
+				     It sits in the shell's `rail` slot so that, inside a space, it stays
+				     beside the space's own tree (SpaceSidebar, `sidebar` slot) the way it
+				     stood beside the tree column before 3.3.0 moved the tree into the
+				     sidebar. Readers get NO cockpit at all: theirs held a single "Spaces"
+				     link and an upstream product name, so it cost a column of screen and
+				     gave nothing back. The space tree is their navigation. -->
+				<template v-if="!isReader" #rail>
+					<NeoCockpitWikiSidebar />
+				</template>
 				<template #sidebar>
-					<!-- //// Neoffice — added. Shared Neoffice chrome (ADR-015); it falls
-					     back to the native Sidebar on its own if the cockpit fails to
-					     boot. Readers get NO sidebar at all: theirs held a single
-					     "Spaces" link and an upstream product name, so it cost a column
-					     of screen and gave nothing back. The space tree next to it is
-					     the actual navigation. -->
-					<NeoCockpitWikiSidebar v-if="!isReader" />
+					<!-- //// Neoffice — upstream's `v-else <LibrarySidebar />` is gone: the library
+					     level is what the shared Neoffice chrome in the rail slot above replaces
+					     (LibrarySidebar is that chrome's own fallback). Inside a space: the tree. -->
+					<SpaceSidebar v-if="spaceId" :key="spaceId" :space-id="spaceId" />
 				</template>
 				<slot></slot>
 			</DesktopShell>
@@ -87,18 +114,21 @@
 			v-model="showWikiSettings"
 			:initial-tab="initialTab"
 		/>
+		<CommandPalette v-if="hasAccess" />
 	</div>
 </template>
 
 <script setup>
 import { useUserStore } from '@/stores/user';
 import { DesktopShell, MobileNav, MobileNavItem, MobileShell } from 'frappe-ui';
-import { computed, onMounted, watch } from 'vue';
+import { computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-//// Neoffice — was `import Sidebar from '../components/Sidebar.vue'`. The
-//// shared Neoffice chrome replaces the app's own sidebar (ADR-015); the
-//// wrapper falls back to the native Sidebar if the cockpit fails to boot.
+import CommandPalette from '../components/CommandPalette.vue';
+//// Neoffice — added. The shared Neoffice chrome (ADR-015) replaces upstream's library
+//// sidebar at the top level; the wrapper falls back to LibrarySidebar if the cockpit
+//// fails to boot.
 import NeoCockpitWikiSidebar from '../components/NeoCockpitWikiSidebar.vue';
+import SpaceSidebar from '../components/SpaceSidebar.vue';
 import WikiSettings from '../components/WikiSettings/WikiSettings.vue';
 import { useMobile } from '../composables/useMobile';
 import { useTheme } from '../composables/useTheme';
@@ -109,7 +139,10 @@ const userStore = useUserStore();
 const route = useRoute();
 const router = useRouter();
 const { showWikiSettings, initialTab, open } = useWikiSettings();
-const { initTheme } = useTheme();
+// The first useColorScheme() call restores the saved preference and starts
+// following the OS, so mounting this one always-mounted component is enough to
+// apply the theme to both the desktop and mobile shells.
+useTheme();
 
 const isLoading = computed(() => userStore.isLoading);
 const hasAccess = computed(() => userStore.canAccessWiki);
@@ -119,14 +152,12 @@ const isReader = computed(
 	() => !userStore.isWikiEditor || route.query.preview === '1',
 );
 
-// Spaces stays lit across every space route (list + space details).
-const isSpacesRoute = computed(() => route.path.startsWith('/spaces'));
+const spaceId = computed(() => route.params.spaceId || null);
 
-// Theme is applied here (the one always-mounted component) so both the
-// desktop and mobile shells get it.
-onMounted(() => {
-	initTheme();
-});
+// Spaces stays lit across every space route (overview + space details).
+const isSpacesRoute = computed(
+	() => route.name === 'AllSpaces' || Boolean(spaceId.value),
+);
 
 // The GitHub-App manifest flow redirects back here with ?github_app_created=1.
 // Re-open the settings dialog on the GitHub tab and strip the query param. This
@@ -137,8 +168,7 @@ watch(
 	(created) => {
 		if (!created) return;
 		open('github');
-		const query = { ...route.query };
-		delete query.github_app_created;
+		const { github_app_created, ...query } = route.query;
 		router.replace({ query });
 	},
 	{ immediate: true },
@@ -146,20 +176,13 @@ watch(
 </script>
 
 <style scoped>
-/* Gameplan-style shell: the content column floats as a rounded card over the
-   sidebar surface in light mode; flat with a hairline divider in dark. */
+/* The content column sits flush against the sidebar, separated by a hairline
+   rather than floated as a rounded card: the app window already rounds the
+   outer corners, so a second radius inside it just reads as noise. */
 .wiki-desktop-shell :deep([data-slot='desktop-shell-content']) {
-	margin: 0.25rem 0.25rem 0.25rem 0;
-	border-radius: var(--radius-lg);
 	background-color: var(--surface-base);
-	box-shadow: var(--shadow-sm);
-	overflow: hidden;
-}
-[data-theme='dark'] .wiki-desktop-shell :deep([data-slot='desktop-shell-content']) {
-	margin: 0;
-	border-radius: 0;
 	border-left: 1px solid var(--outline-gray-2);
-	box-shadow: none;
+	overflow: hidden;
 }
 
 /* Wiki pages are app-like (columns + their own scroll regions), so they need

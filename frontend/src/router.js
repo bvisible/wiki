@@ -3,13 +3,17 @@ import { createRouter, createWebHistory } from 'vue-router';
 const routes = [
 	{
 		path: '/',
-		name: 'Home',
-		redirect: '/spaces',
+		name: 'Overview',
+		component: () => import('@/pages/Overview.vue'),
+	},
+	{
+		path: '/overview',
+		redirect: { name: 'Overview' },
 	},
 	{
 		path: '/spaces',
-		name: 'SpaceList',
-		component: () => import('@/pages/Spaces.vue'),
+		name: 'AllSpaces',
+		component: () => import('@/pages/AllSpaces.vue'),
 	},
 	{
 		path: '/change-requests',
@@ -110,7 +114,7 @@ const routes = [
 			} catch (e) {
 				/* fallthrough */
 			}
-			next({ name: 'SpaceList', replace: true });
+			next({ name: 'AllSpaces', replace: true });
 		},
 	},
 ];
@@ -158,14 +162,24 @@ router.beforeEach(async (to, from, next) => {
 		//// logging in again would not help, so send them to what they can
 		//// actually read instead of bouncing them through /login forever.
 		if (!userStore.isWikiEditor) {
-			next({ name: 'SpaceList', replace: true });
+			next({ name: 'AllSpaces', replace: true });
 			return;
 		}
 	}
 
+	//// Neoffice — the Overview (3.3.0 opens the app on it) is the managers'
+	//// analytics page: everyone else goes to All Spaces. Upstream does this in
+	//// the same place but only inside its sign-in branch; ours has no sign-in
+	//// branch for reading routes, so the rule stands on its own.
+	if (to.name === 'Overview' && !userStore.isWikiManager) {
+		next({ name: 'AllSpaces', replace: true });
+		return;
+	}
+
 	//// Neoffice — added. Readers land directly in the first public space rather
-	//// than on the Space List, which for them lists that one space anyway.
-	if (!userStore.isWikiEditor && to.name === 'SpaceList') {
+	//// than on All Spaces (called the Space List before 3.3.0), which for them
+	//// lists that one space anyway.
+	if (!userStore.isWikiEditor && to.name === 'AllSpaces') {
 		try {
 			const { createResource } = await import('frappe-ui');
 			const res = createResource({ url: 'wiki.api.list_public_spaces' });

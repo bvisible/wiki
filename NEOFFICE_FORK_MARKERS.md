@@ -80,10 +80,11 @@ them is a place where a comment cannot physically go.
   space's role table, unticking removes it. This is the switch that makes a
   client wiki public — **the single most important divergence in this file**.
 * **`field_order` re-shuffled** (general/navbar/logo/access-control blocks
-  reordered, `main_revision` moved). This is desk form-builder drift, not a
-  decision: at the next merge, take upstream's order and re-insert `public_read`
-  after `access_control_section`.
-* Trailing newline added at EOF (upstream ships none).
+  reordered, `main_revision` moved). This was desk form-builder drift, not a
+  decision. **Resolved at the 3.3.0 merge (2026-10-03)**: the file is upstream's,
+  byte for byte, plus `public_read` re-inserted after `access_control_section`
+  (field object and `field_order` entry). Next merge: same recipe.
+* Trailing newline: dropped at the 3.3.0 merge (upstream's file ends without one).
 
 #### `wiki/wiki/doctype/wiki_settings/wiki_settings.json`
 
@@ -189,8 +190,7 @@ for the reader.
 | `wiki/templates/wiki/includes/mobile_header.html` — `aria-label=` of the floating nav trigger | idem | the `<button @click="toggleSidebar()">` above |
 | `frontend/src/components/tiptap-extensions/ImageNodeView.vue` — `:width` attribute of `<img>` | removed: the width now goes through `:style`, so a resized image scales instead of being letterboxed | the `<img>` tag |
 | `frontend/src/components/tiptap-extensions/ImageNodeView.vue` — `:style` / `@click` of `<img>` | `@click` re-pointed from `selectNode` to `handleImageClick` (select in edit mode, lightbox in read mode) | the `<img>` tag |
-| `frontend/src/pages/SpaceDetails.vue` — `:readonly` of both `<SpaceTreePanel>` | was `isGitSynced`, now `isReadOnly` (git-synced **or** reader) | each `<SpaceTreePanel>` tag |
-| `frontend/src/pages/SpaceDetails.vue` — `:spaces` of both `<SpaceTreePanel>` | added: feeds the header space switcher | each `<SpaceTreePanel>` tag |
+| *(3.3.0 merge)* `frontend/src/pages/SpaceDetails.vue` — `:readonly` / `:spaces` of `<SpaceTreePanel>` | **gone**: upstream moved the space state into `stores/space.js` (`isReadonly` there covers git-synced and read-only users, our reader flag sets `canContribute = false`) and the switcher options come from `composables/useSpaceSwitcher.js`, so no attribute is ours any more | — |
 | `wiki/frappe_wiki/doctype/wiki_document/wiki_document.py` canonical address (`_public_url`, `canonical_url` in `get_web_context`) | upstream builds it from the site's `host_name` (the hub's own name) | the manual under its own public host would be declared a copy of a page elsewhere: `wiki_canonical_host` (site_config) wins when set, unset = upstream | the `//// Neoffice` comments on `_public_url` and on the `canonical_url` line |
 | `wiki/templates/wiki/includes/mobile_header.html` — the sheet's two tabs « Pages » / « On this page » (`sheetTab`, `tocItems`, `readHeadings()`, `goToHeading()`) | upstream's sheet holds the page tree only, and its header « On this page » dropdown reads `$root.headings` (which is the component itself) so it never shows: a phone could not jump to a section | the `{#- //// Neoffice` comment above the tabs and the `// //// Neoffice` comments in the component; styles `.neo-sheet-*` in `neoffice-wiki.css` section 9 |
 
@@ -219,7 +219,8 @@ Each carries a header marker unless noted.
 | File | Purpose |
 | --- | --- |
 | `frontend/src/components/NeoCockpitBridge.vue` | mounts the shared Neoffice chrome |
-| `frontend/src/components/NeoCockpitWikiSidebar.vue` | wiki flavour of the cockpit sidebar, falls back to upstream's `Sidebar.vue` |
+| `frontend/src/components/NeoCockpitWikiSidebar.vue` | wiki flavour of the cockpit sidebar, falls back to upstream's `LibrarySidebar.vue` (was `Sidebar.vue` before 3.3.0) |
+| `frontend/src/composables/useSpaceSwitcher.js` | the options of the space switcher in both headers (`SpaceSidebar.vue`, the non-compact header of `SpaceTreePanel.vue`) |
 | `scripts/neoffice-divergence.py` | the divergence guard (docstring carries the marker) |
 | `wiki/frappe_wiki/patches/init_public_read_from_guest_role.py` | seeds `public_read` from the existing Guest role |
 | `wiki/frappe_wiki/patches/redirect_bare_wiki_route_to_app.py` | per-instance `/wiki` redirect |
@@ -238,7 +239,7 @@ five workflow files are ours, with no upstream equivalent:
 
 | Workflow | What it does |
 | --- | --- |
-| `build-frontend.yml` | builds the SPA on GitHub and commits the artifacts back (commit-the-build) |
+| `build-frontend.yml` | builds the SPA on GitHub and commits the artifacts back (commit-the-build). Since 3.3.0 it first fetches `frappe/ui` (pinned commit) next to the repository: `frontend/package.json` links `@framework/ui` to `../../frappe/ui` |
 | `fork-markers.yml` | this discipline, run on every push to `version-15` |
 | `neoffice-divergence.yml` | runs `scripts/neoffice-divergence.py` on push and PR |
 | `tests.yml` | fleet CI (wave 2) via `bvisible/neoffice-ci` |
@@ -246,14 +247,40 @@ five workflow files are ours, with no upstream equivalent:
 
 ---
 
+### The 3.3.0 merge (2026-10-03) — what moved in the divergence map
+
+Branch `merge/upstream-v3.3.0` (merge of the tag `v3.3.0`, `04c3cacb`; merge-base with
+our line `3ce7fe97`, the v3.1.0 era; 355 upstream commits, 23 conflicting files). Full
+account: Obsidian `Neoffice/Wiki-Plateforme/30-Fusion-Amont-Du-Wiki-V3-3-0-Sur-Une-Branche-…`.
+
+| Our change | Before | After the merge |
+| --- | --- | --- |
+| Reader branch of the SPA (published-only endpoints, no capabilities call, no Back / mode strip / settings for a reader) | `pages/SpaceDetails.vue`, `components/Sidebar.vue`, `components/SpaceList.vue`, `components/WikiDocumentPanel.vue` | `stores/space.js` (`isReader`, `publicInfo`, `switcherSpaces`), `components/SpaceSidebar.vue`, `components/SpaceTreePanel.vue`, `pages/SpaceDetails.vue`, `components/WikiDocumentPanel.vue`, `router.js`. `Sidebar.vue` and `SpaceList.vue` are deleted upstream: a non-author never loads the SPA (`wiki_app.py` redirects them), so the list shim has no screen left |
+| Cockpit chrome | `layouts/MainLayout.vue`, `slot #sidebar` | `layouts/MainLayout.vue`, `slot #rail` (beside `SpaceSidebar` in the `#sidebar` slot) |
+| OS-following theme | `composables/useTheme.js` rewritten, `DiffViewer.vue`, `MermaidBlockView.vue` | **upstream's**: frappe-ui `useColorScheme` does the same. Ours keeps a 4-line carry-over of `wiki-theme-pref` into frappe-ui's `theme` key |
+| Space settings gear / action behind `can_write` | `SpaceTreePanel.vue` (`canManageTabs`) | `SpaceTreePanel.vue` and `SpaceSidebar.vue` (`spaceStore.canWriteSpace`) |
+| v15 search re-index fallback | `wiki_sqlite_search.py`, `test_wiki_change_request.py` | **upstream's** (`e8dd2b8d`: `index_doc` directly, same as ours; `drain_search_index_queue` helper) |
+| Orphan documents are not readable by anyone | `wiki_document.py` `check_space_access` | same, now over upstream's `get_space_name()` helper (upstream still returns early for orphans) |
+| Published-only space switcher | `wiki_document.py` `_spaces_for_switcher` | same, plus `space_icon`, `space_color`, `avatar` (upstream's `space_mark` reads them) |
+| Public sitemap | `wiki_sitemap.py` | same, now also leaves out `disable_indexing` pages |
+
+New divergence that exists only because of Frappe v15 (every one is a bug on v15, none a choice):
+`wiki/patches/update_desktop_icon_link.py` (v16 `icon_type` column), `wiki/telemetry_scan.py`
+(`is_pulse_enabled` is v16), `wiki/api/search.py` (ambiguous `ORDER BY modified`), `wiki/tests/test_telemetry.py`
+(a Guest is redirected by our `wiki_app.py` before the shell). Drop each at the move to v16.
+
 ### What the next merge will fight over
 
-`upstream/version-3` is 36 commits ahead of BASE. Files touched on **both**
-sides (ours: 67 source files, theirs: 44):
+> The paragraph below was written before the 3.3.0 merge (when `upstream/version-3`
+> was 36 commits ahead of BASE). The merge settled the rows it names; the table stays
+> as the list of files where our divergence sits, updated where the merge changed it
+> (see the section above).
+
+Files touched on **both** sides at the time (ours: 67 source files, theirs: 44):
 
 | File | Upstream's change | Ours |
 | --- | --- | --- |
-| `frontend/src/composables/useTheme.js` | `a7a9aef` *prevent flash while switching theme* | **rewritten wholesale** (OS-following theme) — expect a full-file conflict |
+| `frontend/src/composables/useTheme.js` | *(3.3.0: frappe-ui `useColorScheme`)* | upstream's file + a 4-line carry-over; expect a small conflict at most |
 | `wiki/utils.py` | `dcc5592` *assign Wiki User role without triggering nested User.save()* | our early return that refuses the role to Website Users (WI-00297) — same function |
 | `wiki/public/node_modules` | `6c5b6dc` *untrack the symlink* | our relative retarget — take the deletion |
 | `wiki/templates/wiki/layout.html`, `document.html` | `1132fc8` *reader column widths on wide screens* | `neo-wiki-article` class + our CSS `<link>` + brand `<title>` + our `neoffice-images.js` and `neoffice-video.js` script tags + the `#video-viewer` window |
@@ -268,8 +295,9 @@ sides (ours: 67 source files, theirs: 44):
 | `wiki/public/css/neoffice-wiki.css` (our file, table width and the text-width variable) | a table ran at the full article width (up to 1440px) while the text above it stopped at 100ch, and a font-relative custom property was re-resolved in each consumer's own font (a table stopped at 809px, the text at 944px) | `@property --neo-text-width` typed `<length>` (resolved once, inherited as pixels) and a table of up to five columns stops at it; six columns or more keep the whole article. Our own file: nothing to merge |
 | `wiki/public/css/neoffice-wiki.css` (our file, Full HD layout and phones) | on a 1920px screen the article ran to 1440px with the text at 944px on its left: a 330px empty band before the right-hand column; the "On this page" entries wrapped on three lines; a table of several columns was squeezed on a phone | text 1000px, article 1100px centred from 1700px, the title line / previous-next buttons / footer line up with the text, "On this page" 320px from 1800px, tables scroll sideways inside their own box under 768px. Our own file: nothing to merge |
 | `wiki/public/css/neoffice-wiki.css` (our file, clips) | the clips carry `width="720"` in their markup | `#wiki-content video` is as wide as the text (`--neo-text-width`), never wider, left-aligned like the captures; the click opens it large. Our own file: nothing to merge |
-| `frontend/src/pages/SpaceDetails.vue` | per-space tabs, breadcrumbs, draft layout | the whole reader branch (`isReader`, public endpoints) |
-| `frontend/src/components/WikiDocumentPanel.vue` | idem | reader branch + PDF button |
+| `frontend/src/stores/space.js` | the space's resources, tree and capabilities (3.3.0 moved them here from `SpaceDetails.vue`) | the reader branch (`isReader`, `publicInfo`, `switcherSpaces`) |
+| `frontend/src/components/SpaceSidebar.vue`, `SpaceTreePanel.vue`, `pages/SpaceDetails.vue` | the drill-in navigation (3.3.0) | reader gates (`!spaceStore.isReader`), `canWriteSpace` on settings, the space switcher |
+| `frontend/src/components/WikiDocumentPanel.vue` | the page's single action row (3.3.0) | reader branch (`makeWikiDocResource`) + PDF button |
 | `wiki/api/__init__.py`, `wiki/frappe_wiki/doctype/wiki_document/wiki_document.py` | v3 fixes | `allow_guest`, published-only endpoints, PDF, OG guard |
 | `wiki/wiki/doctype/wiki_space/wiki_space.json` | field changes | `public_read` + reordered `field_order` |
 | `.gitignore` | upstream keeps ignoring the build | we un-ignore it — **never take upstream's version blindly** |

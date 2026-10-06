@@ -34,13 +34,18 @@ def _public_links():
 	rows = frappe.get_all(
 		"Wiki Document",
 		filters={"is_published": 1, "is_external_link": 0},
-		fields=["name", "route", "modified", "is_group"],
+		fields=["name", "route", "modified", "is_group", "disable_indexing"],
 		order_by="route asc",
 		limit_page_length=0,
 	)
 	links = []
 	for row in rows:
 		if not row.route:
+			continue
+		# A page its author asked to keep out of search engines (Wiki Document.disable_indexing, 3.3.0)
+		# must not be advertised by the sitemap either: upstream drops it from its own sitemap, llms.txt and
+		# .md indexes for the same reason, and the page itself carries a noindex tag.
+		if row.disable_indexing:
 			continue
 		doc = frappe.get_cached_doc("Wiki Document", row.name)
 		# a chapter that only holds other pages is not a page worth indexing; one that carries its own text is

@@ -1,145 +1,56 @@
-//// Neoffice — rewritten wholesale. Upstream stores useStorage('wiki-theme',
-//// 'dark'), whose writeDefaults writes "dark" on the FIRST visit of every
-//// browser: indistinguishable from a real choice, so everyone was pinned to
-//// dark forever. Ours follows the OS until the user actually toggles.
-//// Upstream's API (userTheme / themeIcon / toggleTheme / initTheme) is kept so
-//// its own components keep working unmodified.
-import { computed, ref } from 'vue';
+import { useColorScheme, useResolvedColorScheme } from 'frappe-ui';
+import { computed } from 'vue';
 
-// Shared light/dark theme for the wiki frontend.
-//
-// Default behaviour = follow the OS (`prefers-color-scheme`). A manual toggle
-// persists an explicit choice in localStorage; as long as the user has NOT
-// toggled, the theme tracks the system and reacts to live changes. Applied via
-// `data-theme` on <html>. Singleton module state so every component (Sidebar,
-// MobileAppMenu, SpaceDetails, DiffViewer, Mermaid blocks…) shares the same
-// reactive value.
-//
-// Upstream stores `useStorage('wiki-theme', 'dark')`, whose writeDefaults pins
-// every fresh browser to dark on the first visit — a default, not a choice.
-// 'wiki-theme-pref' is written ONLY on an explicit toggle, so an untouched
-// browser falls back to the OS theme. The legacy key is cleared on load.
-const STORAGE_KEY = 'wiki-theme-pref';
-const LEGACY_KEY = 'wiki-theme';
-try {
-	if (typeof localStorage !== 'undefined') localStorage.removeItem(LEGACY_KEY);
-} catch (_) {
-	/* ignore */
-}
+// Light/dark now comes from frappe-ui's useColorScheme: it owns the
+// `data-theme` attribute, the `theme` localStorage key, following the OS while
+// the preference is `system`, and muting transitions across a swap so the page
+// doesn't flash. That last part used to live here as a hand-rolled two-rAF
+// dance plus a `.no-transition` rule in index.css; frappe-ui ships both, and its
+// version also cancels a pending unmute so back-to-back swaps can't uncover a
+// repaint.
 
-const media =
-	typeof window !== 'undefined' && window.matchMedia
-		? window.matchMedia('(prefers-color-scheme: dark)')
-		: null;
-
-function savedChoice() {
-	const v =
-		typeof localStorage !== 'undefined'
-			? localStorage.getItem(STORAGE_KEY)
-			: null;
-	return v === 'dark' || v === 'light' ? v : null;
-}
-
-//// Neoffice — added, part of the rewrite described at the top of this file:
-//// the OS preference, the shared ref, applying it at import time (no flash on
-//// first paint) and following live OS changes while no choice was made.
-function systemTheme() {
-	return media?.matches ? 'dark' : 'light';
-}
-
-const theme = ref(savedChoice() || systemTheme());
-
-function applyTheme(t) {
-	if (typeof document !== 'undefined') {
-		const root = document.documentElement;
-		// Upstream v3.1.0 (#746): suppress transitions for the swap itself, or every
-		// element with a colour transition animates independently and the page
-		// flashes on its way to the new theme. Two rAFs so the class survives the
-		// style + paint of the swap.
-		//// Neoffice — kept inside our own applyTheme, which also sets the shared
-		//// ref and runs at import time: upstream's version only ran on a toggle, so
-		//// merging it wholesale would have taken the first-paint fix away with it.
-		root.classList.add('no-transition');
-		root.setAttribute('data-theme', t);
-		if (typeof requestAnimationFrame === 'function') {
-			requestAnimationFrame(() => {
-				requestAnimationFrame(() => {
-					root.classList.remove('no-transition');
-				});
-			});
-		} else {
-			// No rAF at module load in SSR/tests: never leave the class behind.
-			root.classList.remove('no-transition');
-		}
+// Carry a preference saved under the old key over to frappe-ui's, once. Both
+// surfaces used `wiki-theme` before; without this, everyone who had ever picked
+// a theme would silently land back on `system` after the upgrade. Runs before
+// the first useColorScheme() call so the restore below sees the migrated value.
+if (typeof localStorage !== 'undefined') {
+	//// Neoffice — added. Until the 3.3.0 merge our fork kept the author's EXPLICIT
+	//// choice under `wiki-theme-pref` (written only on a toggle) and deleted the
+	//// legacy `wiki-theme` key, which upstream pre-filled with "dark" on a first
+	//// visit. Carry that explicit choice over to frappe-ui's key first, so the
+	//// legacy copy below can never turn an untouched browser into a "choice".
+	//// Safe to delete once every author has opened the editor once after the merge.
+	const pref = localStorage.getItem('wiki-theme-pref');
+	if ((pref === 'dark' || pref === 'light') && !localStorage.getItem('theme')) {
+		localStorage.setItem('theme', pref);
 	}
-	theme.value = t;
+	const legacy = localStorage.getItem('wiki-theme');
+	if (legacy && !localStorage.getItem('theme')) {
+		localStorage.setItem('theme', legacy);
+	}
 }
 
-//// Neoffice — the rest of our rewrite (block above systemTheme): apply the
-//// theme at import time, then follow live OS changes until the user chooses.
-// Apply at module load so there is no stale/flashing theme on first paint.
-applyTheme(theme.value);
-
-// Track the OS theme while no explicit choice has been made.
-if (media) {
-	media.addEventListener('change', (e) => {
-		if (!savedChoice()) applyTheme(e.matches ? 'dark' : 'light');
-	});
-}
+// The painted scheme, which is what a consumer picking a light/dark asset
+// actually needs. It is not derivable from the preference alone: `system`
+// resolves against the OS, and an OS flip repaints without changing the
+// preference. frappe-ui tracks that for us; `useResolvedColorScheme` reads it
+// without also owning `data-theme`, which `useColorScheme` below does.
+const resolvedTheme = useResolvedColorScheme();
 
 export function useTheme() {
-	//// Neoffice — added: upstream compared userTheme.value inline in each caller.
-	const isDark = computed(() => theme.value === 'dark');
+	const { colorScheme, setColorScheme, toggleColorScheme } = useColorScheme();
+
 	const themeIcon = computed(() =>
-		//// Neoffice — reads isDark instead of comparing the raw ref (same icon).
-		isDark.value ? 'lucide-sun' : 'lucide-moon',
+		resolvedTheme.value === 'dark' ? 'lucide-sun' : 'lucide-moon',
 	);
 
-	function toggleTheme() {
-		//// Neoffice — toggling now WRITES the choice (upstream only mutated the
-		//// useStorage ref, which was already pre-filled with 'dark' on first visit).
-		//// Guarded because localStorage throws in private mode.
-		const next = theme.value === 'dark' ? 'light' : 'dark';
-		try {
-			localStorage.setItem(STORAGE_KEY, next); // explicit choice persists
-		} catch (_) {
-			/* ignore storage errors (private mode) */
-		}
-		//// Neoffice — applyTheme also sets the ref now, so upstream's trailing
-		//// `userTheme.value = next` disappeared.
-		applyTheme(next);
-	}
-
-	//// Neoffice — added. Drops the explicit choice and hands the theme back to
-	//// the OS; there is no way back to system in upstream once toggled.
-	function resetToSystem() {
-		try {
-			localStorage.removeItem(STORAGE_KEY);
-		} catch (_) {
-			/* ignore */
-		}
-		applyTheme(systemTheme());
-	}
-
-	// Kept for parity with upstream, which calls it from the always-mounted
-	// shell. The module already applied the theme at import time, so this is a
-	// no-op safety net rather than the real entry point.
-	function initTheme() {
-		//// Neoffice — applies the module ref (upstream applied the storage ref).
-		applyTheme(theme.value);
-	}
-
-	//// Neoffice — return widened: upstream returns userTheme/themeIcon/
-	//// toggleTheme/initTheme. Those four names are kept exactly so its own
-	//// components keep working; theme, isDark and resetToSystem are ours.
-	// `userTheme` is upstream's name for the same ref.
 	return {
-		theme,
-		userTheme: theme,
-		isDark,
+		colorScheme,
+		resolvedTheme,
 		themeIcon,
-		toggleTheme,
-		resetToSystem,
-		initTheme,
+		setTheme: setColorScheme,
+		// frappe-ui's toggle flips the painted scheme, not the preference, so the
+		// first click on a system-dark page moves to light instead of looking dead.
+		toggleTheme: toggleColorScheme,
 	};
 }

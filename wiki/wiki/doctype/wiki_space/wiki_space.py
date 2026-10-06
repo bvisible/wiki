@@ -5,6 +5,8 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.website.utils import clear_cache as clear_website_cache
 
+from wiki.telemetry import capture
+
 _CHILD_ROW_META_FIELDS = {
 	"name",
 	"parent",
@@ -33,15 +35,21 @@ class WikiSpace(Document):
 		from wiki.wiki.doctype.wiki_group_item.wiki_group_item import WikiGroupItem
 
 		app_switcher_logo: DF.AttachImage | None
+		avatar: DF.LongText | None
+		avatar_seed: DF.Data | None
+		avatar_style: DF.Data | None
 		dark_mode_logo: DF.AttachImage | None
 		enable_feedback_collection: DF.Check
 		favicon: DF.AttachImage | None
 		is_published: DF.Check
+		last_edited: DF.Datetime | None
 		light_mode_logo: DF.AttachImage | None
 		navbar_items: DF.Table[TopBarItem]
 		root_group: DF.Link | None
 		route: DF.Data
 		show_in_switcher: DF.Check
+		space_color: DF.Data | None
+		space_icon: DF.Data | None
 		space_name: DF.Data | None
 		switcher_order: DF.Int
 		wiki_sidebars: DF.Table[WikiGroupItem]
@@ -49,6 +57,8 @@ class WikiSpace(Document):
 
 	def before_insert(self):
 		self.create_root_group()
+		# The root group's stamp runs before this space exists, so it misses.
+		self.last_edited = frappe.utils.now()
 
 	def validate(self):
 		self.remove_leading_slash_from_route()
@@ -67,6 +77,33 @@ class WikiSpace(Document):
 			self.roles = [r for r in (self.roles or []) if (r.role or "") != "Guest"]
 			for i, row in enumerate(self.roles, start=1):
 				row.idx = i
+
+	def after_insert(self):
+		capture(
+			"space_created",
+			visibility="restricted" if self.roles else "public",
+			git_synced=bool(self.git_synced),
+		)
+
+	def on_update(self):
+		# A new space is `space_created`; only a later flip is a publish decision.
+		if self.get_doc_before_save() is None or not self.has_value_changed("is_published"):
+			return
+		capture(
+			"space_published" if self.is_published else "space_unpublished",
+			documents=self.document_count(),
+			age_days=frappe.utils.date_diff(None, self.creation),
+		)
+
+	def document_count(self) -> int:
+		"""The tree under the root group. `Wiki Document.wiki_space` is a
+		denormalization not every document carries, so the nested set is the
+		only count that is always right."""
+		from frappe.utils.nestedset import get_descendants_of
+
+		if not self.root_group:
+			return 0
+		return len(get_descendants_of("Wiki Document", self.root_group, ignore_permissions=True))
 
 	def on_trash(self):
 		self.delete_linked_content()
@@ -274,6 +311,10 @@ class WikiSpace(Document):
 		# keep serving 404s for the renamed URLs.
 		clear_website_cache()
 		frappe.db.after_commit.add(clear_website_cache)
+
+		from wiki.frappe_wiki.doctype.wiki_document.wiki_document import clear_wiki_tree_cache
+
+		clear_wiki_tree_cache()
 
 		return {"updated_count": updated_count}
 
