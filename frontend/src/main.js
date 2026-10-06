@@ -9,6 +9,7 @@ import { pinia } from './stores';
 //// Neoffice — useSessionStore no longer imported: it only gated the telemetry (see below).
 
 //// Neoffice — trackPageviews import removed: see the telemetry block below.
+
 //// Neoffice — translationsReady added to this import; it is what the mount
 //// below waits on.
 import translationPlugin, { translationsReady } from './translation';

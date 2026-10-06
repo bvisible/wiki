@@ -1,6 +1,6 @@
 {
   "_comment": "Inventory of this fork's divergence from frappe/wiki. Regenerate with: python3 scripts/neoffice-divergence.py --update. A dropped entry is a Neoffice change that an upstream merge ate.",
-  "marked_blocks": 261,
+  "marked_blocks": 275,
   "files": {
     ".github/workflows/build-frontend.yml": [
       "wiki-app.html, not wiki.html: wiki v3 renamed the"
@@ -90,7 +90,11 @@
       "added. Readers are anonymous visitors AND signed-in users"
     ],
     "frontend/src/main.js": [
+      "telemetryPlugin import removed: see the telemetry block below.",
+      "useSessionStore no longer imported: it only gated the telemetry (see below).",
+      "trackPageviews import removed: see the telemetry block below.",
       "translationsReady added to this import; it is what the mount",
+      "upstream's telemetry is not started (v3.3.0 starts it for every signed-in author).",
       "mount AFTER the translations land. __() is not reactive: any"
     ],
     "frontend/src/pages/SpaceDetails.vue": [
@@ -178,6 +182,11 @@
       "fail CLOSED. This used to read `if space_id and not"
     ],
     "wiki/frappe_wiki/doctype/wiki_document/search.py": [
+      "each of the first hits also says WHERE in the page the typed words are: `anchor` is the id of the",
+      "the results are the list built above (same items as upstream, plus the anchor of the first hits).",
+      "added (see the block above): how many hits are given an anchor.",
+      "added (see the block above).",
+      "added (see the block above).",
       "this paragraph used to end \"Orphan documents (no wiki_space)",
       "is_published and is_private come along now. The space was the",
       "`is_private` is the LEGACY per-page guest flag: wiki v3 removed it",
@@ -199,6 +208,9 @@
       "our process_navbar_items drops a row without a URL instead of",
       "same as test_empty_url_has_no_icon: the row is dropped."
     ],
+    "wiki/frappe_wiki/doctype/wiki_document/test_wiki_sqlite_search.py": [
+      "added file (no upstream equivalent): the manual's search keeps the subject of a question."
+    ],
     "wiki/frappe_wiki/doctype/wiki_document/wiki_document.py": [
       "see the canonical_url line in get_web_context().",
       "skip items with no URL. Upstream renders every row, and the",
@@ -216,7 +228,11 @@
       "pdf_generator added (upstream lets Frappe pick, which"
     ],
     "wiki/frappe_wiki/doctype/wiki_document/wiki_sqlite_search.py": [
-      "added: this app's index stays idempotent HERE, not in frappe."
+      "unicodedata: accents are folded to compare a title with what was typed (see the ranking block below).",
+      "the two title boosts are reused by our own _get_title_boost (see the ranking block below).",
+      "added: this app's index stays idempotent HERE, not in frappe.",
+      "the manual's ranking, four measured defects (2026-10-04, « note de crédit » found",
+      "the words of a question say nothing either (2026-10-05): « comment rapprocher la banque ? »"
     ],
     "wiki/frappe_wiki/doctype/wiki_revision_item/patches/add_revision_doc_key_index.py": [
       "added file (no upstream equivalent)."
