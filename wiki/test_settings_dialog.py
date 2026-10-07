@@ -19,8 +19,9 @@ class TestTheSettingsDialogIsForManagers(unittest.TestCase):
 	def test_a_manager_opens_it_from_the_cockpit(self):
 		# Under the cockpit the app's own sidebar, which held « Settings », is replaced: on a desktop a manager had no
 		# way left to open the dialog (maintenance#1096). The cockpit's menu offers it to a manager, and to no one else.
+		# Since 3.3.0 the menu has two manager-only blocks, the Overview first: the entry is looked for in each of them.
 		source = COCKPIT.read_text(encoding="utf-8")
-		gated = re.search(r"if \(userStore\.isWikiManager\) \{(.*?)\n\t\}", source, re.S)
+		gated = re.findall(r"if \(userStore\.isWikiManager\) \{(.*?)\n\t\}", source, re.S)
 		self.assertTrue(gated, "no manager-only entry in the cockpit's menu")
-		self.assertIn("openWikiSettings()", gated.group(1))
+		self.assertTrue(any("openWikiSettings()" in block for block in gated), gated)
 		self.assertEqual(source.count("openWikiSettings()"), 1)
