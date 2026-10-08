@@ -9,7 +9,9 @@
 {% endblock %}
 
 {% block head %}
-<link rel="icon" href="{{ favicon or '/assets/wiki/favicon.png' }}">
+{# //// Neoffice — a space without a favicon of its own shows Neoffice's mark, the desk's icon, not Frappe Wiki's
+   (upstream: the wiki app's favicon.png): the public manual is read by every customer (maintenance#1316). #}
+<link rel="icon" href="{{ favicon or '/assets/neoffice_theme/images/neoffice_icon.png' }}">
 {% endblock %}
 
 {% block content %}
