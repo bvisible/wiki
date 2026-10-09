@@ -62,7 +62,13 @@
 				:y-axis="{ echartOptions: { minInterval: 1 } }"
 				:loading="isFirstLoad"
 				:error="errorMessage"
-			/>
+			>
+				<!-- //// Neoffice — frappe-ui writes « No data to show » in English, out of the catalogue's reach: said
+				     through it, as in every chart of the editor (maintenance#1383). -->
+				<template #empty>
+					<span class="text-p-sm text-ink-gray-5">{{ __('No data to show') }}</span>
+				</template>
+			</BarChart>
 		</section>
 
 		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">

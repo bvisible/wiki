@@ -14,6 +14,13 @@ import { pinia } from './stores';
 //// below waits on.
 import translationPlugin, { translationsReady } from './translation';
 
+//// Neoffice — added: the locale data the editor's dates are printed with, and the call that picks it
+//// (maintenance#1383). See lib/uiLocale.js.
+import de from 'dayjs/esm/locale/de';
+import fr from 'dayjs/esm/locale/fr';
+import it from 'dayjs/esm/locale/it';
+import { applyUiLocale } from './lib/uiLocale';
+
 import {
 	Badge,
 	Button,
@@ -21,6 +28,8 @@ import {
 	ErrorMessage,
 	FormControl,
 	TextInput,
+	//// Neoffice — dayjs added: frappe-ui's own instance, the one its dates and charts print through.
+	dayjs,
 	frappeRequest,
 	resourcesPlugin,
 	setConfig,
@@ -41,6 +50,9 @@ const globalComponents = {
 const app = createApp(App);
 
 setConfig('resourceFetcher', frappeRequest);
+
+//// Neoffice — added: before the first render, since a date keeps the locale it was made in.
+applyUiLocale(dayjs, { de, fr, it }, window.lang, document.documentElement);
 
 app.use(pinia);
 app.use(router);

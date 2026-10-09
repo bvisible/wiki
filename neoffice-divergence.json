@@ -1,6 +1,6 @@
 {
   "_comment": "Inventory of this fork's divergence from frappe/wiki. Regenerate with: python3 scripts/neoffice-divergence.py --update. A dropped entry is a Neoffice change that an upstream merge ate.",
-  "marked_blocks": 275,
+  "marked_blocks": 294,
   "files": {
     ".github/workflows/build-frontend.yml": [
       "wiki-app.html, not wiki.html: wiki v3 renamed the"
@@ -31,6 +31,9 @@
       "computed + useRoute added for the viewKey below (header space switcher).",
       "added. SpaceDetails reads props.spaceId once, at setup: its space",
       ":key added, see viewKey in the script above: without it a"
+    ],
+    "frontend/src/components/Analytics/AnalyticsDashboard.vue": [
+      "frappe-ui writes « No data to show » in English, out of the catalogue's reach: said"
     ],
     "frontend/src/components/LibrarySidebar.vue": [
       "title \"Wiki\", not \"Frappe Wiki\" (brand; our Sidebar.vue did the same until 3.3.0 replaced it; the cockpit is what editors see, this is its fallback) -->"
@@ -89,13 +92,26 @@
       "added. The shared Neoffice chrome (ADR-015) replaces upstream's library",
       "added. Readers are anonymous visitors AND signed-in users"
     ],
+    "frontend/src/lib/uiLocale.js": [
+      "added file (no upstream equivalent): the language the editor prints dates and numbers in"
+    ],
+    "frontend/src/lib/uiLocale.test.js": [
+      "added file (no upstream equivalent): the editor's dates speak its author's language (maintenance#1383)."
+    ],
     "frontend/src/main.js": [
       "telemetryPlugin import removed: see the telemetry block below.",
       "useSessionStore no longer imported: it only gated the telemetry (see below).",
       "trackPageviews import removed: see the telemetry block below.",
       "translationsReady added to this import; it is what the mount",
+      "added: the locale data the editor's dates are printed with, and the call that picks it",
+      "dayjs added: frappe-ui's own instance, the one its dates and charts print through.",
+      "added: before the first render, since a date keeps the locale it was made in.",
       "upstream's telemetry is not started (v3.3.0 starts it for every signed-in author).",
       "mount AFTER the translations land. __() is not reactive: any"
+    ],
+    "frontend/src/pages/Overview.vue": [
+      "frappe-ui writes « No data to show » in English, out of the catalogue's reach: said",
+      "frappe-ui writes « No data to show » in English, out of the catalogue's reach: said"
     ],
     "frontend/src/pages/SpaceDetails.vue": [
       "v-if widened with !spaceStore.isReader: readers have nothing"
@@ -266,6 +282,9 @@
       "added. \"Live\" is what the reader serves: the page is published,",
       "added. The spaces can_write_space() says yes to, in one query,",
       "added. SQL twin of _document_is_live() OR can_see_drafts(), for",
+      "added. The spaces of `names` a reader who does not write the wiki may see: the live ones (published),",
+      "and only the live ones, unless the caller writes the wiki: see _live_or_writable_space_names.",
+      "the same line for one record: an unpublished space is read by the wiki's authors, its writers",
       "allow_null was hardcoded True, so every list query got the",
       "and only what is live, unless the caller writes the wiki: this",
       "was `return True`, which handed every orphan document to",
@@ -277,6 +296,7 @@
     ],
     "wiki/templates/wiki/document.html": [
       "user-facing strings wrapped in _() so they land in the POT",
+      "a space without a favicon of its own shows Neoffice's mark, the desk's icon, not Frappe Wiki's",
       "neo-wiki-article added. Hook for our reader CSS, which",
       "i18n: the same two hardcoded English labels as in macros/buttons.html, which was fixed while this copy was missed. This is the hide_chrome branch (orphan documents), so it renders on a page the space layout never reaches. tojson plus forceescape, not bare quotes, so an apostrophe in a translation cannot break the Alpine expression. #}",
       "i18n: upstream hardcodes this label in English; _() puts it in the POT so the public reader speaks the client's language. #}",
@@ -359,6 +379,7 @@
     ],
     "wiki/test_permissions.py": [
       "imported for the draft tests at the end of the class below.",
+      "imported for the unpublished space record test (maintenance#1350).",
       "imported for TestAppScreenGate at the end of the file.",
       "public_read is the source of truth for \"this space is on the",
       "public_read: see the note above.",
@@ -367,10 +388,20 @@
       "restore the master switch (see setUp).",
       "added. The master switch is the one thing standing between a",
       "added. A page that is not live (unpublished, or in an",
+      "an unpublished space is its authors' draft (maintenance#1350): open spaces are readable by any",
       "added (no upstream equivalent). The wiki tile on the apps screen"
     ],
     "wiki/test_settings_dialog.py": [
       "added file (no upstream equivalent). The settings dialog is mounted for a wiki manager only"
+    ],
+    "wiki/tests/test_editor_chart_empty_state.py": [
+      "added file (no upstream equivalent): the editor's empty charts speak the catalogue (maintenance#1383)."
+    ],
+    "wiki/tests/test_editor_language.py": [
+      "added file (no upstream equivalent): the editor boots in its author's language (maintenance#1383)."
+    ],
+    "wiki/tests/test_reader_favicon.py": [
+      "added file (no upstream equivalent): the public reader's tab icon (maintenance#1316)."
     ],
     "wiki/tests/test_telemetry.py": [
       "a Guest never gets as far as the app shell here: a private wiki"
@@ -404,7 +435,9 @@
       "no anonymous access while the wiki is private: send them to",
       "a reader never enters the authoring app. /wiki-app is ours;",
       "upstream calls frappe.local.response_headers.set() directly.",
-      "added (no upstream equivalent). Translates an authoring-app URL"
+      "added (no upstream equivalent). Translates an authoring-app URL",
+      "added: the language the editor prints dates and numbers in (maintenance#1383).",
+      "added. The language wiki.api.get_translations picks the label catalogue by, so that the dates"
     ],
     "wiki/www/wiki_sitemap.py": [
       "added file (no upstream equivalent)"

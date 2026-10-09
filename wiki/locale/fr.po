@@ -5011,3 +5011,7 @@ msgstr "{} Publiées"
 msgid "{} Under Review"
 msgstr "{} En révision"
 
+#: frontend/src/components/Analytics/AnalyticsDashboard.vue:69
+#: frontend/src/pages/Overview.vue:53 frontend/src/pages/Overview.vue:82
+msgid "No data to show"
+msgstr "Aucune donnée à afficher"

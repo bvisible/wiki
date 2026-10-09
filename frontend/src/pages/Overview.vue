@@ -46,7 +46,13 @@
 							:center-label="__('Open')"
 							:loading="isFirstLoad"
 							:error="errorOf(overview)"
-						/>
+						>
+							<!-- //// Neoffice — frappe-ui writes « No data to show » in English, out of the catalogue's reach: said
+							     through it, as in every chart of the editor (maintenance#1383). -->
+							<template #empty>
+								<span class="text-p-sm text-ink-gray-5">{{ __('No data to show') }}</span>
+							</template>
+						</DonutChart>
 					</section>
 				</div>
 
@@ -69,6 +75,11 @@
 								:options="spaceOptions"
 								data-testid="overview-space"
 							/>
+						</template>
+						<!-- //// Neoffice — frappe-ui writes « No data to show » in English, out of the catalogue's reach: said
+						     through it, as in every chart of the editor (maintenance#1383). -->
+						<template #empty>
+							<span class="text-p-sm text-ink-gray-5">{{ __('No data to show') }}</span>
 						</template>
 					</AreaChart>
 				</section>

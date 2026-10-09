@@ -136,8 +136,21 @@ def get_boot():
 			"system_timezone": get_system_timezone(),
 			"asset_hashes": get_asset_hashes(),
 			"telemetry": default_properties(),
+			# //// Neoffice — added: the language the editor prints dates and numbers in (maintenance#1383).
+			"lang": _catalogue_language(),
 		}
 	)
+
+
+# //// Neoffice — added. The language wiki.api.get_translations picks the label catalogue by, so that the dates
+# //// the editor prints (frontend/src/lib/uiLocale.js) agree with its labels: the author's own, the site's for a
+# //// visitor, English for an author who has none (get_translations sends that author no catalogue at all).
+def _catalogue_language() -> str:
+	if frappe.session.user != "Guest":
+		language = frappe.db.get_value("User", frappe.session.user, "language")
+	else:
+		language = frappe.db.get_single_value("System Settings", "language")
+	return language or "en"
 
 
 def get_asset_hashes() -> dict:
