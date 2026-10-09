@@ -4787,6 +4787,11 @@ msgstr ""
 msgid "page"
 msgstr ""
 
+#: frontend/src/pages/AllSpaces.vue:364
+msgctxt "after a count"
+msgid "page"
+msgstr ""
+
 #: frontend/src/components/DraftContributionPanel.vue:119
 #: wiki/public/frontend/assets/DraftContributionPanel-CEQCF6TJ.js:1
 msgid "page-route"

@@ -1,6 +1,6 @@
 {
   "_comment": "Inventory of this fork's divergence from frappe/wiki. Regenerate with: python3 scripts/neoffice-divergence.py --update. A dropped entry is a Neoffice change that an upstream merge ate.",
-  "marked_blocks": 294,
+  "marked_blocks": 296,
   "files": {
     ".github/workflows/build-frontend.yml": [
       "wiki-app.html, not wiki.html: wiki v3 renamed the"
@@ -108,6 +108,9 @@
       "added: before the first render, since a date keeps the locale it was made in.",
       "upstream's telemetry is not started (v3.3.0 starts it for every signed-in author).",
       "mount AFTER the translations land. __() is not reactive: any"
+    ],
+    "frontend/src/pages/AllSpaces.vue": [
+      "the singular through a context of its own: the bare `page` is the delete dialog's"
     ],
     "frontend/src/pages/Overview.vue": [
       "frappe-ui writes « No data to show » in English, out of the catalogue's reach: said",
@@ -399,6 +402,9 @@
     ],
     "wiki/tests/test_editor_language.py": [
       "added file (no upstream equivalent): the editor boots in its author's language (maintenance#1383)."
+    ],
+    "wiki/tests/test_editor_page_count.py": [
+      "added file (no upstream equivalent): « 1 page », not « 1 cette page » (maintenance#1383)."
     ],
     "wiki/tests/test_reader_favicon.py": [
       "added file (no upstream equivalent): the public reader's tab icon (maintenance#1316)."

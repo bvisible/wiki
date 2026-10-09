@@ -359,7 +359,9 @@ function statsFor(space) {
 // sits beside the figure rather than inside it so the digits can stay mono
 // while the word does not.
 function pageUnit(count) {
-	return count === 1 ? __('page') : __('pages');
+	//// Neoffice — the singular through a context of its own: the bare `page` is the delete dialog's
+	//// « cette page », which read « 1 cette page » here (maintenance#1383).
+	return count === 1 ? __('page', null, 'after a count') : __('pages');
 }
 
 function fromNow(value) {
