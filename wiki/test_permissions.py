@@ -23,6 +23,8 @@ from wiki.permissions import (
 	# //// Neoffice — imported for the draft tests at the end of the class below.
 	wiki_document_query_conditions,
 	wiki_space_has_permission,
+	# //// Neoffice — imported for the unpublished space record test (maintenance#1350).
+	wiki_space_query_conditions,
 )
 from wiki.tests.factory import make_space
 
@@ -410,6 +412,33 @@ class TestWikiSpacePermissions(IntegrationTestCase):
 		self.assertTrue(wiki_document_has_permission(orphan, "read", self.outsider))
 		orphan.is_published = 1
 		self.assertTrue(wiki_document_has_permission(orphan, "read", self.portal))
+
+	# //// Neoffice — an unpublished space is its authors' draft (maintenance#1350): open spaces are readable by any
+	# //// logged-in user, so the generic API gave a portal account the name and route of every unpublished space,
+	# //// where an anonymous visitor saw only the published ones. The authors, the managers and a writer of the space
+	# //// keep it; a published space stays with everyone who may read it.
+	def _spaces_listed(self, user: str) -> set:
+		condition = wiki_space_query_conditions(user) or "1=1"
+		return set(frappe.db.sql_list(f"select name from `tabWiki Space` where {condition}"))  # nosemgrep
+
+	def test_an_unpublished_space_record_is_not_read_by_a_portal_account(self):
+		frappe.db.set_value("Wiki Space", self.open_space, "is_published", 0)
+		frappe.db.set_value("Wiki Space", self.restricted, "is_published", 0)
+		frappe.clear_document_cache("Wiki Space", self.open_space)
+		frappe.clear_document_cache("Wiki Space", self.restricted)
+		open_space = frappe.get_doc("Wiki Space", self.open_space)
+		restricted = frappe.get_doc("Wiki Space", self.restricted)
+
+		self.assertFalse(wiki_space_has_permission(open_space, "read", self.portal))
+		self.assertFalse(wiki_space_has_permission(self.open_space, "read", self.portal))
+		listed = self._spaces_listed(self.portal)
+		self.assertNotIn(self.open_space, listed)
+		self.assertIn(self.public, listed)
+		for user in (self.outsider, self.manager):
+			self.assertTrue(wiki_space_has_permission(open_space, "read", user), user)
+			self.assertIn(self.open_space, self._spaces_listed(user), user)
+		self.assertTrue(wiki_space_has_permission(restricted, "read", self.bare_writer))
+		self.assertIn(self.restricted, self._spaces_listed(self.bare_writer))
 
 
 class TestSpaceRolesAPI(IntegrationTestCase):

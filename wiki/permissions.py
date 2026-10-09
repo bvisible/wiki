@@ -319,6 +319,20 @@ def _live_or_writable_clause(table: str, user: str) -> str:
 	return f"({live_clause} or `{table}`.`wiki_space` in ({escaped}))"
 
 
+# //// Neoffice — added. The spaces of `names` a reader who does not write the wiki may see: the live ones (published),
+# //// and those this user can write. An unpublished space is its authors' draft, as an unpublished page is: open spaces
+# //// (no role rows) are readable by any logged-in user, so the generic API gave a portal account the name and route of
+# //// every unpublished space, where an anonymous visitor saw only the published ones (maintenance#1350).
+def _live_or_writable_space_names(names, user: str) -> set:
+	names = set(names)
+	if not names:
+		return set()
+	live = set(
+		frappe.get_all("Wiki Space", filters={"name": ("in", sorted(names)), "is_published": 1}, pluck="name")
+	)
+	return live | (names & _writable_space_names(user))
+
+
 def _space_in_clause(table: str, user: str, allow_null: bool) -> str:
 	"""Build a WHERE fragment restricting ``table`` to spaces the user can read."""
 	names = _accessible_space_names(user)
@@ -347,6 +361,9 @@ def wiki_space_query_conditions(user=None, doctype=None):
 		return ""
 
 	names = _accessible_space_names(user)
+	# //// Neoffice — and only the live ones, unless the caller writes the wiki: see _live_or_writable_space_names.
+	if not is_wiki_author(user):
+		names = _live_or_writable_space_names(names, user)
 	if not names:
 		return "1=0"
 	escaped = ", ".join(frappe.db.escape(name) for name in names)
@@ -357,6 +374,15 @@ def wiki_space_has_permission(doc, ptype, user=None):
 	user = user or frappe.session.user
 	if ptype in WRITE_PTYPES:
 		return can_write_space(doc, user)
+	# //// Neoffice — the same line for one record: an unpublished space is read by the wiki's authors, its writers
+	# //// and the managers only (maintenance#1350).
+	published = (
+		frappe.get_cached_value("Wiki Space", doc, "is_published")
+		if isinstance(doc, str)
+		else doc.get("is_published")
+	)
+	if not published and not (_is_manager(user) or is_wiki_author(user) or can_write_space(doc, user)):
+		return False
 	return can_read_space(doc, user)
 
 
