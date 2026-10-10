@@ -18,7 +18,28 @@
 	var MAX = 1000;
 	var SCALE = 0.7;
 	var CAP = 560; // the tallest a capture may be (neoffice-wiki.css: img:not(.img-full) { max-height: 560px })
+	var CAP_BESIDE = 480; // the tallest a capture may be with its list beside it (.neo-side)
+	var TALL = 1.15; // a capture at least this much taller than wide is a tall one
 
+	// A tall capture (a piece of the menu, a panel, a phone) standing alone in its paragraph and followed by a list of at least
+	// two items: the list goes BESIDE it, as in the course player (Daniel, 10.10: "when something is very long, put the text
+	// beside"). It is done here, in the reader, for every page, the old ones and the next ones, whoever wrote them (the same
+	// reason as the width above). An author can write the same thing by hand: <div class="neo-side"> + the image + the list.
+	// Where the window is too narrow for the two, the flex box wraps and the list falls under the capture, as before.
+	function beside(img) {
+		if (!img.matches || !img.matches('#wiki-content img') || /(^|\s)img-full(\s|$)/.test(img.className)) return;
+		var p = img.parentElement;
+		if (!p || p.tagName !== 'P' || p.children.length !== 1 || p.textContent.trim() !== '') return;
+		if (p.parentElement && p.parentElement.classList.contains('neo-side')) return;
+		var list = p.nextElementSibling;
+		if (!list || !/^(UL|OL)$/.test(list.tagName) || list.children.length < 2) return;
+		if (!img.naturalWidth || img.naturalHeight / img.naturalWidth < TALL) return;
+		var box = document.createElement('div');
+		box.className = 'neo-side';
+		p.parentNode.insertBefore(box, p);
+		box.appendChild(p);
+		box.appendChild(list);
+	}
 	function fit(img) {
 		if (!img.matches || !img.matches('#wiki-content img')) return;
 		// image-viewer.js puts `cursor: zoom-in` in the style attribute of every image, so the attribute alone says nothing: look at the width.
@@ -30,18 +51,19 @@
 			// A width set here is a fixed width: the CSS cap on the height would then squash the capture (a 660 x 1320 menu
 			// shown 462 wide and 560 tall). So the width is the one that keeps the proportions under the cap.
 			var h = img.naturalHeight;
-			if (h && shown * h / w > CAP) shown = Math.round(CAP * w / h);
+			var cap = img.closest && img.closest('.neo-side') ? CAP_BESIDE : CAP;
+			if (h && shown * h / w > cap) shown = Math.round(cap * w / h);
 			img.style.width = shown + 'px';
 		}
 	}
 
 	// The load event does not bubble: listen in the capture phase. That also catches the images of a page the SPA navigation swaps in.
 	document.addEventListener('load', function (e) {
-		if (e.target && e.target.tagName === 'IMG') fit(e.target);
+		if (e.target && e.target.tagName === 'IMG') { beside(e.target); fit(e.target); }
 	}, true);
 
 	// Images that finished loading before this script ran.
 	document.querySelectorAll('#wiki-content img').forEach(function (img) {
-		if (img.complete) fit(img);
+		if (img.complete) { beside(img); fit(img); }
 	});
 })();

@@ -253,6 +253,34 @@
 #wiki-content img:not(.img-full) {
 	max-height: 560px;
 }
+/* //// Neoffice — a tall capture with the list that explains it BESIDE it, as in the course player (Daniel, 10.10): the
+ * capture on the left, the list on the right, instead of a narrow picture with a column of empty space next to it and
+ * the text far below. neoffice-images.js builds the box on its own for a tall capture followed by a list; an author can
+ * write <div class="neo-side"> + a blank line + the image + a blank line + the list + </div>. The box wraps: where the
+ * two do not fit side by side (a phone) the list falls under the capture, as before. Beside its list a capture is at
+ * most 480px tall (560px when it stands alone). */
+#wiki-content .neo-side {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 1rem 2rem;
+	margin: 1.5rem 0;
+}
+#wiki-content .neo-side > p:has(> img:only-child),
+#wiki-content .neo-side > img {
+	flex: 0 1 auto;
+	margin: 0;
+}
+#wiki-content .neo-side img:not(.img-full) {
+	margin: 0;
+	max-height: 480px;
+}
+#wiki-content .neo-side > ul,
+#wiki-content .neo-side > ol {
+	flex: 1 1 300px;
+	min-width: 0;
+	margin: 0;
+}
 #wiki-content img.img-full {
 	width: 100%;
 	max-width: 960px;
