@@ -17,6 +17,7 @@
 	var MIN = 400;
 	var MAX = 1000;
 	var SCALE = 0.7;
+	var CAP = 560; // the tallest a capture may be (neoffice-wiki.css: img:not(.img-full) { max-height: 560px })
 
 	function fit(img) {
 		if (!img.matches || !img.matches('#wiki-content img')) return;
@@ -24,7 +25,14 @@
 		if (img.hasAttribute('width') || img.style.width || img.style.maxWidth || /(^|\s)img-/.test(img.className)) return;
 		var w = img.naturalWidth;
 		// The reader's CSS keeps max-width: 100% and height: auto, so a narrow column (phone) still wins and the proportions hold.
-		if (w >= MIN && w < MAX) img.style.width = Math.round(w * SCALE) + 'px';
+		if (w >= MIN && w < MAX) {
+			var shown = Math.round(w * SCALE);
+			// A width set here is a fixed width: the CSS cap on the height would then squash the capture (a 660 x 1320 menu
+			// shown 462 wide and 560 tall). So the width is the one that keeps the proportions under the cap.
+			var h = img.naturalHeight;
+			if (h && shown * h / w > CAP) shown = Math.round(CAP * w / h);
+			img.style.width = shown + 'px';
+		}
 	}
 
 	// The load event does not bubble: listen in the capture phase. That also catches the images of a page the SPA navigation swaps in.

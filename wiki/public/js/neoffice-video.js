@@ -63,7 +63,15 @@
 		if (e.clientY > r.bottom - BAR) return;
 		e.preventDefault();
 		e.stopImmediatePropagation();
-		open(video);
+		// Same rule as the course player (Daniel, 10.10: "the same logic everywhere"): a film that is not playing (never
+		// started, paused or ended) STARTS in the page on the first click; a film that is playing opens the large window,
+		// from where it is, on the second. The strip of native controls at the bottom stays the browser's in every state.
+		// play() is explicit because the click stops here: the browser's own click-to-play never sees it.
+		if (video.paused || video.ended) {
+			video.play().catch(function () { /* the browser refused: the controls are still there */ });
+		} else {
+			open(video);
+		}
 	}, true);
 
 	viewer.addEventListener('click', function (e) {

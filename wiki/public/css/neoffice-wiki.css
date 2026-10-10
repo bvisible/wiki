@@ -247,6 +247,12 @@
 	max-width: 900px;
 }
 
+/* //// Neoffice — a capture that is not `img-full` never grows taller than 560px (Daniel, 10.10, same rule as the course
+ * player): a 400 x 750 piece of a menu filled a whole screen. Width and height stay in proportion (both `auto`, only
+ * the maxima clamp: CSS 2.1 s.10.4); `img-full` is the one that may be tall. */
+#wiki-content img:not(.img-full) {
+	max-height: 560px;
+}
 #wiki-content img.img-full {
 	width: 100%;
 	max-width: 960px;
