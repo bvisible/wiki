@@ -20,12 +20,15 @@
 	var CAP = 560; // the tallest a capture may be (neoffice-wiki.css: img:not(.img-full) { max-height: 560px })
 	var CAP_BESIDE = 480; // the tallest a capture may be with its list beside it (.neo-side)
 	var TALL = 1.15; // a capture at least this much taller than wide is a tall one
+	var NARROW = 520; // a capture shown this wide or less (px) leaves room beside it for its list, even if it is not tall (Daniel, 12.10: "when possible, show it beside")
 
 	// A tall capture (a piece of the menu, a panel, a phone) standing alone in its paragraph and followed by a list of at least
 	// two items: the list goes BESIDE it, as in the course player (Daniel, 10.10: "when something is very long, put the text
 	// beside"). It is done here, in the reader, for every page, the old ones and the next ones, whoever wrote them (the same
 	// reason as the width above). An author can write the same thing by hand: <div class="neo-side"> + the image + the list.
 	// Where the window is too narrow for the two, the flex box wraps and the list falls under the capture, as before.
+	// 12.10.2026 (Daniel): a NARROW capture does the same even if it is not tall: next to a 430px menu the right half of the column stayed
+	// empty while its numbered list ran underneath. "Narrow" is what the reader shows, 520px or less (70% of a 400-743px capture, a smaller one as it is).
 	function beside(img) {
 		if (!img.matches || !img.matches('#wiki-content img') || /(^|\s)img-full(\s|$)/.test(img.className)) return;
 		var p = img.parentElement;
@@ -33,7 +36,11 @@
 		if (p.parentElement && p.parentElement.classList.contains('neo-side')) return;
 		var list = p.nextElementSibling;
 		if (!list || !/^(UL|OL)$/.test(list.tagName) || list.children.length < 2) return;
-		if (!img.naturalWidth || img.naturalHeight / img.naturalWidth < TALL) return;
+		if (!img.naturalWidth) return;
+		var w = img.naturalWidth;
+		var shown = w >= MIN && w < MAX ? Math.round(w * SCALE) : w;
+		// A tall capture, or a narrow one (a menu, a form, a dialog: at most NARROW px as the reader shows it): its list goes beside it.
+		if (img.naturalHeight / w < TALL && shown > NARROW) return;
 		var box = document.createElement('div');
 		box.className = 'neo-side';
 		p.parentNode.insertBefore(box, p);
