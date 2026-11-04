@@ -6,8 +6,10 @@
 # `host_name`, so a crawler that reads it on the manual's own host is told the manual lives somewhere else. This one lists ONLY
 # the pages a visitor who is not signed in can read, and writes them under `wiki_canonical_host` (site_config) when it is set.
 #
-# "Can read" is asked the way a page asks it (`check_space_access("read")` then `check_published()`), as the visitor who fetches
-# the sitemap, so a draft, an archived page or a private space never appears, whatever the flags of the document say.
+# "Can read" is asked the way a page asks it (`check_space_access("read")` then `check_published()`), as an anonymous visitor
+# (Guest), whoever fetches the sitemap, so a draft, an archived page, a page flagged `is_private` or a space closed to visitors
+# never appears, whatever the flags of the document say. It used to be asked as the visitor who fetched it: the list is cached
+# for an hour, so when a member of the staff came first, the addresses only the staff may read were served to everyone (#2232).
 from urllib.parse import quote
 
 import frappe
@@ -18,6 +20,8 @@ base_template_path = "www/wiki-sitemap.xml"
 
 CACHE_KEY = "wiki_public_sitemap_links"
 CACHE_SECONDS = 3600
+# Who the sitemap is computed for: a crawler has no account, and the cached list is served to every visitor (#2232).
+SITEMAP_READER = "Guest"
 
 
 def get_context(context):
@@ -52,8 +56,8 @@ def _public_links():
 		if row.is_group and not (doc.content or "").strip():
 			continue
 		try:
-			doc.check_space_access("read")
-			doc.check_published()
+			doc.check_space_access("read", user=SITEMAP_READER)
+			doc.check_published(user=SITEMAP_READER)
 		except frappe.DoesNotExistError:
 			continue
 		links.append({"route": row.route, "lastmod": f"{row.modified:%Y-%m-%d}"})

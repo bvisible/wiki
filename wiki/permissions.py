@@ -285,6 +285,25 @@ def can_read_private_page(space, user=None) -> bool:
 	return frappe.get_cached_value("User", user, "user_type") == "System User"
 
 
+# //// Neoffice — added (no upstream equivalent). Whether the legacy `is_private`
+# //// column exists. Wiki v3 dropped the field and only migrated sites keep the
+# //// column, so a query that names it raises "Unknown column" on a site installed
+# //// fresh (the CI, a new instance): every filter or field on it asks this first
+# //// (#2232). frappe caches the table's columns, so asking costs no query.
+def has_legacy_private_column() -> bool:
+	return frappe.db.has_column("Wiki Document", "is_private")
+
+
+# //// Neoffice — added (no upstream equivalent). The pages flagged `is_private`,
+# //// for the crawler indexes (sitemap.xml, llms.txt). They are built for an
+# //// anonymous visitor, and the reader refuses such a page to one (#2226), so its
+# //// address is not advertised either (#2232). Empty where the column is gone.
+def get_private_documents() -> set[str]:
+	if not has_legacy_private_column():
+		return set()
+	return set(frappe.get_all("Wiki Document", filters={"is_private": 1}, pluck="name"))
+
+
 # //// Neoffice — added. "Live" is what the reader serves: the page is published,
 # //// not flagged private, and its space is published. is_private is the legacy
 # //// per-page flag: wiki v3 dropped it from the DocType but the column survives on

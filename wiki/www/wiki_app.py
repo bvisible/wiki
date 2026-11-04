@@ -61,7 +61,7 @@ def get_context():
 # //// cannot map is still better served by the wiki root than by a 500.
 def _reader_url_for_app_path() -> str:
 	"""Reader URL matching the requested /wiki-app path, or the wiki root."""
-	from wiki.permissions import can_read_space
+	from wiki.permissions import can_read_space, has_legacy_private_column
 
 	parts = [p for p in (frappe.request.path if frappe.request else "").split("/") if p]
 	# /wiki-app/spaces/<space_id>[/page/<page_id>] → ["wiki-app", "spaces", …]
@@ -71,9 +71,13 @@ def _reader_url_for_app_path() -> str:
 	if page_id:
 		# Published + public only: this runs for readers, so an unpublished page
 		# must not be turned into a URL that confirms it exists.
-		route = frappe.db.get_value(
-			"Wiki Document", {"name": page_id, "is_published": 1, "is_private": 0}, "route"
-		)
+		# //// Neoffice — `is_private` only where the legacy column exists (#2232): on
+		# //// a site installed fresh the filter raised "Unknown column" on any
+		# //// /wiki-app/spaces/<space>/page/<page> link a reader followed.
+		filters = {"name": page_id, "is_published": 1}
+		if has_legacy_private_column():
+			filters["is_private"] = 0
+		route = frappe.db.get_value("Wiki Document", filters, "route")
 		if route:
 			return "/" + route.lstrip("/")
 

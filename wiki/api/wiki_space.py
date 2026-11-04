@@ -208,8 +208,15 @@ def _build_wiki_tree_for_api(documents: list[str], include_drafts: bool = True) 
 	"""
 	filters = {"name": ("in", documents)}
 	if not include_drafts:
+		# //// Neoffice — added import, for the is_private filter below (#2232).
+		from wiki.permissions import has_legacy_private_column
+
 		filters["is_published"] = 1
-		filters["is_private"] = 0
+		# //// Neoffice — only where the legacy column exists: wiki v3 dropped the
+		# //// field, and naming it on a site installed fresh raised "Unknown column"
+		# //// for every reader who cannot write the space (#2232).
+		if has_legacy_private_column():
+			filters["is_private"] = 0
 
 	wiki_documents = frappe.db.get_all(
 		"Wiki Document",
@@ -491,7 +498,7 @@ def get_public_space_info(space_id: str) -> dict:
 	# //// Neoffice — enforce the space's own access rules. Filtering on
 	# //// is_published alone handed the whole tree of an internal space to
 	# //// anonymous callers; can_read_space() also honours the master switch.
-	from wiki.permissions import can_read_space
+	from wiki.permissions import can_read_space, has_legacy_private_column
 
 	if not can_read_space(space_id):
 		raise frappe.PermissionError
@@ -514,10 +521,28 @@ def get_public_space_info(space_id: str) -> dict:
 	if not descendants:
 		return {"space": space, "tree": {"children": [], "root_group": space.root_group}}
 
+	# //// Neoffice — `is_private` (field and filter) only where the legacy column
+	# //// exists: wiki v3 dropped the field, and naming it on a site installed fresh
+	# //// raised "Unknown column" for every visitor of a public space (#2232).
+	fields = [
+		"name",
+		"doc_key",
+		"title",
+		"is_group",
+		"parent_wiki_document",
+		"route",
+		"is_published",
+		"sort_order",
+	]
+	filters = {"name": ("in", descendants), "is_published": 1}
+	if has_legacy_private_column():
+		fields.append("is_private")
+		filters["is_private"] = 0
 	wiki_documents = frappe.db.get_all(
 		"Wiki Document",
-		fields=["name", "doc_key", "title", "is_group", "parent_wiki_document", "route", "is_published", "is_private", "sort_order"],
-		filters={"name": ("in", descendants), "is_published": 1, "is_private": 0},
+		# //// Neoffice — fields and filters built above, is_private only where the column exists (#2232).
+		fields=fields,
+		filters=filters,
 		order_by="lft asc",
 	)
 
@@ -547,9 +572,17 @@ def get_public_space_info(space_id: str) -> dict:
 @frappe.whitelist(allow_guest=True)
 def get_public_document(doc_key: str) -> dict:
 	"""Return a single Wiki Document if public + published (guest-safe)."""
+	# //// Neoffice — `is_private` only where the legacy column exists (#2232): on a
+	# //// site installed fresh the filter raised "Unknown column" for every caller.
+	from wiki.permissions import has_legacy_private_column
+
+	filters = {"name": doc_key, "is_published": 1}
+	if has_legacy_private_column():
+		filters["is_private"] = 0
 	doc = frappe.db.get_value(
 		"Wiki Document",
-		{"name": doc_key, "is_published": 1, "is_private": 0},
+		# //// Neoffice — filters built above, is_private only where the column exists (#2232).
+		filters,
 		[
 			"name",
 			"title",

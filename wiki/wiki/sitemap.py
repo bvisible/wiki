@@ -19,6 +19,9 @@ from frappe.website.router import get_pages
 from frappe.www.sitemap import get_public_pages_from_doctypes
 
 from wiki.frappe_wiki.doctype.wiki_document.wiki_document import get_noindex_documents
+
+# //// Neoffice — added import: private pages leave the sitemap too (#2232).
+from wiki.permissions import get_private_documents
 from wiki.wiki.crawler_cache import SITEMAP, cached_index
 from wiki.wiki.llms_txt import public_spaces
 
@@ -76,7 +79,11 @@ def _wiki_links() -> list[tuple[str, str]]:
 		fields=["name", "route", "modified"],
 		ignore_permissions=True,
 	)
-	noindex_documents = get_noindex_documents()
+	# //// Neoffice — was `get_noindex_documents()` alone. A page flagged with the
+	# //// legacy `is_private` is refused to an anonymous visitor by the reader (#2226),
+	# //// so a crawler following this list met a 404: its address is left out too,
+	# //// like a noindex page (#2232). The set is empty where the column is gone.
+	noindex_documents = get_noindex_documents() | get_private_documents()
 	return [
 		(get_url(quote(page.route.encode("utf-8"))), f"{page.modified:%Y-%m-%d}")
 		for page in pages

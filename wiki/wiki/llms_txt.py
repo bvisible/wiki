@@ -19,7 +19,9 @@ from wiki.frappe_wiki.doctype.wiki_document.wiki_document import (
 	get_noindex_documents,
 	get_public_wiki_tree,
 )
-from wiki.permissions import can_read_space
+
+# //// Neoffice — get_private_documents added: private pages leave llms.txt too (#2232).
+from wiki.permissions import can_read_space, get_private_documents
 from wiki.wiki.crawler_cache import SITE_LLMS_TXT, cached_index, space_llms_txt_key
 
 MARKDOWN_HINT = "Append `.md` to any URL below for that page's raw markdown source."
@@ -40,7 +42,10 @@ def build_site_llms_txt() -> str | None:
 
 
 def _site_llms_txt() -> str | None:
-	noindex_documents = get_noindex_documents()
+	# //// Neoffice — was `get_noindex_documents()` alone: a page flagged with the
+	# //// legacy `is_private` (refused to an anonymous visitor by the reader, #2226)
+	# //// could be a space's landing entry here. Same for _space_llms_txt (#2232).
+	noindex_documents = get_noindex_documents() | get_private_documents()
 	entries = []
 	for space in public_spaces():
 		tree = _indexable_nodes(get_public_wiki_tree(space.root_group), noindex_documents)
@@ -106,7 +111,11 @@ def _space_llms_txt(space: str) -> str | None:
 	if not frappe.db.exists("Wiki Document", space_doc.root_group):
 		return None
 
-	noindex_documents = get_noindex_documents()
+	# //// Neoffice — was `get_noindex_documents()` alone: the index listed the
+	# //// address and the description of a page flagged `is_private`, which the
+	# //// reader refuses to an anonymous visitor (#2226). Left out like a noindex
+	# //// page, with the groups it leaves empty (#2232).
+	noindex_documents = get_noindex_documents() | get_private_documents()
 	tree = _indexable_nodes(get_public_wiki_tree(space_doc.root_group), noindex_documents)
 	if not tree:
 		return None

@@ -135,17 +135,20 @@ def _can_see_document(doc_name: str, space_id: str | None) -> bool:
 	no access rules of its own to apply, and the reader could not render it in a
 	space context anyway.
 	"""
-	from wiki.permissions import can_write_space
+	# //// Neoffice — has_legacy_private_column added, for the is_private read below (#2232).
+	from wiki.permissions import can_write_space, has_legacy_private_column
 
 	if not _can_see_space(space_id):
 		return False
 	if can_write_space(space_id):
 		return True
 
-	row = frappe.db.get_value(
-		"Wiki Document", doc_name, ["is_published", "is_private"], as_dict=True
-	)
-	return bool(row and row.is_published and not row.is_private)
+	# //// Neoffice — `is_private` read only where the legacy column exists (#2232):
+	# //// on a site installed fresh, naming it raised "Unknown column" for every
+	# //// reader who resolved a page route without being able to write the space.
+	fields = ["is_published", "is_private"] if has_legacy_private_column() else ["is_published"]
+	row = frappe.db.get_value("Wiki Document", doc_name, fields, as_dict=True)
+	return bool(row and row.is_published and not row.get("is_private"))
 
 
 # //// Neoffice — added. Both resolvers used to climb `parent_wiki_document` in a
