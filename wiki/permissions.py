@@ -270,10 +270,11 @@ def can_see_drafts(space, user=None) -> bool:
 # //// flagged with the legacy `is_private` to (#2226). The flag keeps a page from
 # //// outside readers: an anonymous visitor and a portal account (Website User)
 # //// are refused it, whatever the space's role rows grant them. The staff keep
-# //// it: any System User (which every wiki author is) and the space's writers.
-# //// The staff were already served these pages by the reader, and the company
-# //// knowledge base Nora publishes (`nora-kb`, every page flagged) is read by all
-# //// the staff, not only by wiki authors.
+# //// it: any System User, a wiki author (Wiki User grants no desk access, so an
+# //// author may well be a Website User) and the space's writers. The staff were
+# //// already served these pages by the reader, and the company knowledge base
+# //// Nora publishes (`nora-kb`, every page flagged) is read by all the staff, not
+# //// only by wiki authors (decided 2026-11-04).
 def can_read_private_page(space, user=None) -> bool:
 	"""Whether the reader may serve this user a page flagged `is_private`."""
 	user = user or frappe.session.user
