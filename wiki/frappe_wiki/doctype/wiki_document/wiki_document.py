@@ -28,6 +28,9 @@ WIKI_DOCUMENT_PRINT_FORMAT = "Standard Wiki Document"
 APP_ROUTE = "wiki-app"
 
 WIKI_TREE_CACHE_KEY = "wiki_public_tree"
+# //// Neoffice — added: the field suffix of the staff's tree in WIKI_TREE_CACHE_KEY,
+# //// which keeps the pages flagged `is_private` (see get_public_wiki_tree, #2234).
+STAFF_TREE_SUFFIX = "|with-private"
 
 # Per-document rendered HTML + TOC, keyed by document name.
 WIKI_CONTENT_CACHE_KEY = "wiki_rendered_content"
@@ -517,7 +520,17 @@ class WikiDocument(NestedSet):
 		if not root_group:
 			return [], {"prev": None, "next": None}
 
-		nested_tree = get_public_wiki_tree(root_group)
+		# //// Neoffice — the tree is the reader's (upstream: one tree for everyone).
+		# //// Pages flagged with the legacy `is_private` are refused to an anonymous
+		# //// visitor and to a portal account (#2226), yet the sidebar and the
+		# //// previous / next links still gave them each such page's title and
+		# //// address. They get the tree without those pages; the staff keep the full
+		# //// one, which a space whose every page is flagged (nora-kb) needs (#2234).
+		from wiki.permissions import can_read_private_page
+
+		nested_tree = get_public_wiki_tree(
+			root_group, include_private=can_read_private_page(self.get_space_name())
+		)
 		adjacent_docs = get_adjacent_documents(nested_tree, self.route)
 
 		return nested_tree, adjacent_docs
@@ -889,7 +902,20 @@ def build_markdown_response(doc) -> Response:
 	return response
 
 
-def build_nested_wiki_tree(documents: list[str]):
+# //// Neoffice — include_private added (upstream takes the documents only and
+# //// lists every published one). False leaves out the pages flagged with the
+# //// legacy `is_private`, groups included: a published child of a dropped group
+# //// becomes a root node, as get_public_space_info() does (#2234). The column
+# //// exists on migrated sites only, so it is named only where it is there.
+def build_nested_wiki_tree(documents: list[str], include_private: bool = True):
+	# //// Neoffice — filters built here for include_private (was inline below).
+	filters = {"name": ("in", documents)}
+	if not include_private:
+		from wiki.permissions import has_legacy_private_column
+
+		if has_legacy_private_column():
+			filters["is_private"] = 0
+
 	# Create a mapping of document name to document data
 	wiki_documents = frappe.db.get_all(
 		"Wiki Document",
@@ -903,7 +929,8 @@ def build_nested_wiki_tree(documents: list[str]):
 			"is_external_link",
 			"external_url",
 		],
-		filters={"name": ("in", documents)},
+		# //// Neoffice — was `filters={"name": ("in", documents)}`; see include_private above.
+		filters=filters,
 		or_filters={"is_published": 1, "is_group": 1},
 		order_by="lft asc",
 	)
@@ -963,17 +990,25 @@ def build_nested_wiki_tree(documents: list[str]):
 	return remove_empty_groups(root_nodes)
 
 
-def get_public_wiki_tree(root_group: str) -> list:
+# //// Neoffice — include_private added (upstream: one tree per root group, for
+# //// everyone). By default the tree an outside reader may see, without the pages
+# //// flagged `is_private` (fail closed: llms.txt and any new caller get that one);
+# //// the reader asks for the full tree for the staff (#2234). The two are cached
+# //// side by side in the same hash, so clear_wiki_tree_cache() drops both.
+def get_public_wiki_tree(root_group: str, include_private: bool = False) -> list:
 	"""Return the published sidebar tree for a root group, cached in Redis.
 
 	The cache is invalidated on any Wiki Document change (see
 	clear_wiki_tree_cache), so a hit always reflects the committed tree.
 	"""
-	tree = frappe.cache().hget(WIKI_TREE_CACHE_KEY, root_group)
+	# //// Neoffice — the cache field and the build depend on include_private.
+	field = f"{root_group}{STAFF_TREE_SUFFIX}" if include_private else root_group
+	tree = frappe.cache().hget(WIKI_TREE_CACHE_KEY, field)
 	if tree is None:
 		descendants = get_descendants_of("Wiki Document", root_group, ignore_permissions=True)
-		tree = build_nested_wiki_tree(descendants)
-		frappe.cache().hset(WIKI_TREE_CACHE_KEY, root_group, tree)
+		# //// Neoffice — include_private passed on, and the tree stored under its own field.
+		tree = build_nested_wiki_tree(descendants, include_private=include_private)
+		frappe.cache().hset(WIKI_TREE_CACHE_KEY, field, tree)
 	return tree
 
 
@@ -1011,16 +1046,26 @@ def resolve_wiki_links(html: str, wiki_space: str | None) -> str:
 
 	routes = {}
 	if wiki_space:
+		# //// Neoffice — filters built here (were inline below). For a reader who is
+		# //// refused the pages flagged `is_private` (#2226), a link to one renders as
+		# //// its plain label, like a link to a page that is not live: it carried the
+		# //// page's address to a 404 (#2234). Named only where the column exists.
+		from wiki.permissions import can_read_private_page, has_legacy_private_column
+
+		filters = {
+			"doc_key": ("in", doc_keys),
+			"wiki_space": wiki_space,
+			"is_published": 1,
+			"is_group": 0,
+			"is_external_link": 0,
+		}
+		if has_legacy_private_column() and not can_read_private_page(wiki_space):
+			filters["is_private"] = 0
 		routes = dict(
 			frappe.get_all(
 				"Wiki Document",
-				filters={
-					"doc_key": ("in", doc_keys),
-					"wiki_space": wiki_space,
-					"is_published": 1,
-					"is_group": 0,
-					"is_external_link": 0,
-				},
+				# //// Neoffice — was the inline dict now built above.
+				filters=filters,
 				fields=["doc_key", "route"],
 				as_list=True,
 			)
@@ -1097,7 +1142,16 @@ def get_landing_page_for_route(route: str) -> dict | None:
 	if space and not can_read_space(space):
 		return None
 
-	return get_first_published_page(root_group) if root_group else None
+	# //// Neoffice — the landing page comes from the reader's tree (upstream: the
+	# //// one tree): a space whose first page is flagged `is_private` sent an
+	# //// anonymous visitor or a portal account to a page refused to them (#2234).
+	from wiki.permissions import can_read_private_page
+
+	return (
+		get_first_published_page(root_group, include_private=can_read_private_page(space))
+		if root_group
+		else None
+	)
 
 
 def get_noindex_documents() -> set[str]:
@@ -1105,11 +1159,13 @@ def get_noindex_documents() -> set[str]:
 	return set(frappe.get_all("Wiki Document", filters={"disable_indexing": 1}, pluck="name"))
 
 
-def get_first_published_page(root_group: str) -> dict | None:
+# //// Neoffice — include_private added and passed on to get_public_wiki_tree (#2234).
+def get_first_published_page(root_group: str, include_private: bool = False) -> dict | None:
 	"""First non-group, non-external page in sidebar order — the document a
 	space URL should land on. Walks the same tree the sidebar renders, so the
 	two can't disagree."""
-	return first_published_leaf(get_public_wiki_tree(root_group))
+	# //// Neoffice — was get_public_wiki_tree(root_group): the reader's tree (#2234).
+	return first_published_leaf(get_public_wiki_tree(root_group, include_private=include_private))
 
 
 def first_published_leaf(nodes: list) -> dict | None:
