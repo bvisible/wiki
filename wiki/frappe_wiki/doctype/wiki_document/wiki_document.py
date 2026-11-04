@@ -467,12 +467,34 @@ class WikiDocument(NestedSet):
 		"""Backwards-compatible alias: gate read access via the space's role config."""
 		self.check_space_access("read")
 
-	def check_published(self):
+	# //// Neoffice — `user` added to the signature (upstream takes none), for the
+	# //// is_private check below; every caller passes nothing and gets the session user.
+	def check_published(self, user=None):
 		if not self.is_published:
 			frappe.throw(
 				frappe._("Page not found"),
 				frappe.DoesNotExistError,
 			)
+
+		# //// Neoffice — the legacy per-page `is_private` flag is honoured here. Upstream's
+		# //// reader asks only the space's role rows (check_space_access) and whether
+		# //// the page is published, so a page flagged private inside a readable space
+		# //// was served whole to anyone that space lets in: on osiris, five internal
+		# //// pages of a `Guest / Read` space reached a signed-in portal account (#2226).
+		# //// The tree, the search, get_public_document() and the permission hooks
+		# //// already hid such a page. Every path that serves a page calls this method
+		# //// (the HTML page and its `Accept: text/markdown` twin, the `.md` route, the
+		# //// PDF, the OG card, the sitemap), so the rule sits here once, with the same
+		# //// 404 as check_space_access so the page's existence does not leak.
+		# //// The flag is read off the loaded document, not from the table: wiki v3
+		# //// dropped the field and only migrated sites keep the column. The document
+		# //// is loaded with every column there is, so it carries the flag where the
+		# //// column exists and nothing where it does not (no "Unknown column" query).
+		if self.get("is_private"):
+			from wiki.permissions import can_read_private_page
+
+			if not can_read_private_page(self.get_space_name(), user):
+				frappe.throw(_("Page not found"), frappe.DoesNotExistError)
 
 		space = self.get_wiki_space()
 		space_doc = None

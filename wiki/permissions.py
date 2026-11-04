@@ -266,6 +266,24 @@ def can_see_drafts(space, user=None) -> bool:
 	return is_wiki_author(user) or can_write_space(space, user)
 
 
+# //// Neoffice — added (no upstream equivalent). Who the reader serves a page
+# //// flagged with the legacy `is_private` to (#2226). The flag keeps a page from
+# //// outside readers: an anonymous visitor and a portal account (Website User)
+# //// are refused it, whatever the space's role rows grant them. The staff keep
+# //// it: any System User (which every wiki author is) and the space's writers.
+# //// The staff were already served these pages by the reader, and the company
+# //// knowledge base Nora publishes (`nora-kb`, every page flagged) is read by all
+# //// the staff, not only by wiki authors.
+def can_read_private_page(space, user=None) -> bool:
+	"""Whether the reader may serve this user a page flagged `is_private`."""
+	user = user or frappe.session.user
+	if user == "Guest":
+		return False
+	if can_see_drafts(space, user):
+		return True
+	return frappe.get_cached_value("User", user, "user_type") == "System User"
+
+
 # //// Neoffice — added. "Live" is what the reader serves: the page is published,
 # //// not flagged private, and its space is published. is_private is the legacy
 # //// per-page flag: wiki v3 dropped it from the DocType but the column survives on
