@@ -89,6 +89,9 @@ import { NodeViewWrapper } from '@tiptap/vue-3';
 //// Neoffice — computed added: imageStyle and currentSize below (image sizing
 //// presets and the read-mode lightbox) are ours.
 import { computed, ref, watch } from 'vue';
+//// Neoffice — withoutImageSizeClass: a size chosen with the buttons below replaces an
+//// img-* size class of the image (neoffice-maintenance#1085).
+import { withoutImageSizeClass } from './image-markdown.js';
 
 const props = defineProps({
 	node: {
@@ -162,13 +165,24 @@ function closeLightbox() {
 }
 
 function setSize(value) {
-	props.updateAttributes({ width: value, height: null });
+	//// Neoffice — className: the reader's CSS for img-md (or xs, sm, lg, full) would win over
+	//// the width chosen here, so that size class goes; img-center and the like stay (#1085).
+	props.updateAttributes({
+		width: value,
+		height: null,
+		className: withoutImageSizeClass(props.node.attrs.className),
+	});
 }
 
 function setCustomWidth(event) {
 	const val = Number.parseInt(event.target.value, 10);
 	if (val && val >= 100 && val <= 2000) {
-		props.updateAttributes({ width: val, height: null });
+		//// Neoffice — as in setSize, a size class of the image goes with a width chosen here (#1085).
+		props.updateAttributes({
+			width: val,
+			height: null,
+			className: withoutImageSizeClass(props.node.attrs.className),
+		});
 	}
 }
 

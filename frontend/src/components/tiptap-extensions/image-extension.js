@@ -1,7 +1,13 @@
 import { Node, mergeAttributes, nodeInputRule } from '@tiptap/core';
 import { VueNodeViewRenderer } from '@tiptap/vue-3';
 import ImageNodeView from './ImageNodeView.vue';
-import { renderImageMarkdown } from './image-markdown.js';
+//// Neoffice — the <img> tag helpers of image-markdown.js: a width, a class (#1085)
+import {
+	imageHtmlStart,
+	imageNodeAttrs,
+	renderImageMarkdown,
+	tokenizeImageHtml,
+} from './image-markdown.js';
 import { isPdfUrl } from './pdf-block.js';
 import { isVideoUrl } from './video-block.js';
 
@@ -33,10 +39,23 @@ const imageCaptionTokenizer = {
 	level: 'block',
 
 	start(src) {
-		return src.indexOf('![');
+		//// Neoffice — an <img> tag alone on its line starts an image block too (#1085).
+		const markdown = src.indexOf('![');
+		const html = imageHtmlStart(src);
+		if (html < 0) return markdown;
+		return markdown < 0 ? html : Math.min(markdown, html);
 	},
 
 	tokenize(src, tokens, lexer) {
+		//// Neoffice — an image written as an <img> tag (a width, a class), see image-markdown.js
+		//// (#1085). A video or a PDF is left to its own block, as for the markdown syntax.
+		const htmlToken = tokenizeImageHtml(src);
+		if (htmlToken) {
+			return isVideoUrl(htmlToken.href) || isPdfUrl(htmlToken.href)
+				? undefined
+				: htmlToken;
+		}
+
 		// Match: ![alt](src) or ![alt](src "title") optionally followed by \n*caption*
 		// The URL allows spaces and one level of balanced parens so Frappe
 		// filenames like `/files/CleanShot 2026-05-27 at 00.06.09@2x.png` or
@@ -114,6 +133,13 @@ export const WikiImage = Node.create({
 			height: {
 				default: null,
 			},
+			//// Neoffice — the class of an image written as an <img> tag (img-md, img-center…),
+			//// kept so that it survives a save (#1085). Not read from pasted HTML: a page
+			//// copied from the web carries classes of its own.
+			className: {
+				default: null,
+				rendered: false,
+			},
 			// Transient editor-only state for the upload/optimization lifecycle.
 			// `rendered: false` keeps these out of the serialized HTML, and
 			// renderMarkdown ignores them, so they never persist to content.
@@ -155,12 +181,8 @@ export const WikiImage = Node.create({
 
 	// Parse markdown image with optional caption
 	parseMarkdown: (token, helpers) => {
-		return helpers.createNode('image', {
-			src: token.href,
-			title: token.title,
-			alt: token.text,
-			caption: token.caption || null,
-		});
+		//// Neoffice — imageNodeAttrs adds the width and the class of an <img> tag (#1085).
+		return helpers.createNode('image', imageNodeAttrs(token));
 	},
 
 	// Render to markdown using Stack Overflow caption pattern:
