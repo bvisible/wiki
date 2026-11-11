@@ -73,6 +73,12 @@ def submit_feedback(
 	    feedback: Optional text feedback
 	    email: Optional email address
 	"""
+	# //// Neoffice — the row is inserted with ignore_permissions: this endpoint (rate limited, its arguments
+	# //// checked) is the only door a visitor has to Wiki Feedback. Upstream inserted it under the visitor's own
+	# //// rights, so the doctype gave `create` and `write` to Guest and to All, and that also opened the REST
+	# //// collection: any anonymous visitor or portal account could POST rows past the rate limit, or rewrite one
+	# //// by its name (neoffice-maintenance#531). The role rows are gone from wiki_feedback.json, and the patch
+	# //// feedback_goes_through_its_endpoint removes the copies frozen in Custom DocPerm on existing sites.
 	email = validate_email_address(email) if email else None
 
 	# New API: Wiki Document with type
@@ -85,7 +91,7 @@ def submit_feedback(
 				"feedback": feedback,
 				"email_id": email,
 			}
-		).insert()
+		).insert(ignore_permissions=True)  # //// Neoffice — the endpoint is the gate, see above
 		return
 
 	# Legacy API: Wiki Page with rating
@@ -98,7 +104,7 @@ def submit_feedback(
 				"feedback": feedback,
 				"email_id": email,
 			}
-		).insert()
+		).insert(ignore_permissions=True)  # //// Neoffice — the endpoint is the gate, see above
 		return
 
 	frappe.throw(frappe._("Invalid feedback submission parameters"))

@@ -38,3 +38,6 @@ wiki.frappe_wiki.patches.init_public_read_from_guest_role
 # //// would) on existing sites (b7925b9f "fix(permissions): a proposed wiki
 # //// edit was readable by anybody, with no account")
 wiki.frappe_wiki.patches.proposed_edits_are_not_public
+# //// Neoffice — removes the Guest and All rows of Wiki Feedback copied into Custom DocPerm on existing sites:
+# //// feedback goes through submit_feedback only (neoffice-maintenance#531)
+wiki.frappe_wiki.patches.feedback_goes_through_its_endpoint

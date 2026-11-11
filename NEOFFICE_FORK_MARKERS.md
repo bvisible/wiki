@@ -308,4 +308,13 @@ Files touched on **both** sides at the time (ours: 67 source files, theirs: 44):
 
 ## Auto-marked (fork-markers workflow)
 
+- `wiki/wiki/doctype/wiki_feedback/wiki_feedback.json` — removed the `Guest` and `All` role permission rows (`create`, `write`): they opened the REST collection to any anonymous visitor or portal account, past the rate limit of `submit_feedback`, which now inserts the row itself with `ignore_permissions`; no `has_permission` hook or query condition on this doctype; the patch `feedback_goes_through_its_endpoint` removes the copies frozen in Custom DocPerm (neoffice-maintenance#531)
 - `wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json` — removed the `Guest: read` role permission row (blanket read for anyone, including anonymous visitors) — a signed-in account only sees its own patches (`All` carries `if_owner`), so Guest was strictly wider than authenticated access; no hook or query condition in v3 depends on this doctype (b7925b9f "fix(permissions): a proposed wiki edit was readable by anybody, with no account")
+
+## Contracts
+
+What an upstream merge must not bring back (`scripts/fork_contracts.py` of `bvisible/neoffice-ci`).
+
+| Contract | Rule | Pattern | Why |
+| --- | --- | --- | --- |
+| `wiki/wiki/doctype/wiki_feedback/wiki_feedback.json` | absent | `"role": "(Guest\|All)"` | #531: feedback goes through `submit_feedback` only, no visitor or portal account writes into the collection |
