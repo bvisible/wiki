@@ -46,6 +46,7 @@ def get_feedback_limit():
 	return wiki_settings.feedback_submission_limit or 20
 
 
+# //// Neoffice — permission-check: ok the public feedback form: one row per call, rate limited, no read or update (#531)
 @frappe.whitelist(allow_guest=True)
 @rate_limit(limit=get_feedback_limit, seconds=60 * 60)
 def submit_feedback(
