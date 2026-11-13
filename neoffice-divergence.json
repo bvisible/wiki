@@ -1,6 +1,6 @@
 {
   "_comment": "Inventory of this fork's divergence from frappe/wiki. Regenerate with: python3 scripts/neoffice-divergence.py --update. A dropped entry is a Neoffice change that an upstream merge ate.",
-  "marked_blocks": 290,
+  "marked_blocks": 305,
   "files": {
     ".github/workflows/build-frontend.yml": [
       "wiki-app.html, not wiki.html: wiki v3 renamed the"
@@ -70,7 +70,22 @@
       "added. Public PDF export of this article, rendered server-side"
     ],
     "frontend/src/components/tiptap-extensions/ImageNodeView.vue": [
+      "i18n: the labels of the image menu and its controls are wrapped in __() here and in the",
+      "i18n, see the note on the menu button above. -->",
+      "i18n, see the note on the menu button above. -->",
+      "i18n, see the note on the menu button above. -->",
+      "i18n, see the note on the menu button above. -->",
       "withoutImageSizeClass: a width chosen here replaces a size class of the image (#1085).",
+      "i18n: every label of the menu below goes through __() (upstream writes them in English).",
+      "i18n, see menuOptions",
+      "i18n, see menuOptions",
+      "i18n, see menuOptions",
+      "i18n, see menuOptions",
+      "i18n, see menuOptions above.",
+      "i18n, see menuOptions",
+      "i18n, see menuOptions",
+      "i18n, see menuOptions",
+      "i18n, see menuOptions",
       "sizedWidth(): the size class (img-md…) goes with a width chosen here (#1085).",
       "sizedWidth(), as in stopResize (#1085).",
       "added. A hand-written <img class=\"img-md\"> keeps its class through a save"

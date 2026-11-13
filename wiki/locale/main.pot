@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Wiki VERSION\n"
 "Report-Msgid-Bugs-To: developers@frappe.io\n"
-"POT-Creation-Date: 2026-11-13 18:21+0000\n"
+"POT-Creation-Date: 2026-11-13 19:10+0000\n"
 "PO-Revision-Date: 2026-10-03 13:53+0000\n"
 "Last-Translator: developers@frappe.io\n"
 "Language-Team: developers@frappe.io\n"
@@ -22,7 +22,7 @@ msgid "&lt;head&gt; HTML"
 msgstr ""
 
 #: frontend/src/pages/Contributions.vue:278
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 msgid "1 change request"
 msgstr ""
 
@@ -30,34 +30,34 @@ msgstr ""
 #: frontend/src/components/HistoryPanel.vue:218
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:177
 #: frontend/src/pages/ContributionReview.vue:413
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "1 page"
 msgstr ""
 
 #: frontend/src/components/PageDiff.vue:217
-#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#: wiki/public/frontend/assets/PageDiff-D3g2uuC-.js:2
 msgid "1 unchanged block"
 msgstr ""
 
 #: frontend/src/components/PageMetaLine.vue:86
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "1 view in last 30 days"
 msgstr ""
 
 #: frontend/src/pages/Overview.vue:207
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
 msgid "30 days"
 msgstr ""
 
 #: frontend/src/pages/Overview.vue:206
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
 msgid "7 days"
 msgstr ""
 
 #: frontend/src/pages/Overview.vue:208
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
 msgid "90 days"
 msgstr ""
 
@@ -95,12 +95,12 @@ msgid "A lucide class name from the curated picker list, e.g. lucide-book-open-t
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:96
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "A short summary shown in search results and link previews"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/SpaceSettings.vue:100
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "A space is connected to GitHub when it is created. A connected space is read-only in the editor — its pages come from the repository."
 msgstr ""
 
@@ -110,7 +110,7 @@ msgstr ""
 
 #. Label of a Check field in DocType 'Wiki Space'
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:94
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 #: wiki/wiki/doctype/wiki_space/wiki_space.json:200
 msgid "Accept Contributions"
 msgstr ""
@@ -118,8 +118,8 @@ msgstr ""
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:32
 #: frontend/src/components/SpaceSettings/SpaceSettings.vue:46
 #: frontend/src/components/SpaceSettings/SpaceSettings.vue:169
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Access"
 msgstr ""
 
@@ -143,19 +143,19 @@ msgid "Access Token Expires At"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:375
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Access control updated"
 msgstr ""
 
 #: frontend/src/components/CommandPalette.vue:414
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #: wiki/templates/wiki/includes/search_modal.html:60
 msgid "Actions"
 msgstr ""
 
 #: frontend/src/components/NewSpaceDialog.vue:124
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:22
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Add"
 msgstr ""
 
@@ -163,25 +163,33 @@ msgstr ""
 msgid "Add External Link"
 msgstr ""
 
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:81
+msgid "Add a caption"
+msgstr ""
+
 #: frontend/src/components/WikiDocumentList.vue:96
 msgid "Add a group or link"
 msgstr ""
 
 #: frontend/src/composables/useStartEditing.js:27
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Add initial content"
 msgstr ""
 
 #: frontend/src/components/PageDiff.vue:66
-#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#: wiki/public/frontend/assets/PageDiff-D3g2uuC-.js:2
 msgid "After"
+msgstr ""
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:194
+msgid "Align"
 msgstr ""
 
 #. Name of a role
 #: frontend/src/components/ChangeRequestsPanel.vue:114
 #: frontend/src/pages/AllSpaces.vue:349
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 #: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json:161
 msgid "All"
 msgstr ""
@@ -190,30 +198,30 @@ msgstr ""
 #: frontend/src/components/LibrarySidebar.vue:256
 #: frontend/src/pages/AllSpaces.vue:3 frontend/src/pages/AllSpaces.vue:21
 #: frontend/src/pages/AllSpaces.vue:404
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "All Spaces"
 msgstr ""
 
 #: frontend/src/pages/Contributions.vue:200
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 msgid "All in review"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:176
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "All its pages"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:139
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "All pages"
 msgstr ""
 
 #: frontend/src/composables/useSpaceSwitcher.js:37
 #: frontend/src/pages/Overview.vue:268
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "All spaces"
 msgstr ""
 
@@ -225,7 +233,7 @@ msgid "Allow Guest"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:118
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Allow PDF Download"
 msgstr ""
 
@@ -252,7 +260,7 @@ msgstr ""
 
 #: frontend/src/components/SpaceSettings/SpaceSettings.vue:66
 #: frontend/src/components/SpaceSettings/SpaceSettings.vue:170
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Analytics"
 msgstr ""
 
@@ -301,23 +309,23 @@ msgid "App Title"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:41
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Approve"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:221
 #: frontend/src/pages/ContributionReview.vue:236
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Approve & Merge"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:587
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Approve & merge"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:588
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Approve and merge in one step"
 msgstr ""
 
@@ -325,7 +333,7 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'Wiki Page Patch'
 #: frontend/src/components/SpaceModeStrip.vue:352
 #: wiki/frappe_wiki/doctype/wiki_change_request/wiki_change_request.json:56
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json:53
 msgid "Approved"
 msgstr ""
@@ -362,7 +370,7 @@ msgid "Ask Claude about this page"
 msgstr ""
 
 #: frontend/src/components/Analytics/TrackingNotice.vue:9
-#: wiki/public/frontend/assets/NumberCard.vue_vue_type_script_setup_true_lang-Dx41eedB.js:1
+#: wiki/public/frontend/assets/NumberCard.vue_vue_type_script_setup_true_lang-Dw3DuygS.js:1
 msgid "Ask a Wiki Manager to turn on page view tracking."
 msgstr ""
 
@@ -383,38 +391,38 @@ msgstr ""
 
 #: frontend/src/components/AssignDialog.vue:27
 #: frontend/src/components/ContributionsPanel.vue:142
-#: wiki/public/frontend/assets/AssigneeAvatars-BDqPU8I4.js:1
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/AssigneeAvatars-BoGDztVD.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 msgid "Assign"
 msgstr ""
 
 #: frontend/src/components/AssignDialog.vue:4
-#: wiki/public/frontend/assets/AssigneeAvatars-BDqPU8I4.js:1
+#: wiki/public/frontend/assets/AssigneeAvatars-BoGDztVD.js:1
 msgid "Assign Reviewer"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:601
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Assign reviewer"
 msgstr ""
 
 #: frontend/src/components/AssignDialog.vue:9
-#: wiki/public/frontend/assets/AssigneeAvatars-BDqPU8I4.js:1
+#: wiki/public/frontend/assets/AssigneeAvatars-BoGDztVD.js:1
 msgid "Assign this change request to a reviewer. They will be notified and it will appear in their \"Assigned to me\" list."
 msgstr ""
 
 #: frontend/src/components/ContributionsPanel.vue:205
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 msgid "Assigned to"
 msgstr ""
 
 #: frontend/src/pages/Contributions.vue:180
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 msgid "Assigned to me"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:614
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Author"
 msgstr ""
 
@@ -429,7 +437,7 @@ msgid "Auto Generate Meta Images"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:195
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Auto-generated from the page metadata. Upload an image to override it."
 msgstr ""
 
@@ -467,7 +475,7 @@ msgstr ""
 
 #: frontend/src/components/VersionDiff.vue:6
 #: frontend/src/components/VersionDiff.vue:9
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Back to current version"
 msgstr ""
 
@@ -488,12 +496,12 @@ msgid "Base Revision"
 msgstr ""
 
 #: frontend/src/components/PageDiff.vue:65
-#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#: wiki/public/frontend/assets/PageDiff-D3g2uuC-.js:2
 msgid "Before"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/SpaceSettings.vue:49
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Beta"
 msgstr ""
 
@@ -505,7 +513,7 @@ msgstr ""
 msgid "Branch"
 msgstr ""
 
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #, python-brace-format
 msgid "Branch \"{0}\" does not exist in {1}."
 msgstr ""
@@ -539,17 +547,26 @@ msgstr ""
 #: frontend/src/pages/ContributionReview.vue:295
 #: frontend/src/pages/SpaceDetails.vue:108
 #: frontend/src/pages/SpaceDetails.vue:138
-#: wiki/public/frontend/assets/AssigneeAvatars-BDqPU8I4.js:1
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
-#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
+#: wiki/public/frontend/assets/AssigneeAvatars-BoGDztVD.js:1
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
+#: wiki/public/frontend/assets/SubmitForReviewButton-B3ZxIP6l.js:1
 msgid "Cancel"
 msgstr ""
 
 #: wiki/frappe_wiki/doctype/wiki_change_request/wiki_change_request.py:1698
 msgid "Cannot resolve conflicts for a finalized Change Request."
+msgstr ""
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:82
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:185
+msgid "Caption"
+msgstr ""
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:197
+msgid "Center"
 msgstr ""
 
 #. Label of a Link field in DocType 'Wiki Merge Conflict'
@@ -566,14 +583,14 @@ msgstr ""
 #: frontend/src/pages/Contributions.vue:4
 #: frontend/src/pages/Contributions.vue:10
 #: frontend/src/pages/Contributions.vue:110
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Change Requests"
 msgstr ""
 
 #: frontend/src/components/WikiDocumentList.vue:177
 #: frontend/src/components/WikiTree.vue:407
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Change Title"
 msgstr ""
 
@@ -582,51 +599,51 @@ msgid "Change request"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:712
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Change request approved"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:98
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Change request archived"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:126
 #: frontend/src/pages/ContributionReview.vue:682
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Change request merged"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:795
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Change request rejected"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:79
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Change request submitted for review"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:808
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Change request withdrawn"
 msgstr ""
 
 #: frontend/src/components/ChangeRequestsPanel.vue:10
 #: frontend/src/pages/ContributionReview.vue:468
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Change requests"
 msgstr ""
 
 #: frontend/src/pages/Contributions.vue:189
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 msgid "Change requests assigned to you for review will appear here."
 msgstr ""
 
 #: frontend/src/components/DraftContributionPanel.vue:418
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
 msgid "Change route"
 msgstr ""
 
@@ -635,12 +652,12 @@ msgid "Change space logo"
 msgstr ""
 
 #: frontend/src/composables/useSyncState.js:41
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Changed elsewhere"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:187
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Changes"
 msgstr ""
 
@@ -657,7 +674,7 @@ msgid "Changes Requested"
 msgstr ""
 
 #: frontend/src/components/SpaceModeStrip.vue:344
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Changes requested"
 msgstr ""
 
@@ -672,7 +689,7 @@ msgid "Checkpoint Revision"
 msgstr ""
 
 #: frontend/src/components/SpaceWelcome.vue:40
-#: wiki/public/frontend/assets/SpaceWelcome-B9KyirxZ.js:1
+#: wiki/public/frontend/assets/SpaceWelcome-DhvdTICH.js:1
 msgid "Choose a page from the tree on the left."
 msgstr ""
 
@@ -682,17 +699,17 @@ msgid "Clear search"
 msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:160
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Click a month to see its days"
 msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:158
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Click a week to see its days"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:95
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Click to copy"
 msgstr ""
 
@@ -713,24 +730,24 @@ msgid "Client Secret"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:56
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Clone"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:52
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Clone Space"
 msgstr ""
 
 #: frontend/src/pages/SpaceDetails.vue:123
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 #: wiki/wiki/doctype/wiki_space/wiki_space.js:8
 #: wiki/wiki/doctype/wiki_space/wiki_space.js:31
 msgid "Clone Wiki Space"
 msgstr ""
 
 #: frontend/src/pages/SpaceDetails.vue:286
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Cloning started in background"
 msgstr ""
 
@@ -743,12 +760,12 @@ msgid "Close"
 msgstr ""
 
 #: frontend/src/components/ChangeRequestsPanel.vue:14
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Close change requests"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:17
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Close page settings"
 msgstr ""
 
@@ -757,7 +774,7 @@ msgid "Close sidebar"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:14
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Close version history"
 msgstr ""
 
@@ -776,7 +793,7 @@ msgid "Collapse"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:105
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Collect Feedback"
 msgstr ""
 
@@ -796,7 +813,7 @@ msgid "Compare Changes"
 msgstr ""
 
 #: frontend/src/components/WikiSettings/GitHubAppPanel.vue:221
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Configuration saved"
 msgstr ""
 
@@ -824,12 +841,12 @@ msgid "Conflict is already resolved."
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:115
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Conflicts"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:770
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Conflicts resolved and change request merged"
 msgstr ""
 
@@ -872,7 +889,7 @@ msgid "Content Type"
 msgstr ""
 
 #: frontend/src/composables/useChangeTypeDisplay.js:83
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Content or metadata updated"
 msgstr ""
 
@@ -882,12 +899,12 @@ msgid "Contributions"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:323
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Contributions disabled"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:323
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Contributions enabled"
 msgstr ""
 
@@ -905,7 +922,7 @@ msgid "Copy"
 msgstr ""
 
 #: frontend/src/components/LibrarySidebar.vue:196
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Copy link"
 msgstr ""
 
@@ -915,46 +932,46 @@ msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:79
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:84
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Copy webhook URL"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:221
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Could not copy URL"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:245
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Could not copy the space name"
 msgstr ""
 
 #: frontend/src/components/SpaceIdentityPicker.vue:259
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Could not generate a logo"
 msgstr ""
 
 #: frontend/src/components/SpaceModeStrip.vue:251
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Could not reload from server"
 msgstr ""
 
 #: frontend/src/components/StartEditingDialog.vue:85
 #: frontend/src/composables/useStartEditing.js:30
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Could not start editing"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:265
 #: frontend/src/stores/space.js:380
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Could not start sync"
 msgstr ""
 
 #: frontend/src/components/NewSpaceDialog.vue:543
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Could not verify the branch on GitHub."
 msgstr ""
 
@@ -977,7 +994,7 @@ msgid "Create New Assets "
 msgstr ""
 
 #: frontend/src/components/WikiDocumentList.vue:467
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Create New Group"
 msgstr ""
 
@@ -988,7 +1005,7 @@ msgid "Create New Images if they exist on Disk"
 msgstr ""
 
 #: frontend/src/components/WikiDocumentList.vue:467
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Create New Page"
 msgstr ""
 
@@ -997,12 +1014,12 @@ msgid "Create Wiki Space"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:53
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Create a new space with the same structure"
 msgstr ""
 
 #: frontend/src/components/SpaceWelcome.vue:102
-#: wiki/public/frontend/assets/SpaceWelcome-B9KyirxZ.js:1
+#: wiki/public/frontend/assets/SpaceWelcome-DhvdTICH.js:1
 msgid "Create your first page"
 msgstr ""
 
@@ -1011,12 +1028,12 @@ msgid "Create your first page to get started"
 msgstr ""
 
 #: frontend/src/pages/AllSpaces.vue:401
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
 msgid "Create your first wiki space from the sidebar to get started"
 msgstr ""
 
 #: frontend/src/pages/AllSpaces.vue:400
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
 msgid "Create your first wiki space to get started"
 msgstr ""
 
@@ -1040,23 +1057,23 @@ msgid "Created By"
 msgstr ""
 
 #: frontend/src/pages/SpaceDetails.vue:94
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 #: wiki/wiki/doctype/wiki_space/wiki_space.js:44
 msgid "Current Base Route"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:38
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Current version"
 msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:123
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Custom range"
 msgstr ""
 
 #: frontend/src/components/WikiTree.vue:421
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Danger"
 msgstr ""
 
@@ -1071,7 +1088,7 @@ msgid "Date range cannot be longer than {0} days"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:632
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Decline this review"
 msgstr ""
 
@@ -1084,24 +1101,24 @@ msgstr ""
 #: frontend/src/components/WikiDocumentList.vue:135
 #: frontend/src/components/WikiDocumentList.vue:168
 #: frontend/src/components/WikiTree.vue:425
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Delete"
 msgstr ""
 
 #: frontend/src/components/DraftContributionPanel.vue:423
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
 msgid "Delete Draft"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:62
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:121
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Delete Space"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:73
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 #, python-brace-format
 msgid "Delete Space {0}"
 msgstr ""
@@ -1109,7 +1126,7 @@ msgstr ""
 #. Label of a Int field in DocType 'Wiki Git Sync Log'
 #: frontend/src/components/WikiTree.vue:67
 #: frontend/src/composables/useChangeTypeDisplay.js:24
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #: wiki/wiki/doctype/wiki_git_sync_log/wiki_git_sync_log.json:103
 msgid "Deleted"
 msgstr ""
@@ -1134,7 +1151,7 @@ msgstr ""
 
 #: frontend/src/components/SpaceModeStrip.vue:153
 #: frontend/src/components/StartEditingDialog.vue:22
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Describe the change"
 msgstr ""
 
@@ -1143,27 +1160,27 @@ msgstr ""
 #: frontend/src/components/SpaceModeStrip.vue:151
 #: frontend/src/components/StartEditingDialog.vue:20
 #: wiki/frappe_wiki/doctype/wiki_change_request/wiki_change_request.json:62
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 #: wiki/wiki/doctype/wiki_page/wiki_page.json:88
 msgid "Description"
 msgstr ""
 
 #. Label of a Section Break field in DocType 'Wiki Git Sync Log'
 #: frontend/src/components/PageSettingsPanel.vue:201
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 #: wiki/wiki/doctype/wiki_git_sync_log/wiki_git_sync_log.json:116
 msgid "Details"
 msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:196
 #: frontend/src/pages/Overview.vue:163
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Direct"
 msgstr ""
 
 #: frontend/src/lib/versionHistory.js:18
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Direct edit"
 msgstr ""
 
@@ -1171,7 +1188,7 @@ msgstr ""
 #: frontend/src/components/PageSettingsPanel.vue:68
 #: frontend/src/components/PageSettingsPanel.vue:76
 #: wiki/frappe_wiki/doctype/wiki_document/wiki_document.json:213
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Disable Indexing"
 msgstr ""
 
@@ -1180,7 +1197,7 @@ msgid "Discard"
 msgstr ""
 
 #: frontend/src/components/SpaceModeStrip.vue:328
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Discard Changes"
 msgstr ""
 
@@ -1213,7 +1230,7 @@ msgid "Docs Directory"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:36
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Docs Folder"
 msgstr ""
 
@@ -1252,14 +1269,14 @@ msgstr ""
 #: frontend/src/components/DraftContributionPanel.vue:69
 #: frontend/src/components/SpaceModeStrip.vue:340
 #: wiki/frappe_wiki/doctype/wiki_change_request/wiki_change_request.json:56
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json:53
 msgid "Draft"
 msgstr ""
 
 #: frontend/src/components/DraftContributionPanel.vue:109
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
 msgid "Draft not found"
 msgstr ""
 
@@ -1272,15 +1289,15 @@ msgid "Each operation must be an object"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:192
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Earlier"
 msgstr ""
 
 #: frontend/src/components/WikiDocumentPanel.vue:60
 #: frontend/src/pages/ContributionReview.vue:11
 #: frontend/src/pages/ContributionReview.vue:12
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:16
 msgid "Edit"
 msgstr ""
 
@@ -1289,17 +1306,17 @@ msgid "Edit External Link"
 msgstr ""
 
 #: frontend/src/components/DraftContributionPanel.vue:114
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
 msgid "Edit Route"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:212
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Edit a page and it shows up here."
 msgstr ""
 
 #: frontend/src/components/WikiDocumentPanel.vue:48
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:16
 msgid "Edit on GitHub"
 msgstr ""
 
@@ -1316,12 +1333,12 @@ msgid "Edited after approval. Back in review."
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:218
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Edited by"
 msgstr ""
 
 #: frontend/src/components/PageMetaLine.vue:92
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 #, python-brace-format
 msgid "Edited {0}"
 msgstr ""
@@ -1363,7 +1380,7 @@ msgstr ""
 
 #: frontend/src/components/WikiDocumentList.vue:183
 #: frontend/src/components/WikiDocumentList.vue:471
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Enter group name"
 msgstr ""
 
@@ -1374,13 +1391,13 @@ msgstr ""
 
 #: frontend/src/pages/SpaceDetails.vue:102
 #: frontend/src/pages/SpaceDetails.vue:132
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Enter new route (without leading slash)"
 msgstr ""
 
 #: frontend/src/components/WikiDocumentList.vue:183
 #: frontend/src/components/WikiDocumentList.vue:471
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Enter page title"
 msgstr ""
 
@@ -1390,7 +1407,7 @@ msgid "Enter the new base route (without leading slash)"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:288
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Enter the reason for rejection..."
 msgstr ""
 
@@ -1399,7 +1416,7 @@ msgid "Enter webhook secret"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:255
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Enter your feedback..."
 msgstr ""
 
@@ -1414,62 +1431,62 @@ msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:715
 #: frontend/src/pages/ContributionReview.vue:725
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Error approving change request"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:102
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Error archiving change request"
 msgstr ""
 
 #: frontend/src/components/AssignDialog.vue:92
-#: wiki/public/frontend/assets/AssigneeAvatars-BDqPU8I4.js:1
+#: wiki/public/frontend/assets/AssigneeAvatars-BoGDztVD.js:1
 msgid "Error assigning reviewer"
 msgstr ""
 
 #: frontend/src/composables/useTreeDialogs.js:186
 #: frontend/src/composables/useTreeDialogs.js:204
 #: frontend/src/composables/useTreeDialogs.js:278
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Error creating draft"
 msgstr ""
 
 #: frontend/src/components/DraftContributionPanel.vue:491
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
 msgid "Error deleting draft"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:673
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Error loading conflicts"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:156
 #: frontend/src/pages/ContributionReview.vue:694
 #: frontend/src/pages/ContributionReview.vue:697
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Error merging change request"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:800
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Error rejecting change request"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:748
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Error requesting changes"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:779
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Error resolving conflicts"
 msgstr ""
 
 #: frontend/src/components/WikiTree.vue:361
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Error restoring page"
 msgstr ""
 
@@ -1479,44 +1496,44 @@ msgstr ""
 #: frontend/src/components/WikiDocumentPanel.vue:787
 #: frontend/src/components/WikiDocumentPanel.vue:810
 #: frontend/src/composables/useChangeRequestActions.js:52
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:16
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Error saving draft"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:531
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Error saving page settings"
 msgstr ""
 
 #: frontend/src/pages/SpaceDetails.vue:290
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Error starting clone"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:87
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Error submitting for review"
 msgstr ""
 
 #: frontend/src/components/SpaceModeStrip.vue:304
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Error updating change request"
 msgstr ""
 
 #: frontend/src/composables/useTreeDialogs.js:322
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Error updating external link"
 msgstr ""
 
 #: frontend/src/components/WikiTree.vue:353
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Error updating publish status"
 msgstr ""
 
 #: frontend/src/components/DraftContributionPanel.vue:458
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
 msgid "Error updating route"
 msgstr ""
 
@@ -1524,15 +1541,15 @@ msgstr ""
 #: frontend/src/components/SubmitForReviewButton.vue:161
 #: frontend/src/components/WikiDocumentPanel.vue:771
 #: frontend/src/composables/useTreeDialogs.js:232
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
-#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
+#: wiki/public/frontend/assets/SubmitForReviewButton-B3ZxIP6l.js:1
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:16
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Error updating title"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:815
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Error withdrawing change request"
 msgstr ""
 
@@ -1542,7 +1559,7 @@ msgid "Event"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:85
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Every change request"
 msgstr ""
 
@@ -1556,7 +1573,7 @@ msgstr ""
 #: frontend/src/components/WikiTree.vue:392
 #: wiki/frappe_wiki/doctype/wiki_document/wiki_document.json:174
 #: wiki/frappe_wiki/doctype/wiki_revision_item/wiki_revision_item.json:88
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "External Link"
 msgstr ""
 
@@ -1570,72 +1587,72 @@ msgstr ""
 #: frontend/src/composables/useTreeDialogs.js:258
 #: frontend/src/composables/useTreeDialogs.js:304
 #: wiki/frappe_wiki/doctype/wiki_document/wiki_document.py:136
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "External links must start with http://, https:// or mailto:"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:253
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Failed to delete the space"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:228
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Failed to rename the space"
 msgstr ""
 
 #: frontend/src/components/WikiSettings/GitHubAppPanel.vue:224
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Failed to save configuration"
 msgstr ""
 
 #: frontend/src/components/WikiSettings/GitHubAppPanel.vue:247
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Failed to save secrets"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:377
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Failed to update access control"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:328
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Failed to update contributions setting"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:360
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Failed to update the PDF download setting"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:344
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Failed to update the feedback setting"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/NavigationPanel.vue:87
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Failed to update the order"
 msgstr ""
 
 #: frontend/src/composables/useSpaceIdentitySaver.js:26
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Failed to update the space logo"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/NavigationPanel.vue:66
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Failed to update the switcher"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:474
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Failed to upload image"
 msgstr ""
 
 #: frontend/src/components/SpaceIdentityPicker.vue:300
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Failed to upload logo"
 msgstr ""
 
@@ -1649,8 +1666,8 @@ msgstr ""
 #. Label of a Tab Break field in DocType 'Wiki Settings'
 #: frontend/src/components/WikiSettings/WikiSettings.vue:103
 #: frontend/src/pages/ContributionReview.vue:254
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #: wiki/wiki/doctype/wiki_feedback/wiki_feedback.json:34
 #: wiki/wiki/doctype/wiki_settings/wiki_settings.json:103
 msgid "Feedback"
@@ -1677,12 +1694,24 @@ msgid "Finished At"
 msgstr ""
 
 #: frontend/src/lib/versionHistory.js:17
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "First version"
 msgstr ""
 
 #: frontend/src/components/NewSpaceDialog.vue:167
 msgid "Folder in the repo to sync. Supports nested paths like docs/guide."
+msgstr ""
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:221
+msgid "For both modes"
+msgstr ""
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:231
+msgid "For dark mode"
+msgstr ""
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:226
+msgid "For light mode"
 msgstr ""
 
 #: wiki/wiki/git_sync.py:657
@@ -1695,7 +1724,7 @@ msgid "From Date must be on or before To Date"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:34
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "From the repo"
 msgstr ""
 
@@ -1705,9 +1734,9 @@ msgstr ""
 #: frontend/src/components/SpaceSettings/SpaceSettings.vue:26
 #: frontend/src/components/SpaceSettings/SpaceSettings.vue:167
 #: frontend/src/components/WikiSettings/WikiSettings.vue:97
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #: wiki/wiki/doctype/wiki_settings/wiki_settings.json:50
 #: wiki/wiki/doctype/wiki_space/wiki_space.json:79
 msgid "General"
@@ -1740,7 +1769,7 @@ msgstr ""
 #. Label of a Tab Break field in DocType 'Wiki Space'
 #: frontend/src/components/SpaceSettings/SpaceSettings.vue:76
 #: frontend/src/components/SpaceSettings/SpaceSettings.vue:172
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 #: wiki/wiki/doctype/wiki_space/wiki_space.json:292
 msgid "Git Sync"
 msgstr ""
@@ -1797,7 +1826,7 @@ msgstr ""
 
 #: frontend/src/components/WikiSettings/GitHubAppPanel.vue:6
 #: frontend/src/components/WikiSettings/WikiSettings.vue:115
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "GitHub Sync"
 msgstr ""
 
@@ -1827,17 +1856,17 @@ msgid "Good"
 msgstr ""
 
 #: frontend/src/components/DraftContributionPanel.vue:70
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
 msgid "Group"
 msgstr ""
 
 #: frontend/src/components/DraftContributionPanel.vue:64
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
 msgid "Group name"
 msgstr ""
 
 #: frontend/src/components/DraftContributionPanel.vue:78
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
 msgid "Groups organize pages but have no content."
 msgstr ""
 
@@ -1857,7 +1886,7 @@ msgid "Head Revision"
 msgstr ""
 
 #: frontend/src/components/WikiSettings/WikiSettings.vue:109
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Header & Robots"
 msgstr ""
 
@@ -1892,7 +1921,7 @@ msgid "Hourly rate limit on submitting feedbacks"
 msgstr ""
 
 #: frontend/src/components/SpaceIdentityPicker.vue:167
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Icon"
 msgstr ""
 
@@ -1910,13 +1939,17 @@ msgstr ""
 msgid "Image"
 msgstr ""
 
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:32
+msgid "Image options"
+msgstr ""
+
 #. Option for the 'Status' (Select) field in DocType 'Wiki Change Request'
 #: wiki/frappe_wiki/doctype/wiki_change_request/wiki_change_request.json:56
 msgid "In Review"
 msgstr ""
 
 #: frontend/src/components/SpaceModeStrip.vue:348
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "In review"
 msgstr ""
 
@@ -1933,7 +1966,7 @@ msgid "Injected into the <head> of all public wiki pages"
 msgstr ""
 
 #: frontend/src/composables/useDiffView.js:22
-#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#: wiki/public/frontend/assets/PageDiff-D3g2uuC-.js:2
 msgid "Inline"
 msgstr ""
 
@@ -2038,19 +2071,19 @@ msgid "Javascript"
 msgstr ""
 
 #: frontend/src/components/CommandPalette.vue:410
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Jump to"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:147
 #: frontend/src/pages/ContributionReview.vue:161
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Keep Main"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:147
 #: frontend/src/pages/ContributionReview.vue:167
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Keep Your Changes"
 msgstr ""
 
@@ -2060,33 +2093,33 @@ msgid "Keywords"
 msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:119
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Last 12 months"
 msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:118
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Last 180 days"
 msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:116
 #: frontend/src/pages/Overview.vue:202
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Last 30 days"
 msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:115
 #: frontend/src/pages/Overview.vue:201
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Last 7 days"
 msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:117
 #: frontend/src/pages/Overview.vue:203
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Last 90 days"
 msgstr ""
 
@@ -2111,7 +2144,7 @@ msgid "Last Sync Time"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:50
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Last Synced"
 msgstr ""
 
@@ -2122,17 +2155,17 @@ msgstr ""
 
 #: frontend/src/pages/AllSpaces.vue:112
 #: wiki/frappe_wiki/print_format/standard_wiki_document/standard_wiki_document.html:212
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
 msgid "Last Updated"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:214
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Last edited"
 msgstr ""
 
 #: frontend/src/components/SpaceModeStrip.vue:229
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #, python-brace-format
 msgid "Last synced {0}"
 msgstr ""
@@ -2152,22 +2185,23 @@ msgstr ""
 #. Description of the 'Meta Title' (Data) field in DocType 'Wiki Document'
 #: frontend/src/components/PageSettingsPanel.vue:88
 #: wiki/frappe_wiki/doctype/wiki_document/wiki_document.json:190
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Leave empty to use the page title"
 msgstr ""
 
 #. Label of a Int field in DocType 'Wiki Document'
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:196
 #: wiki/frappe_wiki/doctype/wiki_document/wiki_document.json:46
 msgid "Left"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:119
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Let readers download wiki pages as PDF"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:186
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Let readers propose edits via change requests. Users with write access can always edit."
 msgstr ""
 
@@ -2177,7 +2211,7 @@ msgid "Light Mode Logo"
 msgstr ""
 
 #: frontend/src/components/LibrarySidebar.vue:227
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Link copied"
 msgstr ""
 
@@ -2187,19 +2221,19 @@ msgid "Linked Documents"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/NavigationPanel.vue:6
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "List this space in the switcher and on the overview page"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:39
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Live now"
 msgstr ""
 
 #: frontend/src/components/ContributionsPanel.vue:162
 #: frontend/src/pages/AllSpaces.vue:263
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 msgid "Load more"
 msgstr ""
 
@@ -2228,8 +2262,8 @@ msgstr ""
 #: frontend/src/components/CommandPalette.vue:380
 #: frontend/src/components/LibrarySidebar.vue:241
 #: frontend/src/components/MobileAppMenu.vue:36
-#: wiki/public/frontend/assets/ListHeaderCell.vue_vue_type_script_setup_true_lang-yY8l4nAf.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/ListHeaderCell.vue_vue_type_script_setup_true_lang-BwZz3KEJ.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Log out"
 msgstr ""
 
@@ -2239,7 +2273,7 @@ msgid "Logo"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/NavigationPanel.vue:19
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Lower numbers come first; spaces that tie are ordered by name"
 msgstr ""
 
@@ -2249,7 +2283,7 @@ msgid "Main Revision"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:29
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Make this wiki space publicly accessible"
 msgstr ""
 
@@ -2259,24 +2293,24 @@ msgid "Manual"
 msgstr ""
 
 #: frontend/src/composables/useDiffView.js:23
-#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#: wiki/public/frontend/assets/PageDiff-D3g2uuC-.js:2
 msgid "Markdown"
 msgstr ""
 
 #: frontend/src/components/MobileAppMenu.vue:3
-#: wiki/public/frontend/assets/ListHeaderCell.vue_vue_type_script_setup_true_lang-yY8l4nAf.js:1
+#: wiki/public/frontend/assets/ListHeaderCell.vue_vue_type_script_setup_true_lang-BwZz3KEJ.js:1
 #: wiki/templates/wiki/includes/mobile_header.html:85
 msgid "Menu"
 msgstr ""
 
 #: frontend/src/components/MergeChangeRequestButton.vue:13
 #: frontend/src/pages/ContributionReview.vue:33
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Merge"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:100
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Merge Conflicts"
 msgstr ""
 
@@ -2286,7 +2320,7 @@ msgid "Merge Revision"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:148
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Merge conflict — resolve it to continue"
 msgstr ""
 
@@ -2341,17 +2375,17 @@ msgid "Meta Title"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:94
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Meta description"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:101
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Meta image"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:86
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Meta title"
 msgstr ""
 
@@ -2375,14 +2409,14 @@ msgstr ""
 
 #: frontend/src/components/ContributionsPanel.vue:209
 #: frontend/src/composables/useChangeTypeDisplay.js:17
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Modified"
 msgstr ""
 
 #: frontend/src/components/SpaceModeStrip.vue:77
 #: frontend/src/pages/ContributionReview.vue:45
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "More actions"
 msgstr ""
 
@@ -2396,7 +2430,7 @@ msgid "Moved"
 msgstr ""
 
 #: frontend/src/pages/Contributions.vue:166
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 msgid "My Change Requests"
 msgstr ""
 
@@ -2409,7 +2443,7 @@ msgid "Name"
 msgstr ""
 
 #: frontend/src/composables/useTreeDialogs.js:219
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Name is required"
 msgstr ""
 
@@ -2425,29 +2459,29 @@ msgstr ""
 
 #: frontend/src/components/SpaceSettings/SpaceSettings.vue:37
 #: frontend/src/components/SpaceSettings/SpaceSettings.vue:168
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Navigation"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:51
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Never"
 msgstr ""
 
 #: frontend/src/components/SpaceModeStrip.vue:228
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Never synced"
 msgstr ""
 
 #. Label of a Check field in DocType 'Wiki Page Patch'
 #: frontend/src/composables/useChangeTypeDisplay.js:10
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json:104
 msgid "New"
 msgstr ""
 
 #: frontend/src/pages/SpaceDetails.vue:100
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 #: wiki/wiki/doctype/wiki_space/wiki_space.js:51
 msgid "New Base Route"
 msgstr ""
@@ -2459,7 +2493,7 @@ msgstr ""
 
 #: frontend/src/components/WikiDocumentList.vue:455
 #: frontend/src/components/WikiTree.vue:387
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "New Group"
 msgstr ""
 
@@ -2469,7 +2503,7 @@ msgid "New HTML"
 msgstr ""
 
 #: frontend/src/components/WikiTree.vue:382
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "New Page"
 msgstr ""
 
@@ -2480,12 +2514,12 @@ msgstr ""
 
 #: frontend/src/components/LibrarySidebar.vue:96
 #: frontend/src/pages/AllSpaces.vue:10 frontend/src/pages/AllSpaces.vue:42
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
 msgid "New Space"
 msgstr ""
 
 #: frontend/src/pages/SpaceDetails.vue:130
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 #: wiki/wiki/doctype/wiki_space/wiki_space.js:14
 msgid "New Space Route"
 msgstr ""
@@ -2496,30 +2530,30 @@ msgid "New Title"
 msgstr ""
 
 #: frontend/src/components/StartEditingDialog.vue:5
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "New change request"
 msgstr ""
 
 #: frontend/src/composables/useChangeTypeDisplay.js:80
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "New external link added"
 msgstr ""
 
 #: frontend/src/composables/useChangeTypeDisplay.js:79
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "New group to be created"
 msgstr ""
 
 #: frontend/src/components/CommandPalette.vue:315
 #: frontend/src/components/SpaceWelcome.vue:46
 #: frontend/src/components/WikiDocumentList.vue:90
-#: wiki/public/frontend/assets/SpaceWelcome-B9KyirxZ.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/SpaceWelcome-DhvdTICH.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "New page"
 msgstr ""
 
 #: frontend/src/composables/useChangeTypeDisplay.js:81
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "New page to be created"
 msgstr ""
 
@@ -2529,15 +2563,15 @@ msgid "New route is the same as current route"
 msgstr ""
 
 #: frontend/src/components/CommandPalette.vue:326
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "New space"
 msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:44
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:142
 #: frontend/src/pages/Overview.vue:213 frontend/src/pages/Overview.vue:238
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "New visitors"
 msgstr ""
 
@@ -2547,7 +2581,7 @@ msgid "Newest save or merge of a page in this space. The sidebar orders spaces b
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:173
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "No .wiki.yml or .wiki.json in the docs folder — the page tree is inferred from the docs folder."
 msgstr ""
 
@@ -2557,74 +2591,74 @@ msgid "No Change"
 msgstr ""
 
 #: frontend/src/pages/Contributions.vue:170
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 msgid "No Change Requests"
 msgstr ""
 
 #: frontend/src/components/ContributionsPanel.vue:281
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 msgid "No Space"
 msgstr ""
 
 #: frontend/src/components/LibrarySidebar.vue:83
 #: frontend/src/pages/AllSpaces.vue:33
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
 msgid "No Wiki Spaces"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:519
 #: frontend/src/components/WikiDocumentPanel.vue:795
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:16
 msgid "No active change request"
 msgstr ""
 
 #: frontend/src/pages/Overview.vue:317
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
 msgid "No change"
 msgstr ""
 
 #: frontend/src/pages/Contributions.vue:205
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 msgid "No change requests in review"
 msgstr ""
 
 #: frontend/src/components/ChangeRequestsPanel.vue:47
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "No change requests with this status"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:299
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "No changes"
 msgstr ""
 
 #: frontend/src/components/SpaceModeStrip.vue:365
 #: frontend/src/pages/ContributionReview.vue:211
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "No changes yet"
 msgstr ""
 
 #: frontend/src/components/PageDiff.vue:192
-#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#: wiki/public/frontend/assets/PageDiff-D3g2uuC-.js:2
 msgid "No content changes"
 msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:69
 #: frontend/src/pages/Overview.vue:53 frontend/src/pages/Overview.vue:82
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "No data to show"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:190
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "No description set"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:60
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "No history yet"
 msgstr ""
 
@@ -2633,12 +2667,12 @@ msgid "No matches"
 msgstr ""
 
 #: frontend/src/components/ChangeRequestsPanel.vue:48
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "No open change requests"
 msgstr ""
 
 #: frontend/src/components/SpaceWelcome.vue:107
-#: wiki/public/frontend/assets/SpaceWelcome-B9KyirxZ.js:1
+#: wiki/public/frontend/assets/SpaceWelcome-DhvdTICH.js:1
 msgid "No pages have come across from the repository."
 msgstr ""
 
@@ -2656,7 +2690,7 @@ msgid "No pages yet"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:21
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "No repository configured"
 msgstr ""
 
@@ -2664,28 +2698,28 @@ msgstr ""
 msgid "No results"
 msgstr ""
 
-#: wiki/templates/wiki/includes/mobile_header.html:195
+#: wiki/templates/wiki/includes/mobile_header.html:197
 #: wiki/templates/wiki/includes/search_modal.html:99
 msgid "No results for"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:76
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "No roles configured (open to all logged-in users)."
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:17
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "No roles found"
 msgstr ""
 
 #: frontend/src/pages/AllSpaces.vue:72
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
 msgid "No spaces found"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:162
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "No sync runs yet"
 msgstr ""
 
@@ -2693,18 +2727,18 @@ msgstr ""
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:88
 #: frontend/src/pages/Overview.vue:92 frontend/src/pages/Overview.vue:121
 #: frontend/src/pages/Overview.vue:153
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "No views in this range"
 msgstr ""
 
 #: frontend/src/pages/AllSpaces.vue:398
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
 msgid "No wiki spaces available"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/SpaceSettings.vue:96
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Not connected to a repository"
 msgstr ""
 
@@ -2743,12 +2777,12 @@ msgid "Not set"
 msgstr ""
 
 #: frontend/src/pages/Contributions.vue:188
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 msgid "Nothing assigned to you"
 msgstr ""
 
 #: frontend/src/components/SpaceWelcome.vue:101
-#: wiki/public/frontend/assets/SpaceWelcome-B9KyirxZ.js:1
+#: wiki/public/frontend/assets/SpaceWelcome-DhvdTICH.js:1
 msgid "Nothing synced yet"
 msgstr ""
 
@@ -2771,12 +2805,12 @@ msgstr ""
 
 #: frontend/src/components/EditorTableOfContents.vue:29
 #: frontend/src/components/EditorTableOfContents.vue:69
-#: wiki/public/frontend/assets/EditorTableOfContents-CWchmu6w.js:1
+#: wiki/public/frontend/assets/EditorTableOfContents-BeZVfURY.js:1
 #: wiki/templates/wiki/includes/mobile_header.html:47
-#: wiki/templates/wiki/includes/mobile_header.html:171
+#: wiki/templates/wiki/includes/mobile_header.html:173
 #: wiki/templates/wiki/includes/sidebar.html:304
 #: wiki/templates/wiki/includes/toc.html:19
-#: wiki/templates/wiki/includes/toc.html:35
+#: wiki/templates/wiki/includes/toc.html:37
 msgid "On this page"
 msgstr ""
 
@@ -2789,7 +2823,7 @@ msgid "Only a top-level group can be marked as a tab. Nested tabs are not suppor
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:88
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Only space admins can change access control."
 msgstr ""
 
@@ -2805,24 +2839,24 @@ msgstr ""
 #. Option for the 'Status' (Select) field in DocType 'Wiki Feedback'
 #: frontend/src/pages/Overview.vue:46
 #: wiki/frappe_wiki/doctype/wiki_merge_conflict/wiki_merge_conflict.json:49
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
 #: wiki/wiki/doctype/wiki_feedback/wiki_feedback.json:46
 msgid "Open"
 msgstr ""
 
 #: frontend/src/components/VersionDiff.vue:25
 #: frontend/src/components/VersionDiff.vue:34
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Open change request"
 msgstr ""
 
 #: frontend/src/pages/Overview.vue:214
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
 msgid "Open change requests"
 msgstr ""
 
 #: frontend/src/pages/Overview.vue:40
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
 msgid "Open change requests by space"
 msgstr ""
 
@@ -2836,7 +2870,7 @@ msgstr ""
 
 #: frontend/src/components/WikiDocumentPanel.vue:11
 #: frontend/src/components/WikiDocumentPanel.vue:16
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:16
 msgid "Open live page"
 msgstr ""
 
@@ -2845,7 +2879,7 @@ msgid "Open navigation menu"
 msgstr ""
 
 #: frontend/src/components/PageMetaLine.vue:12
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Open page analytics"
 msgstr ""
 
@@ -2854,7 +2888,7 @@ msgid "Open search"
 msgstr ""
 
 #: frontend/src/components/PageMetaLine.vue:23
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Open version history"
 msgstr ""
 
@@ -2873,7 +2907,7 @@ msgid "Optional sub-folder in the repo to sync (e.g. docs). Leave empty to sync 
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/NavigationPanel.vue:17
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Order"
 msgstr ""
 
@@ -2883,7 +2917,7 @@ msgid "Order Index"
 msgstr ""
 
 #: frontend/src/composables/useChangeTypeDisplay.js:87
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Order updated"
 msgstr ""
 
@@ -2906,13 +2940,13 @@ msgstr ""
 #: frontend/src/components/NeoCockpitWikiSidebar.vue:55
 #: frontend/src/layouts/MainLayout.vue:18 frontend/src/pages/Overview.vue:4
 #: frontend/src/pages/Overview.vue:324
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Overview"
 msgstr ""
 
 #: frontend/src/components/WikiDocumentPanel.vue:38
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:16
 msgid "PDF"
 msgstr ""
 
@@ -2934,13 +2968,13 @@ msgid "PNG or SVG, shown at a small size."
 msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:20
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Page"
 msgstr ""
 
 #: frontend/src/components/DraftContributionPanel.vue:14
 #: frontend/src/components/DraftContributionPanel.vue:15
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
 msgid "Page actions"
 msgstr ""
 
@@ -2957,54 +2991,54 @@ msgstr ""
 #: frontend/src/components/PageSettingsPanel.vue:13
 #: frontend/src/components/WikiDocumentPanel.vue:97
 #: frontend/src/components/WikiDocumentPanel.vue:100
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:16
 msgid "Page settings"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:525
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Page settings saved"
 msgstr ""
 
 #: frontend/src/components/DraftContributionPanel.vue:35
 #: frontend/src/components/WikiDocumentPanel.vue:137
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:16
 msgid "Page title"
 msgstr ""
 
 #: frontend/src/pages/Overview.vue:61 frontend/src/pages/Overview.vue:212
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
 msgid "Page views"
 msgstr ""
 
 #: frontend/src/components/Analytics/TrackingNotice.vue:5
-#: wiki/public/frontend/assets/NumberCard.vue_vue_type_script_setup_true_lang-Dx41eedB.js:1
+#: wiki/public/frontend/assets/NumberCard.vue_vue_type_script_setup_true_lang-Dw3DuygS.js:1
 msgid "Page views are not being recorded"
 msgstr ""
 
 #: frontend/src/components/CommandPalette.vue:412
 #: frontend/src/pages/SpaceDetails.vue:12
 #: frontend/src/pages/SpaceDetails.vue:38
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
-#: wiki/templates/wiki/includes/mobile_header.html:169
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
+#: wiki/templates/wiki/includes/mobile_header.html:170
 msgid "Pages"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:40
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Pages are read from the repository root"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:39
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Pages are read from this folder in the repository"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:184
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 #, python-brace-format
 msgid "Pages live under {0}"
 msgstr ""
@@ -3053,7 +3087,7 @@ msgid "Pending"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:63
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Permanently delete this space and all its pages"
 msgstr ""
 
@@ -3063,18 +3097,18 @@ msgid "Permission Level"
 msgstr ""
 
 #: frontend/src/components/SpaceWelcome.vue:37
-#: wiki/public/frontend/assets/SpaceWelcome-B9KyirxZ.js:1
+#: wiki/public/frontend/assets/SpaceWelcome-DhvdTICH.js:1
 msgid "Pick a page to edit"
 msgstr ""
 
 #: frontend/src/components/LibrarySidebar.vue:186
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Pin to top"
 msgstr ""
 
 #: frontend/src/components/LibrarySidebar.vue:64
 #: frontend/src/pages/AllSpaces.vue:177
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
 msgid "Pinned to top"
 msgstr ""
 
@@ -3091,17 +3125,17 @@ msgid "Please log in to create a GitHub App."
 msgstr ""
 
 #: frontend/src/components/NewSpaceDialog.vue:558
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Please pick a GitHub repository"
 msgstr ""
 
 #: frontend/src/components/NewSpaceDialog.vue:562
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Please pick or enter a branch"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:787
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Please provide a reason"
 msgstr ""
 
@@ -3110,7 +3144,7 @@ msgid "Please provide a reason for rejecting this change request."
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:735
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Please provide feedback"
 msgstr ""
 
@@ -3119,18 +3153,18 @@ msgid "Please provide feedback explaining what needs to change."
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:249
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Please provide feedback explaining what needs to change. This is sent back to the author."
 msgstr ""
 
 #: frontend/src/components/MergeChangeRequestButton.vue:61
 #: frontend/src/composables/useChangeRequestActions.js:111
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Please wait for reordering to finish before merging"
 msgstr ""
 
 #: frontend/src/components/PageDiff.vue:227
-#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#: wiki/public/frontend/assets/PageDiff-D3g2uuC-.js:2
 msgid "Position"
 msgstr ""
 
@@ -3143,12 +3177,12 @@ msgstr ""
 #. Document'
 #: frontend/src/components/PageSettingsPanel.vue:70
 #: wiki/frappe_wiki/doctype/wiki_document/wiki_document.json:210
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Prevent search engines from indexing this page"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:155
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Preview"
 msgstr ""
 
@@ -3174,7 +3208,7 @@ msgid "Public installation link, e.g. https://github.com/apps/your-app/installat
 msgstr ""
 
 #: frontend/src/components/WikiTree.vue:412
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Publish"
 msgstr ""
 
@@ -3184,9 +3218,9 @@ msgstr ""
 #: frontend/src/components/PageSettingsPanel.vue:63
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:28
 #: frontend/src/pages/AllSpaces.vue:350
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 #: wiki/wiki/doctype/wiki_group_item/wiki_group_item.json:39
 #: wiki/wiki/doctype/wiki_page/wiki_page.json:42
 msgid "Published"
@@ -3197,12 +3231,12 @@ msgid "Published pages only?"
 msgstr ""
 
 #: frontend/src/components/SpaceWelcome.vue:21
-#: wiki/public/frontend/assets/SpaceWelcome-B9KyirxZ.js:1
+#: wiki/public/frontend/assets/SpaceWelcome-DhvdTICH.js:1
 msgid "Pulling the latest pages from GitHub. This will only take a moment."
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:71
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Pushes to the repository sync automatically via this webhook URL:"
 msgstr ""
 
@@ -3235,12 +3269,12 @@ msgid "Read"
 msgstr ""
 
 #: frontend/src/components/WikiDocumentPanel.vue:25
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:16
 msgid "Read-only"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:85
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Readable by all logged-in users if no roles are set. Add the Guest role for public/anonymous access."
 msgstr ""
 
@@ -3250,27 +3284,27 @@ msgid "Readable without an account"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:208
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Reading time"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:68
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Real-time Sync"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:287
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Reason"
 msgstr ""
 
 #: frontend/src/components/CommandPalette.vue:413
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Recent"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:142
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Recommended 1200×630"
 msgstr ""
 
@@ -3286,7 +3320,7 @@ msgstr ""
 msgid "Recommended: 150-160 characters"
 msgstr ""
 
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 #, python-brace-format
 msgid "Recommended: 150-160 characters ({0} so far)"
 msgstr ""
@@ -3303,17 +3337,17 @@ msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:302
 #: frontend/src/pages/ContributionReview.vue:627
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Reject"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:277
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Reject Change Request"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:631
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Reject review"
 msgstr ""
 
@@ -3335,7 +3369,7 @@ msgid "Rejected this change request: {0}"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:282
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Rejecting is final — this change request cannot be merged. Please explain why it is being rejected."
 msgstr ""
 
@@ -3344,45 +3378,49 @@ msgid "Reload latest"
 msgstr ""
 
 #: frontend/src/components/MergeChangeRequestButton.vue:47
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Reload latest before merging"
 msgstr ""
 
 #: frontend/src/components/SubmitForReviewButton.vue:114
-#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
+#: wiki/public/frontend/assets/SubmitForReviewButton-B3ZxIP6l.js:1
 msgid "Reload latest before submitting"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:25
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #, python-brace-format
 msgid "Reload latest before {0}"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:120
 #: frontend/src/components/SpaceIdentityPicker.vue:109
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Remove"
 msgstr ""
 
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:238
+msgid "Remove dark mode image"
+msgstr ""
+
 #: frontend/src/components/MergeChangeRequestButton.vue:55
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Remove failed uploads before merging"
 msgstr ""
 
 #: frontend/src/components/SubmitForReviewButton.vue:123
-#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
+#: wiki/public/frontend/assets/SubmitForReviewButton-B3ZxIP6l.js:1
 msgid "Remove failed uploads before submitting"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:34
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #, python-brace-format
 msgid "Remove failed uploads before {0}"
 msgstr ""
 
 #: frontend/src/components/WikiTree.vue:397
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Rename"
 msgstr ""
 
@@ -3391,14 +3429,18 @@ msgid "Rename Group"
 msgstr ""
 
 #: frontend/src/composables/useChangeTypeDisplay.js:31
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Reordered"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:117
 #: frontend/src/components/SpaceIdentityPicker.vue:88
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Replace"
+msgstr ""
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:212
+msgid "Replace image"
 msgstr ""
 
 #. Description of the 'Source Path' (Data) field in DocType 'Wiki Document'
@@ -3410,7 +3452,7 @@ msgstr ""
 #. Label of a Data field in DocType 'Wiki Space'
 #: frontend/src/components/NewSpaceDialog.vue:140
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:9
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 #: wiki/wiki/doctype/wiki_github_webhook_log/wiki_github_webhook_log.json:53
 #: wiki/wiki/doctype/wiki_space/wiki_space.json:306
 msgid "Repository"
@@ -3426,7 +3468,7 @@ msgid "Repository and branch are required for git sync."
 msgstr ""
 
 #: frontend/src/lib/versionHistory.js:16
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Repository sync"
 msgstr ""
 
@@ -3437,23 +3479,27 @@ msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:244
 #: frontend/src/pages/ContributionReview.vue:269
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Request Changes"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:577
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Request changes"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:743
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Requested changes"
 msgstr ""
 
 #: wiki/frappe_wiki/doctype/wiki_change_request/wiki_change_request.py:1565
 #, python-brace-format
 msgid "Requested changes: {0}"
+msgstr ""
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:46
+msgid "Resize image"
 msgstr ""
 
 #: wiki/templates/wiki/includes/sidebar.html:25
@@ -3470,22 +3516,22 @@ msgid "Resolution must be 'ours' or 'theirs'."
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:25
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Resolve & Merge"
 msgstr ""
 
 #: frontend/src/components/MergeChangeRequestButton.vue:49
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Resolve failed changes before merging"
 msgstr ""
 
 #: frontend/src/components/SubmitForReviewButton.vue:117
-#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
+#: wiki/public/frontend/assets/SubmitForReviewButton-B3ZxIP6l.js:1
 msgid "Resolve failed changes before submitting"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:28
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #, python-brace-format
 msgid "Resolve failed changes before {0}"
 msgstr ""
@@ -3511,13 +3557,13 @@ msgid "Resolved Payload"
 msgstr ""
 
 #: frontend/src/components/WikiTree.vue:371
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Restore"
 msgstr ""
 
 #: frontend/src/components/LibrarySidebar.vue:70
 #: frontend/src/pages/AllSpaces.vue:183
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
 msgid "Restricted access"
 msgstr ""
 
@@ -3537,7 +3583,7 @@ msgid "Review Comment"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:596
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Review decision"
 msgstr ""
 
@@ -3552,12 +3598,12 @@ msgid "Reviewed By"
 msgstr ""
 
 #: frontend/src/components/AssignDialog.vue:87
-#: wiki/public/frontend/assets/AssigneeAvatars-BDqPU8I4.js:1
+#: wiki/public/frontend/assets/AssigneeAvatars-BoGDztVD.js:1
 msgid "Reviewer assigned"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:598
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Reviewers"
 msgstr ""
 
@@ -3572,18 +3618,19 @@ msgid "Revisions"
 msgstr ""
 
 #. Label of a Int field in DocType 'Wiki Document'
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:198
 #: wiki/frappe_wiki/doctype/wiki_document/wiki_document.json:55
 msgid "Right"
 msgstr ""
 
 #: frontend/src/pages/Overview.vue:41
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
 msgid "Right now"
 msgstr ""
 
 #. Label of a Link field in DocType 'Wiki Space Role'
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:31
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 #: wiki/wiki/doctype/wiki_space_role/wiki_space_role.json:15
 msgid "Role"
 msgstr ""
@@ -3608,8 +3655,8 @@ msgstr ""
 #: frontend/src/components/WikiDocumentList.vue:115
 #: wiki/frappe_wiki/doctype/wiki_document/wiki_document.json:107
 #: wiki/frappe_wiki/doctype/wiki_revision_item/wiki_revision_item.json:54
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 #: wiki/wiki/doctype/wiki_page/wiki_page.json:50
 #: wiki/wiki/doctype/wiki_space/wiki_space.json:66
 msgid "Route"
@@ -3622,7 +3669,7 @@ msgid "Route '{0}' is already used by another Wiki Space"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:19
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Route Prefix"
 msgstr ""
 
@@ -3633,7 +3680,7 @@ msgid "Route cannot be empty"
 msgstr ""
 
 #: frontend/src/components/NewSpaceDialog.vue:554
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Route is required."
 msgstr ""
 
@@ -3658,9 +3705,9 @@ msgstr ""
 #: frontend/src/components/WikiDocumentList.vue:239
 #: frontend/src/components/WikiSettings/CodePanel.vue:22
 #: frontend/src/components/WikiSettings/GitHubAppPanel.vue:43
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
-#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
+#: wiki/public/frontend/assets/SubmitForReviewButton-B3ZxIP6l.js:1
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Save"
 msgstr ""
 
@@ -3669,13 +3716,13 @@ msgid "Save Secrets"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:40
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #, python-brace-format
 msgid "Save your changes before {0}"
 msgstr ""
 
 #: frontend/src/composables/useSyncState.js:43
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Saving…"
 msgstr ""
 
@@ -3688,8 +3735,8 @@ msgstr ""
 #: frontend/src/components/CommandPalette.vue:25
 #: frontend/src/components/CommandPalette.vue:175
 #: frontend/src/components/LibrarySidebar.vue:28
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
-#: wiki/templates/wiki/includes/mobile_header.html:184
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
+#: wiki/templates/wiki/includes/mobile_header.html:186
 msgid "Search"
 msgstr ""
 
@@ -3698,7 +3745,7 @@ msgstr ""
 msgid "Search documentation"
 msgstr ""
 
-#: wiki/templates/wiki/includes/mobile_header.html:185
+#: wiki/templates/wiki/includes/mobile_header.html:187
 msgid "Search navigation"
 msgstr ""
 
@@ -3707,7 +3754,7 @@ msgid "Search pages..."
 msgstr ""
 
 #: frontend/src/components/AssignDialog.vue:14
-#: wiki/public/frontend/assets/AssigneeAvatars-BDqPU8I4.js:1
+#: wiki/public/frontend/assets/AssigneeAvatars-BoGDztVD.js:1
 msgid "Search people..."
 msgstr ""
 
@@ -3720,12 +3767,12 @@ msgid "Search results"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:15
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Search role to add"
 msgstr ""
 
 #: frontend/src/pages/AllSpaces.vue:57
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
 msgid "Search spaces..."
 msgstr ""
 
@@ -3740,7 +3787,7 @@ msgid "Secrets"
 msgstr ""
 
 #: frontend/src/components/WikiSettings/GitHubAppPanel.vue:244
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Secrets updated"
 msgstr ""
 
@@ -3754,7 +3801,7 @@ msgid "Select an account or organization"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:578
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Send feedback to the author"
 msgstr ""
 
@@ -3762,8 +3809,8 @@ msgstr ""
 #: frontend/src/components/LibrarySidebar.vue:234
 #: frontend/src/components/MobileAppMenu.vue:28
 #: frontend/src/components/NeoCockpitWikiSidebar.vue:73
-#: wiki/public/frontend/assets/ListHeaderCell.vue_vue_type_script_setup_true_lang-yY8l4nAf.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/ListHeaderCell.vue_vue_type_script_setup_true_lang-BwZz3KEJ.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Settings"
 msgstr ""
 
@@ -3783,7 +3830,7 @@ msgid "Show a feedback widget on every wiki page to collect ratings and comments
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:107
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Show a feedback widget on wiki pages to collect user reactions"
 msgstr ""
 
@@ -3793,13 +3840,13 @@ msgstr ""
 
 #: frontend/src/components/VersionDiff.vue:50
 #: frontend/src/pages/ContributionReview.vue:191
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Show changes only"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/NavigationPanel.vue:4
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Show in Space Switcher"
 msgstr ""
 
@@ -3809,7 +3856,7 @@ msgid "Show in switcher?"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:105
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Show more"
 msgstr ""
 
@@ -3820,27 +3867,27 @@ msgid "Show the Download action that saves a page as PDF"
 msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:21
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Show the whole space"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:41
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Shown in the reader header and on generated social preview images"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:5
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Shown in the sidebar, the switcher and the reader header"
 msgstr ""
 
 #: frontend/src/composables/useDiffView.js:21
-#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#: wiki/public/frontend/assets/PageDiff-D3g2uuC-.js:2
 msgid "Side by side"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:167
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Sidebar configuration"
 msgstr ""
 
@@ -3862,7 +3909,7 @@ msgid "Slug"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:82
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Social preview"
 msgstr ""
 
@@ -3888,8 +3935,8 @@ msgstr ""
 
 #: frontend/src/components/SpaceSettings/SpaceSettings.vue:8
 #: frontend/src/pages/AllSpaces.vue:105
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Space"
 msgstr ""
 
@@ -3904,14 +3951,14 @@ msgid "Space Icon"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:39
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Space Logo"
 msgstr ""
 
 #. Label of a Data field in DocType 'Wiki Space'
 #: frontend/src/components/NewSpaceDialog.vue:33
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:4
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 #: wiki/wiki/doctype/wiki_space/wiki_space.json:114
 msgid "Space Name"
 msgstr ""
@@ -3921,12 +3968,12 @@ msgid "Space actions"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:12
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Space name"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:243
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Space name copied"
 msgstr ""
 
@@ -3939,7 +3986,7 @@ msgstr ""
 #: frontend/src/components/SpaceSidebar.vue:148
 #: frontend/src/components/SpaceTreePanel.vue:84
 #: frontend/src/components/SpaceTreePanel.vue:88
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Space settings"
 msgstr ""
 
@@ -3947,7 +3994,7 @@ msgstr ""
 #: frontend/src/components/LibrarySidebar.vue:172
 #: frontend/src/components/NeoCockpitWikiSidebar.vue:61
 #: frontend/src/layouts/MainLayout.vue:29
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Spaces"
 msgstr ""
 
@@ -3958,13 +4005,13 @@ msgid "Spaces a push enqueued a sync for (empty for ignored or non-matching deli
 msgstr ""
 
 #: frontend/src/pages/SpaceDetails.vue:144
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 #: wiki/wiki/doctype/wiki_space/wiki_space.js:32
 msgid "Start Cloning"
 msgstr ""
 
 #: frontend/src/components/StartEditingDialog.vue:36
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Start editing"
 msgstr ""
 
@@ -3985,7 +4032,7 @@ msgstr ""
 #: frontend/src/components/ContributionsPanel.vue:203
 #: wiki/frappe_wiki/doctype/wiki_change_request/wiki_change_request.json:55
 #: wiki/frappe_wiki/doctype/wiki_merge_conflict/wiki_merge_conflict.json:48
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 #: wiki/wiki/doctype/wiki_feedback/wiki_feedback.json:45
 #: wiki/wiki/doctype/wiki_git_sync_log/wiki_git_sync_log.json:40
 #: wiki/wiki/doctype/wiki_page_patch/wiki_page_patch.json:52
@@ -3993,7 +4040,7 @@ msgid "Status"
 msgstr ""
 
 #: frontend/src/components/ChangeRequestsPanel.vue:28
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 #, python-brace-format
 msgid "Status: {0}"
 msgstr ""
@@ -4003,24 +4050,24 @@ msgid "Stored secrets are never shown. Leave a field blank to keep its current v
 msgstr ""
 
 #: frontend/src/components/ContributionsPanel.vue:202
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 msgid "Subject"
 msgstr ""
 
 #: frontend/src/components/SubmitForReviewButton.vue:148
-#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
+#: wiki/public/frontend/assets/SubmitForReviewButton-B3ZxIP6l.js:1
 #: wiki/templates/wiki/includes/feedback_widget.html:54
 msgid "Submit"
 msgstr ""
 
 #: frontend/src/components/SubmitForReviewButton.vue:16
 #: frontend/src/components/SubmitForReviewButton.vue:26
-#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
+#: wiki/public/frontend/assets/SubmitForReviewButton-B3ZxIP6l.js:1
 msgid "Submit for review"
 msgstr ""
 
 #: frontend/src/components/ChangeRequestsPanel.vue:52
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Submitted change requests in this space show up here."
 msgstr ""
 
@@ -4044,13 +4091,13 @@ msgid "Switcher Order"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:96
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "Sync History"
 msgstr ""
 
 #: frontend/src/components/WikiTree.vue:52
 #: frontend/src/composables/useSyncState.js:42
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Sync failed"
 msgstr ""
 
@@ -4062,24 +4109,24 @@ msgstr ""
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:289
 #: frontend/src/components/SpaceWelcome.vue:18 frontend/src/stores/space.js:109
 #: frontend/src/stores/space.js:113
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
-#: wiki/public/frontend/assets/SpaceWelcome-B9KyirxZ.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
+#: wiki/public/frontend/assets/SpaceWelcome-DhvdTICH.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Sync in progress"
 msgstr ""
 
 #: frontend/src/components/SpaceModeStrip.vue:42
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:29
 #: frontend/src/components/SpaceSidebar.vue:168
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Sync now"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:254
 #: frontend/src/stores/space.js:375
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Sync started — pulling the latest from GitHub"
 msgstr ""
 
@@ -4091,7 +4138,7 @@ msgstr ""
 #: frontend/src/components/LibrarySidebar.vue:67
 #: frontend/src/components/SpaceModeStrip.vue:33
 #: frontend/src/pages/AllSpaces.vue:180
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
 msgid "Synced from GitHub"
 msgstr ""
 
@@ -4100,7 +4147,7 @@ msgid "Synced from GitHub?"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/AccessPanel.vue:190
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Synced spaces are read-only, so contributions are always off."
 msgstr ""
 
@@ -4159,7 +4206,7 @@ msgid "The commit a git sync applied"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:102
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "The following documents have conflicting changes. Choose which version to keep for each conflict."
 msgstr ""
 
@@ -4180,7 +4227,7 @@ msgid "The space at /{0} is not git-synced, so a preview cannot replace its page
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:84
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Their revision history"
 msgstr ""
 
@@ -4190,19 +4237,19 @@ msgid "Theirs Payload"
 msgstr ""
 
 #: frontend/src/components/CommandPalette.vue:364
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #: wiki/templates/wiki/includes/search_modal.html:62
 msgid "Theme: Dark"
 msgstr ""
 
 #: frontend/src/components/CommandPalette.vue:372
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #: wiki/templates/wiki/includes/search_modal.html:62
 msgid "Theme: Light"
 msgstr ""
 
 #: frontend/src/pages/Contributions.vue:206
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 msgid "There are no change requests waiting for review."
 msgstr ""
 
@@ -4221,7 +4268,7 @@ msgid "This Wiki Space is not git-synced."
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:80
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "This cannot be undone. Deleting the space also removes:"
 msgstr ""
 
@@ -4237,12 +4284,12 @@ msgstr ""
 
 #: frontend/src/stores/draftWorkspace.js:369
 #: wiki/frappe_wiki/doctype/wiki_change_request/wiki_change_request.py:1178
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "This draft has changed elsewhere. Reload latest."
 msgstr ""
 
 #: frontend/src/composables/useSyncState.js:62
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "This draft was edited in another tab or window. Reload the latest version to get those edits. Any unsaved edits to the same pages here will be replaced."
 msgstr ""
 
@@ -4251,7 +4298,7 @@ msgid "This group contains"
 msgstr ""
 
 #: frontend/src/components/DraftContributionPanel.vue:77
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
 msgid "This is a draft group."
 msgstr ""
 
@@ -4260,27 +4307,27 @@ msgid "This method is only meant for developer mode"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:138
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "This page"
 msgstr ""
 
 #: frontend/src/composables/useTreeDialogs.js:94
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "This route is already in use"
 msgstr ""
 
 #: frontend/src/components/SpaceWelcome.vue:108
-#: wiki/public/frontend/assets/SpaceWelcome-B9KyirxZ.js:1
+#: wiki/public/frontend/assets/SpaceWelcome-DhvdTICH.js:1
 msgid "This space doesn't have any pages yet."
 msgstr ""
 
 #: frontend/src/components/VersionDiff.vue:64
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "This version changed nothing on this page."
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:191
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "This week"
 msgstr ""
 
@@ -4293,7 +4340,7 @@ msgid "This wiki space is synced from GitHub and is read-only."
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:225
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "This will approve the change request and immediately merge it into the live wiki. This cannot be undone. Are you sure?"
 msgstr ""
 
@@ -4321,9 +4368,9 @@ msgstr ""
 #: wiki/frappe_wiki/doctype/wiki_change_request/wiki_change_request.json:35
 #: wiki/frappe_wiki/doctype/wiki_document/wiki_document.json:150
 #: wiki/frappe_wiki/doctype/wiki_revision_item/wiki_revision_item.json:44
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
-#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
+#: wiki/public/frontend/assets/SubmitForReviewButton-B3ZxIP6l.js:1
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 #: wiki/wiki/doctype/wiki_page/wiki_page.json:65
 msgid "Title"
 msgstr ""
@@ -4336,25 +4383,25 @@ msgstr ""
 #: frontend/src/composables/useTreeDialogs.js:150
 #: frontend/src/composables/useTreeDialogs.js:249
 #: frontend/src/composables/useTreeDialogs.js:295
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Title is required"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:189
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Today"
 msgstr ""
 
 #: frontend/src/components/LibrarySidebar.vue:240
 #: frontend/src/components/MobileAppMenu.vue:34
 #: frontend/src/components/SpaceTreePanel.vue:72
-#: wiki/public/frontend/assets/ListHeaderCell.vue_vue_type_script_setup_true_lang-yY8l4nAf.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/ListHeaderCell.vue_vue_type_script_setup_true_lang-BwZz3KEJ.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Toggle Theme"
 msgstr ""
 
 #: frontend/src/components/CommandPalette.vue:357
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #: wiki/templates/wiki/includes/header.html:103
 msgid "Toggle theme"
 msgstr ""
@@ -4366,20 +4413,20 @@ msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:77
 #: frontend/src/pages/Overview.vue:118
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Top pages"
 msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:85
 #: frontend/src/pages/Overview.vue:150
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Top referrers"
 msgstr ""
 
 #: frontend/src/components/Analytics/TrackingNotice.vue:8
-#: wiki/public/frontend/assets/NumberCard.vue_vue_type_script_setup_true_lang-Dx41eedB.js:1
+#: wiki/public/frontend/assets/NumberCard.vue_vue_type_script_setup_true_lang-Dw3DuygS.js:1
 msgid "Tracking counts visits to published pages and stores a device fingerprint for each visitor. It applies to the whole site."
 msgstr ""
 
@@ -4399,7 +4446,7 @@ msgid "Trigger"
 msgstr ""
 
 #: frontend/src/components/Analytics/TrackingNotice.vue:14
-#: wiki/public/frontend/assets/NumberCard.vue_vue_type_script_setup_true_lang-Dx41eedB.js:1
+#: wiki/public/frontend/assets/NumberCard.vue_vue_type_script_setup_true_lang-Dw3DuygS.js:1
 msgid "Turn on tracking"
 msgstr ""
 
@@ -4413,7 +4460,7 @@ msgid "Type to search documentation"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:168
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 #, python-brace-format
 msgid "Type {0} to confirm"
 msgstr ""
@@ -4425,7 +4472,7 @@ msgstr ""
 
 #: frontend/src/composables/useTreeDialogs.js:253
 #: frontend/src/composables/useTreeDialogs.js:299
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "URL is required"
 msgstr ""
 
@@ -4444,12 +4491,12 @@ msgid "Unknown operation type: {0}"
 msgstr ""
 
 #: frontend/src/components/LibrarySidebar.vue:186
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Unpin from top"
 msgstr ""
 
 #: frontend/src/components/WikiTree.vue:412
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Unpublish"
 msgstr ""
 
@@ -4458,8 +4505,8 @@ msgstr ""
 #: frontend/src/components/WikiTree.vue:83
 #: frontend/src/components/WikiTree.vue:84 frontend/src/pages/AllSpaces.vue:186
 #: frontend/src/pages/AllSpaces.vue:351
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Unpublished"
 msgstr ""
 
@@ -4471,10 +4518,10 @@ msgstr ""
 #: frontend/src/components/WikiSettings/CodePanel.vue:14
 #: frontend/src/components/WikiSettings/GitHubAppPanel.vue:35
 #: frontend/src/composables/useSyncState.js:44
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:16
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Unsaved changes"
 msgstr ""
 
@@ -4483,33 +4530,33 @@ msgstr ""
 #: frontend/src/components/PageSettingsPanel.vue:41
 #: frontend/src/components/WikiDocumentPanel.vue:660
 #: wiki/frappe_wiki/doctype/wiki_change_request/wiki_change_request.py:1253
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
-#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
+#: wiki/public/frontend/assets/PageDiff-D3g2uuC-.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:16
 msgid "Untitled"
 msgstr ""
 
 #: frontend/src/components/SpaceModeStrip.vue:279
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Untitled change request"
 msgstr ""
 
 #: frontend/src/components/DraftContributionPanel.vue:128
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:23
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Update"
 msgstr ""
 
 #: frontend/src/pages/SpaceDetails.vue:114
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 #: wiki/wiki/doctype/wiki_space/wiki_space.js:56
 msgid "Update Routes"
 msgstr ""
 
 #: frontend/src/pages/SpaceDetails.vue:87
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 #: wiki/wiki/doctype/wiki_space/wiki_space.js:39
 msgid "Update Wiki Space Routes"
 msgstr ""
@@ -4525,18 +4572,27 @@ msgstr ""
 
 #: frontend/src/components/SpaceIdentityPicker.vue:88
 #: frontend/src/components/SpaceIdentityPicker.vue:168
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Upload"
 msgstr ""
 
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:71
+#, python-brace-format
+msgid "Upload failed: {0}"
+msgstr ""
+
 #: frontend/src/components/PageSettingsPanel.vue:139
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Upload image"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:139
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Uploading..."
+msgstr ""
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:66
+msgid "Uploading…"
 msgstr ""
 
 #: frontend/src/components/SpaceIdentityPicker.vue:101
@@ -4556,8 +4612,8 @@ msgstr ""
 #: frontend/src/components/HistoryPanel.vue:10
 #: frontend/src/components/WikiDocumentPanel.vue:82
 #: frontend/src/components/WikiDocumentPanel.vue:85
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:16
 msgid "Version history"
 msgstr ""
 
@@ -4567,35 +4623,35 @@ msgid "Version {0} not found"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:62
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Versions appear here once a change request is merged."
 msgstr ""
 
 #: frontend/src/components/SpaceModeStrip.vue:321
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #, python-brace-format
 msgid "View changes ({0})"
 msgstr ""
 
 #: frontend/src/components/VersionDiff.vue:39
 #: frontend/src/components/VersionDiff.vue:45
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "View commit"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:59
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:149
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "View commit on GitHub"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:234
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "View in Desk"
 msgstr ""
 
 #: frontend/src/components/SpaceSidebar.vue:161
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "View live site"
 msgstr ""
 
@@ -4607,54 +4663,54 @@ msgstr ""
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:38
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:141
 #: frontend/src/pages/Overview.vue:237
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Views"
 msgstr ""
 
 #: frontend/src/pages/Overview.vue:89
-#: wiki/public/frontend/assets/Overview-DMJ-LN4K.js:1
+#: wiki/public/frontend/assets/Overview-BXcEj7Qx.js:1
 msgid "Views by space"
 msgstr ""
 
 #: frontend/src/components/Analytics/AnalyticsDashboard.vue:54
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Views over time"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:57
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Visible on the public site"
 msgstr ""
 
 #: frontend/src/components/MergeChangeRequestButton.vue:58
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Wait for pending changes to sync before merging"
 msgstr ""
 
 #: frontend/src/components/SubmitForReviewButton.vue:126
-#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
+#: wiki/public/frontend/assets/SubmitForReviewButton-B3ZxIP6l.js:1
 msgid "Wait for pending changes to sync before submitting"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:37
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #, python-brace-format
 msgid "Wait for pending changes to sync before {0}"
 msgstr ""
 
 #: frontend/src/components/MergeChangeRequestButton.vue:52
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Wait for uploads to finish before merging"
 msgstr ""
 
 #: frontend/src/components/SubmitForReviewButton.vue:120
-#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
+#: wiki/public/frontend/assets/SubmitForReviewButton-B3ZxIP6l.js:1
 msgid "Wait for uploads to finish before submitting"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:31
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #, python-brace-format
 msgid "Wait for uploads to finish before {0}"
 msgstr ""
@@ -4669,7 +4725,7 @@ msgstr ""
 
 #. Option for the 'Trigger' (Select) field in DocType 'Wiki Git Sync Log'
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:123
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 #: wiki/wiki/doctype/wiki_git_sync_log/wiki_git_sync_log.json:51
 msgid "Webhook"
 msgstr ""
@@ -4681,17 +4737,17 @@ msgid "Webhook Secret"
 msgstr ""
 
 #: frontend/src/components/SpaceSettings/GitSyncPanel.vue:219
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 msgid "Webhook URL copied"
 msgstr ""
 
 #: frontend/src/components/StartEditingDialog.vue:14
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:2
 msgid "What are you changing?"
 msgstr ""
 
 #: frontend/src/components/SubmitForReviewButton.vue:40
-#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
+#: wiki/public/frontend/assets/SubmitForReviewButton-B3ZxIP6l.js:1
 msgid "What did you change?"
 msgstr ""
 
@@ -4924,7 +4980,7 @@ msgid "Wiki Space"
 msgstr ""
 
 #: frontend/src/components/NewSpaceDialog.vue:505
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #, python-brace-format
 msgid "Wiki Space \"{0}\" created successfully."
 msgstr ""
@@ -4942,7 +4998,7 @@ msgid "Wiki User"
 msgstr ""
 
 #: frontend/src/composables/useChangeTypeDisplay.js:85
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "Will be deleted"
 msgstr ""
 
@@ -4954,12 +5010,12 @@ msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:57
 #: frontend/src/pages/ContributionReview.vue:618
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "Withdraw"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:204
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Words"
 msgstr ""
 
@@ -4970,7 +5026,7 @@ msgid "Write"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:190
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "Yesterday"
 msgstr ""
 
@@ -5029,7 +5085,7 @@ msgid "You don't have permission to edit this page"
 msgstr ""
 
 #: frontend/src/pages/Contributions.vue:171
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 msgid "You have not created any change requests yet. Edit a wiki page to get started."
 msgstr ""
 
@@ -5049,7 +5105,7 @@ msgid "Your change request “{0}” was rejected."
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:196
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "added"
 msgstr ""
 
@@ -5064,12 +5120,12 @@ msgid "branch"
 msgstr ""
 
 #: frontend/src/components/SubmitForReviewButton.vue:137
-#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
+#: wiki/public/frontend/assets/SubmitForReviewButton-B3ZxIP6l.js:1
 msgid "change"
 msgstr ""
 
 #: frontend/src/components/SubmitForReviewButton.vue:137
-#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
+#: wiki/public/frontend/assets/SubmitForReviewButton-B3ZxIP6l.js:1
 msgid "changes"
 msgstr ""
 
@@ -5100,7 +5156,7 @@ msgid "delete_node operation requires doc_key"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:197
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "deleted"
 msgstr ""
 
@@ -5109,17 +5165,17 @@ msgid "docs"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:200
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "edited"
 msgstr ""
 
 #: frontend/src/lib/versionHistory.js:11
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "edited in Desk"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:164
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "finishing"
 msgstr ""
 
@@ -5142,12 +5198,12 @@ msgid "manual"
 msgstr ""
 
 #: frontend/src/lib/versionHistory.js:4
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "merged"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:114
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "merging"
 msgstr ""
 
@@ -5162,7 +5218,7 @@ msgid "move_node operation requires doc_key"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:199
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "moved"
 msgstr ""
 
@@ -5175,7 +5231,7 @@ msgid "new tab"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:77
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 #, python-brace-format
 msgid "opened {0}"
 msgstr ""
@@ -5190,41 +5246,41 @@ msgid "ours"
 msgstr ""
 
 #: frontend/src/components/WikiDocumentList.vue:142
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "page"
 msgstr ""
 
 #: frontend/src/pages/AllSpaces.vue:377
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
 msgctxt "after a count"
 msgid "page"
 msgstr ""
 
 #: frontend/src/components/DraftContributionPanel.vue:121
-#: wiki/public/frontend/assets/DraftContributionPanel-q-J_WDGH.js:1
+#: wiki/public/frontend/assets/DraftContributionPanel-DzAg8jju.js:1
 msgid "page-route"
 msgstr ""
 
 #: frontend/src/components/SpaceModeStrip.vue:364
 #: frontend/src/pages/AllSpaces.vue:377
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "pages"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:201
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "published"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:198
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 #, python-brace-format
 msgid "renamed from {0}"
 msgstr ""
 
 #: frontend/src/pages/ContributionReview.vue:105
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
 msgid "resolved"
 msgstr ""
 
@@ -5233,7 +5289,7 @@ msgid "restore_node operation requires doc_key"
 msgstr ""
 
 #: frontend/src/lib/versionHistory.js:10
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "saved the first version"
 msgstr ""
 
@@ -5242,22 +5298,22 @@ msgid "space/page-url"
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:48
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "space/section/page"
 msgstr ""
 
 #: frontend/src/composables/useChangeRequestActions.js:71
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 msgid "submitting"
 msgstr ""
 
 #: frontend/src/lib/versionHistory.js:8
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "synced from Git"
 msgstr ""
 
 #: frontend/src/lib/versionHistory.js:7
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 #, python-brace-format
 msgid "synced from {0}"
 msgstr ""
@@ -5304,7 +5360,7 @@ msgid "tree"
 msgstr ""
 
 #: frontend/src/components/HistoryPanel.vue:202
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 msgid "unpublished"
 msgstr ""
 
@@ -5327,18 +5383,18 @@ msgid "with docs base url"
 msgstr ""
 
 #: frontend/src/components/PageDiff.vue:188
-#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#: wiki/public/frontend/assets/PageDiff-D3g2uuC-.js:2
 #, python-brace-format
 msgid "{0} added"
 msgstr ""
 
 #: frontend/src/pages/Contributions.vue:281
-#: wiki/public/frontend/assets/Contributions-C8FT1uEy.js:1
+#: wiki/public/frontend/assets/Contributions-4q-9Rot3.js:1
 #, python-brace-format
 msgid "{0} change requests"
 msgstr ""
 
-#: wiki/public/frontend/assets/AllSpaces-B2vltiNh.js:1
+#: wiki/public/frontend/assets/AllSpaces-Dllrx_FH.js:1
 #, python-brace-format
 msgid "{0} change requests in review"
 msgstr ""
@@ -5354,7 +5410,7 @@ msgid "{0} documents updated successfully"
 msgstr ""
 
 #: frontend/src/components/PageDiff.vue:189
-#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#: wiki/public/frontend/assets/PageDiff-D3g2uuC-.js:2
 #, python-brace-format
 msgid "{0} edited"
 msgstr ""
@@ -5365,13 +5421,13 @@ msgid "{0} is not a folder."
 msgstr ""
 
 #: frontend/src/components/PageSettingsPanel.vue:210
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 #, python-brace-format
 msgid "{0} min"
 msgstr ""
 
 #: frontend/src/components/PageMetaLine.vue:80
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 #, python-brace-format
 msgid "{0} min read"
 msgstr ""
@@ -5386,7 +5442,7 @@ msgstr ""
 msgid "{0} new conflict(s) detected during merge retry."
 msgstr ""
 
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:16
 #, python-brace-format
 msgid "{0} open on this page, {1} in this space"
 msgstr ""
@@ -5395,60 +5451,60 @@ msgstr ""
 #: frontend/src/components/HistoryPanel.vue:219
 #: frontend/src/components/SpaceSettings/GeneralPanel.vue:177
 #: frontend/src/pages/ContributionReview.vue:414
-#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/ContributionReview-ikdzI9F4.js:2
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 #, python-brace-format
 msgid "{0} pages"
 msgstr ""
 
-#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
+#: wiki/public/frontend/assets/SubmitForReviewButton-B3ZxIP6l.js:1
 #, python-brace-format
 msgid "{0} pending {1} will be sent for review."
 msgstr ""
 
 #: frontend/src/components/LibrarySidebar.vue:207
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #, python-brace-format
 msgid "{0} pinned"
 msgstr ""
 
 #: frontend/src/components/PageDiff.vue:190
-#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#: wiki/public/frontend/assets/PageDiff-D3g2uuC-.js:2
 #, python-brace-format
 msgid "{0} removed"
 msgstr ""
 
-#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#: wiki/public/frontend/assets/SpaceDetails-Y3WAoj8b.js:1
 #, python-brace-format
 msgid "{0} to {1}"
 msgstr ""
 
 #: frontend/src/components/PageDiff.vue:218
-#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#: wiki/public/frontend/assets/PageDiff-D3g2uuC-.js:2
 #, python-brace-format
 msgid "{0} unchanged blocks"
 msgstr ""
 
 #: frontend/src/components/LibrarySidebar.vue:207
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #, python-brace-format
 msgid "{0} unpinned"
 msgstr ""
 
 #: frontend/src/components/PageMetaLine.vue:87
-#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-DoIlutLc.js:2
 #, python-brace-format
 msgid "{0} views in last 30 days"
 msgstr ""
 
 #: frontend/src/components/SpaceModeStrip.vue:364
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #, python-brace-format
 msgid "{0} {1} changed"
 msgstr ""
 
-#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/public/frontend/assets/index-zBE59y7Q.js:45
 #, python-brace-format
 msgid "{0} — {1}"
 msgstr ""

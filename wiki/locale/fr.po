@@ -5560,3 +5560,40 @@ msgstr "{0} blocs inchangés"
 #, python-brace-format
 msgid "{0} views in last 30 days"
 msgstr "{0} vues au cours des 30 derniers jours"
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:81
+msgid "Add a caption"
+msgstr "Ajouter une légende"
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:221
+msgid "For both modes"
+msgstr "Pour les deux modes"
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:231
+msgid "For dark mode"
+msgstr "Pour le mode sombre"
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:226
+msgid "For light mode"
+msgstr "Pour le mode clair"
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:32
+msgid "Image options"
+msgstr "Options de l'image"
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:238
+msgid "Remove dark mode image"
+msgstr "Supprimer l'image du mode sombre"
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:212
+msgid "Replace image"
+msgstr "Remplacer l'image"
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:46
+msgid "Resize image"
+msgstr "Redimensionner l'image"
+
+#: frontend/src/components/tiptap-extensions/ImageNodeView.vue:71
+#, python-brace-format
+msgid "Upload failed: {0}"
+msgstr "Échec de l'envoi : {0}"

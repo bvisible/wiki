@@ -24,10 +24,12 @@
                 >
                     <Dropdown v-model:open="menuOpen" :options="menuOptions" align="end">
                         <template #trigger>
+                            <!-- //// Neoffice — i18n: the labels of the image menu and its controls are wrapped in __() here and in the
+                                 script below; upstream (3.4.0) writes them in English, so an author working in French saw them in English. -->
                             <button
                                 type="button"
                                 :class="CHROME_BUTTON"
-                                aria-label="Image options"
+                                :aria-label="__('Image options')"
                                 @click.stop
                                 @pointerdown.stop
                             >
@@ -36,11 +38,12 @@
                         </template>
                     </Dropdown>
                 </div>
+                <!-- //// Neoffice — i18n, see the note on the menu button above. -->
                 <button
                     v-if="isEditable && hasFile && selected"
                     type="button"
                     :class="[CHROME_BUTTON, 'absolute bottom-2.5 right-2.5 z-30 cursor-nwse-resize touch-none']"
-                    aria-label="Resize image"
+                    :aria-label="__('Resize image')"
                     @pointerdown.prevent.stop="startResize"
                     @keydown="resizeWithKeys"
                 >
@@ -59,12 +62,15 @@
                     class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/35 text-sm text-white"
                 >
                     <LoadingIndicator class="size-5" />
-                    <span>Uploading…</span>
+                    <!-- //// Neoffice — i18n, see the note on the menu button above. -->
+                    <span>{{ __('Uploading…') }}</span>
                 </div>
             </div>
+            <!-- //// Neoffice — i18n, see the note on the menu button above. -->
             <div v-if="node.attrs.error" class="wiki-image-error py-2 text-center text-sm text-ink-red-4">
-                Upload failed: {{ node.attrs.error }}
+                {{ __('Upload failed: {0}', [node.attrs.error]) }}
             </div>
+            <!-- //// Neoffice — i18n, see the note on the menu button above. -->
             <input
                 v-else-if="isEditable && showCaption"
                 ref="captionInput"
@@ -72,8 +78,8 @@
                 type="text"
                 draggable="false"
                 class="h-7 w-full border-none bg-transparent text-center text-sm italic text-ink-gray-6 placeholder-ink-gray-4 focus:ring-0"
-                placeholder="Add a caption"
-                aria-label="Caption"
+                :placeholder="__('Add a caption')"
+                :aria-label="__('Caption')"
                 @input="updateCaption"
                 @keydown="handleKeydown"
             />
@@ -169,13 +175,14 @@ const canReplace = computed(
 	() => isEditable.value && !!props.extension.options.uploadImage,
 );
 
+//// Neoffice — i18n: every label of the menu below goes through __() (upstream writes them in English).
 const menuOptions = computed(() => [
 	{
 		group: 'caption',
 		hideLabel: true,
 		options: [
 			{
-				label: 'Caption',
+				label: __('Caption'), //// Neoffice — i18n, see menuOptions
 				icon: 'lucide-captions',
 				switch: true,
 				switchValue: showCaption.value,
@@ -184,11 +191,11 @@ const menuOptions = computed(() => [
 		],
 	},
 	{
-		group: 'Align',
+		group: __('Align'), //// Neoffice — i18n, see menuOptions
 		options: [
-			{ value: 'left', label: 'Left', icon: 'lucide-align-left' },
-			{ value: 'center', label: 'Center', icon: 'lucide-align-center' },
-			{ value: 'right', label: 'Right', icon: 'lucide-align-right' },
+			{ value: 'left', label: __('Left'), icon: 'lucide-align-left' }, //// Neoffice — i18n, see menuOptions
+			{ value: 'center', label: __('Center'), icon: 'lucide-align-center' }, //// Neoffice — i18n, see menuOptions
+			{ value: 'right', label: __('Right'), icon: 'lucide-align-right' }, //// Neoffice — i18n, see menuOptions
 		].map(({ value, label, icon }) => ({
 			label,
 			icon,
@@ -202,32 +209,33 @@ const menuOptions = computed(() => [
 				{
 					group: 'replace',
 					hideLabel: true,
-					options: [{ label: 'Replace image', icon: 'lucide-refresh-cw', submenu: replaceOptions.value }],
+					options: [{ label: __('Replace image'), icon: 'lucide-refresh-cw', submenu: replaceOptions.value }], //// Neoffice — i18n, see menuOptions
 				},
 			]
 		: []),
 ]);
 
+//// Neoffice — i18n, see menuOptions above.
 const replaceOptions = computed(() => [
 	{
-		label: 'For both modes',
+		label: __('For both modes'), //// Neoffice — i18n, see menuOptions
 		icon: 'lucide-image',
 		onClick: () => chooseFile('both'),
 	},
 	{
-		label: 'For light mode',
+		label: __('For light mode'), //// Neoffice — i18n, see menuOptions
 		icon: 'lucide-sun',
 		onClick: () => chooseFile('light'),
 	},
 	{
-		label: 'For dark mode',
+		label: __('For dark mode'), //// Neoffice — i18n, see menuOptions
 		icon: 'lucide-moon',
 		onClick: () => chooseFile('dark'),
 	},
 	...(props.node.attrs.darkSrc
 		? [
 				{
-					label: 'Remove dark mode image',
+					label: __('Remove dark mode image'), //// Neoffice — i18n, see menuOptions
 					icon: 'lucide-trash-2',
 					onClick: () => props.updateAttributes({ darkSrc: null }),
 				},
