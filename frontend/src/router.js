@@ -23,8 +23,7 @@ const routes = [
 	{
 		path: '/change-requests/:changeRequestId',
 		name: 'ChangeRequestReview',
-		component: () => import('@/pages/ContributionReview.vue'),
-		props: true,
+		beforeEnter: changeRequestInItsSpace,
 	},
 	{
 		path: '/contributions',
@@ -51,6 +50,12 @@ const routes = [
 				path: 'page/:pageId',
 				name: 'SpacePage',
 				component: () => import('@/components/WikiDocumentPanel.vue'),
+				props: true,
+			},
+			{
+				path: 'change-requests/:changeRequestId',
+				name: 'SpaceChangeRequest',
+				component: () => import('@/pages/ContributionReview.vue'),
 				props: true,
 			},
 			{
@@ -119,6 +124,26 @@ const routes = [
 	},
 ];
 
+// Links that predate the review living in its space still land there.
+async function changeRequestInItsSpace(to) {
+	const { call } = await import('frappe-ui');
+	const { changeRequestId } = to.params;
+	try {
+		const { wiki_space: spaceId } = await call('frappe.client.get_value', {
+			doctype: 'Wiki Change Request',
+			filters: changeRequestId,
+			fieldname: 'wiki_space',
+		});
+		return {
+			name: 'SpaceChangeRequest',
+			params: { spaceId, changeRequestId },
+			replace: true,
+		};
+	} catch {
+		return { name: 'ChangeRequests', replace: true };
+	}
+}
+
 // The app's base path. Kept in sync with APP_ROUTE in wiki_document.py (which
 // also feeds website_route_rules) and APP_BASE in e2e/helpers/routes.ts.
 const router = createRouter({
@@ -126,7 +151,7 @@ const router = createRouter({
 	routes,
 });
 
-router.beforeEach(async (to, from, next) => {
+router.beforeResolve(async (to, from, next) => {
 	const { useSessionStore } = await import('@/stores/session');
 	const { useUserStore } = await import('@/stores/user');
 	const sessionStore = useSessionStore();

@@ -7,7 +7,6 @@ from unittest.mock import patch
 
 import frappe
 import requests
-from frappe.tests import IntegrationTestCase
 
 from wiki import telemetry
 from wiki.api import og_image
@@ -20,6 +19,7 @@ from wiki.frappe_wiki.doctype.wiki_change_request.wiki_change_request import (
 )
 from wiki.frappe_wiki.doctype.wiki_document import search as reader_search
 from wiki.frappe_wiki.doctype.wiki_document import wiki_document
+from wiki.tests import WikiTestCase as IntegrationTestCase
 from wiki.tests.factory import WikiFixtures
 from wiki.wiki import git_sync
 from wiki.wiki.doctype.wiki_feedback import wiki_feedback
@@ -34,11 +34,11 @@ class TestTelemetry(IntegrationTestCase):
 			telemetry.capture("space_created", visibility="public")
 
 		capture.assert_called_once()
-		properties = capture.call_args.kwargs["properties"]
 		self.assertEqual(capture.call_args.args, ("space_created", "wiki"))
-		self.assertEqual(properties["visibility"], "public")
-		self.assertEqual(properties["app_version"], frappe.get_attr("wiki.__version__"))
-		self.assertIn(properties["entry"], ("saas_trial", "self_hosted"))
+		self.assertEqual(
+			capture.call_args.kwargs["properties"],
+			{"app_version": frappe.get_attr("wiki.__version__"), "visibility": "public"},
+		)
 
 	def test_a_failing_send_does_not_fail_the_action(self):
 		with patch.object(telemetry.frappe_telemetry, "capture", side_effect=Exception("pulse down")):
@@ -67,10 +67,31 @@ class TestTelemetry(IntegrationTestCase):
 	def test_the_boot_payload_carries_the_shared_properties(self):
 		self.assertEqual(wiki_app.get_boot()["telemetry"], telemetry.default_properties())
 
+	def test_the_reader_gets_the_pulse_config_with_the_shared_properties(self):
+		with patch(
+			"frappe.utils.telemetry.pulse.client.boot_config",
+			create=True,
+			return_value={"enabled": True, "key": "k"},
+		):
+			config = telemetry.reader_config()
+
+		self.assertEqual(config, {"enabled": True, "key": "k", **telemetry.default_properties()})
+
+	def test_the_reader_gets_nothing_when_telemetry_is_off_or_broken(self):
+		with patch(
+			"frappe.utils.telemetry.pulse.client.boot_config", create=True, return_value={"enabled": False}
+		):
+			self.assertEqual(telemetry.reader_config(), {"enabled": False})
+
+		with patch(
+			"frappe.utils.telemetry.pulse.client.boot_config", create=True, side_effect=Exception("no pulse")
+		):
+			self.assertEqual(telemetry.reader_config(), {"enabled": False})
+
 
 class TestShippedEvents(IntegrationTestCase):
 	"""One test per Phase 2 event: it fires once, with the properties
-	`docs/telemetry.md` promises."""
+	`specs/telemetry.md` promises."""
 
 	def setUp(self):
 		self.wiki = WikiFixtures()
@@ -238,6 +259,7 @@ class TestShippedEvents(IntegrationTestCase):
 
 	def test_a_rendered_card_reports_its_outcome_and_cost(self):
 		with (
+			patch.object(og_image, "card_renderer", return_value="satori"),
 			patch.object(og_image, "generate_og_bytes", return_value=b"png"),
 			patch.object(og_image, "_write_cached"),
 			patch.object(og_image, "_prune_old"),
@@ -246,7 +268,11 @@ class TestShippedEvents(IntegrationTestCase):
 			og_image._generate_and_store("k1", {}, "fp", "/tmp/card.png", trigger="request")
 
 		capture.assert_called_once_with(
-			"meta_image_generated", outcome="ok", trigger="request", duration_bucket="lt_1s"
+			"meta_image_generated",
+			outcome="ok",
+			trigger="request",
+			renderer="satori",
+			duration_bucket="lt_1s",
 		)
 
 	def test_a_card_that_rendered_but_could_not_be_stored_is_reported_as_failed(self):
@@ -275,11 +301,12 @@ class TestShippedEvents(IntegrationTestCase):
 class TestEventCatalogue(IntegrationTestCase):
 	def test_every_event_the_code_sends_is_documented(self):
 		app_root = Path(frappe.get_app_path("wiki")).parent
-		catalogue = (app_root / "docs" / "telemetry.md").read_text()
+		catalogue = (app_root / "specs" / "telemetry.md").read_text()
 
 		sources = list((app_root / "wiki").rglob("*.py"))
 		for suffix in ("*.js", "*.vue"):
 			sources += list((app_root / "frontend" / "src").rglob(suffix))
+		sources += list((app_root / "wiki" / "templates").rglob("*.html"))
 		sent = set()
 		for source in sources:
 			if "test" in source.name:
@@ -287,4 +314,4 @@ class TestEventCatalogue(IntegrationTestCase):
 			sent.update(re.findall(r"capture\(\s*[\"']([a-z_]+)[\"']", source.read_text()))
 
 		undocumented = {event for event in sent if f"`{event}`" not in catalogue}
-		self.assertEqual(undocumented, set(), "add these to docs/telemetry.md")
+		self.assertEqual(undocumented, set(), "add these to specs/telemetry.md")

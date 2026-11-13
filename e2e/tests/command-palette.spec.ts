@@ -80,9 +80,13 @@ test.describe('Command Palette', () => {
 		});
 
 		await page.goto(space.url('page', space.page(`${token} Runbook`).name));
-		await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 });
+		await expect(page.getByTestId('page-reader')).toBeVisible({
+			timeout: 10000,
+		});
 		await page.goto(space.url('page', space.page(`${token} Changelog`).name));
-		await expect(page.locator('.ProseMirror')).toBeVisible({ timeout: 10000 });
+		await expect(page.getByTestId('page-reader')).toBeVisible({
+			timeout: 10000,
+		});
 
 		const palette = page.getByRole('dialog');
 		await page.keyboard.press('ControlOrMeta+k');
@@ -153,6 +157,7 @@ test.describe('Command Palette', () => {
 				},
 			],
 		});
+		await wiki.changeRequest(space);
 
 		await page.goto(space.url('page', space.page('Hello').name));
 		const editor = page.locator('.ProseMirror');
@@ -196,9 +201,39 @@ test.describe('Command Palette', () => {
 		).toBeVisible();
 		await page.keyboard.press('ControlOrMeta+k');
 		await expect(palette).toBeHidden();
-		await page.getByRole('button', { name: 'Edit' }).click();
+		await page.getByRole('button', { name: 'Edit', exact: true }).click();
 		await expect(page.getByPlaceholder('https://example.com')).toHaveValue(
 			'https://example.com',
 		);
+	});
+
+	test('sets the theme named in the query', async ({ page }) => {
+		await page.addInitScript(() => localStorage.setItem('theme', 'light'));
+		await page.goto(appUrl());
+		const html = page.locator('html');
+		await expect(html).toHaveAttribute('data-theme', 'light', {
+			timeout: 10000,
+		});
+
+		const palette = page.getByRole('dialog');
+		const option = (name: string) => palette.getByRole('option', { name });
+		const openPalette = () =>
+			page.getByRole('button', { name: 'Search', exact: true }).click();
+
+		await openPalette();
+		await expect(option('Theme: Dark')).toBeHidden();
+
+		await palette.getByRole('combobox').fill('dark');
+		await expect(option('Theme: Dark')).toBeVisible();
+		await expect(option('Theme: Light')).toBeHidden();
+		await page.keyboard.press('Enter');
+		await expect(palette).toBeHidden();
+		await expect(html).toHaveAttribute('data-theme', 'dark');
+
+		await openPalette();
+		await palette.getByRole('combobox').fill('light');
+		await expect(option('Theme: Light')).toBeVisible();
+		await page.keyboard.press('Enter');
+		await expect(html).toHaveAttribute('data-theme', 'light');
 	});
 });

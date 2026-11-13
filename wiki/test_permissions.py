@@ -9,7 +9,6 @@ hook entry points (query conditions + has_permission) and the role editor API.
 """
 
 import frappe
-from frappe.tests import IntegrationTestCase
 
 from wiki.permissions import (
 	_accessible_space_names,
@@ -26,6 +25,7 @@ from wiki.permissions import (
 	# //// Neoffice — imported for the unpublished space record test (maintenance#1350).
 	wiki_space_query_conditions,
 )
+from wiki.tests import WikiTestCase as IntegrationTestCase
 from wiki.tests.factory import make_space
 
 # //// Neoffice — imported for TestAppScreenGate at the end of the file.
@@ -622,3 +622,64 @@ class TestAppScreenGate(IntegrationTestCase):
 	def test_the_apps_screen_asks_this_gate(self):
 		gates = [tile.get("has_permission") for tile in frappe.get_hooks("add_to_apps_screen", app_name="wiki")]
 		self.assertEqual(gates, ["wiki.utils.check_app_permission"])
+REVISION_DOCTYPES = ("Wiki Revision", "Wiki Revision Item", "Wiki Content Blob", "Wiki Merge Conflict")
+
+
+class TestRevisionDataAccess(IntegrationTestCase):
+	@classmethod
+	def setUpClass(cls):
+		super().setUpClass()
+		_ensure_role(READER_ROLE)
+		_ensure_role(OTHER_ROLE)
+		cls.reader = _ensure_user("wsac_reader@example.com", ["Wiki User", READER_ROLE])
+		cls.outsider = _ensure_user("wsac_outsider@example.com", ["Wiki User", OTHER_ROLE])
+		cls.approver = _ensure_user("wsac_approver@example.com", ["Wiki User", "Wiki Approver"])
+		frappe.db.commit()  # nosemgrep: frappe-semgrep-rules.rules.frappe-manual-commit
+
+	def setUp(self):
+		from wiki.frappe_wiki.doctype.wiki_change_request.wiki_change_request import (
+			create_change_request,
+			create_cr_page,
+			get_cr_page,
+		)
+
+		self._spaces = []
+		self.space = _make_space(self, "WSAC Revisions", [(READER_ROLE, "Read")])
+		root_key = frappe.db.get_value(
+			"Wiki Document", frappe.db.get_value("Wiki Space", self.space, "root_group"), "doc_key"
+		)
+
+		frappe.set_user(self.reader)
+		self.cr = create_change_request(self.space, "Reader draft")
+		doc_key = create_cr_page(self.cr.name, root_key, "Secret draft", content="secret text")
+		self.assertEqual(get_cr_page(self.cr.name, doc_key)["content"], "secret text")
+		self.root_key = root_key
+		frappe.set_user("Administrator")
+
+	def tearDown(self):
+		frappe.set_user("Administrator")
+		for space in self._spaces:
+			if frappe.db.exists("Wiki Space", space):
+				frappe.delete_doc("Wiki Space", space, force=True)
+
+	def test_revision_items_cannot_be_inserted_directly(self):
+		for user in (self.reader, self.outsider, self.approver):
+			with self.subTest(user=user):
+				frappe.set_user(user)
+				item = frappe.get_doc(
+					{
+						"doctype": "Wiki Revision Item",
+						"revision": self.cr.head_revision,
+						"doc_key": frappe.generate_hash(length=12),
+						"title": "Injected",
+						"parent_key": self.root_key,
+					}
+				)
+				with self.assertRaises(frappe.PermissionError):
+					item.insert()
+
+	def test_non_managers_cannot_read_revision_data(self):
+		for user in (self.reader, self.outsider, self.approver):
+			for doctype in REVISION_DOCTYPES:
+				with self.subTest(user=user, doctype=doctype):
+					self.assertFalse(frappe.has_permission(doctype, "read", user=user))

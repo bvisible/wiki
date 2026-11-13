@@ -3,7 +3,7 @@
 	     the fields here describe what is on screen, and the social preview is
 	     worth watching while the meta fields change. -->
 	<aside
-		class="flex h-full w-[352px] shrink-0 flex-col border-l border-outline-gray-2"
+		class="flex h-full w-[352px] shrink-0 flex-col border-s border-outline-gray-2"
 		data-testid="page-settings-panel"
 	>
 		<div
@@ -12,27 +12,25 @@
 			<span class="truncate text-base-medium text-ink-gray-8">
 				{{ __('Page settings') }}
 			</span>
-			<Tooltip :text="__('Close page settings')">
-				<Button
-					variant="ghost"
-					:aria-label="__('Close page settings')"
-					@click="emit('close')"
-				>
-					<span class="lucide-x size-4" aria-hidden="true" />
-				</Button>
-			</Tooltip>
+			<Button
+				variant="ghost"
+				:aria-label="__('Close page settings')"
+				@click="emit('close')"
+			>
+				<span class="lucide-x size-4" aria-hidden="true" />
+			</Button>
 		</div>
 
 		<ScrollArea class="min-h-0 flex-1" viewport-class="p-3">
 			<div class="flex flex-col gap-6">
-				<!-- On a git-synced page the repo owns the title, the slug, the
-				     route and whether the page ships: the next sync rewrites
+				<!-- On a git-synced page the repo owns the title, the route
+				     and whether the page ships: the next sync rewrites
 				     anything typed here. The social preview below is wiki-side
 				     data the repo never carries, so it stays editable. -->
 				<section class="flex flex-col gap-3">
 					<div class="flex items-baseline justify-between gap-2">
 						<h4 class="text-xs text-ink-gray-5">{{ __('General') }}</h4>
-						<Badge v-if="readonly" variant="subtle" theme="gray" size="sm">
+						<Badge v-if="spaceStore.isGitSynced" variant="subtle" theme="gray" size="sm">
 							{{ __('From the repo') }}
 						</Badge>
 					</div>
@@ -44,18 +42,12 @@
 						:disabled="readonly"
 					/>
 					<FormControl
-						v-model="form.slug"
-						type="text"
-						:label="__('Slug')"
-						:placeholder="__('page-slug')"
-						:disabled="readonly"
-					/>
-					<FormControl
 						v-model="form.route"
 						type="text"
 						:label="__('Route')"
 						:placeholder="__('space/section/page')"
 						:description="publicUrl"
+						dir="ltr"
 						:disabled="readonly"
 					/>
 					<div class="flex items-center justify-between gap-3">
@@ -184,7 +176,7 @@
 								/>
 							</div>
 							<div class="flex flex-col gap-1 border-t border-outline-gray-2 p-3">
-								<span class="truncate text-xs text-ink-gray-4">{{ route }}</span>
+								<span class="truncate text-xs text-ink-gray-4"><bdi dir="ltr">{{ route }}</bdi></span>
 								<span class="line-clamp-1 text-sm-medium text-ink-gray-9">
 									{{ form.metaTitle || title }}
 								</span>
@@ -216,19 +208,6 @@
 							<dt class="text-ink-gray-6">{{ __('Reading time') }}</dt>
 							<dd class="text-ink-gray-8">
 								{{ __('{0} min', [readingTime]) }}
-							</dd>
-						</div>
-						<div v-if="recentViews.data" class="flex justify-between gap-3">
-							<dt class="text-ink-gray-6">{{ __('Views, last 30 days') }}</dt>
-							<dd>
-								<button
-									type="button"
-									class="text-ink-gray-8 underline decoration-outline-gray-3 underline-offset-2 hover:decoration-ink-gray-5"
-									data-testid="page-views-link"
-									@click="openAnalytics({ document: docName, title })"
-								>
-									{{ recentViews.data.total_views.toLocaleString() }}
-								</button>
 							</dd>
 						</div>
 						<div v-if="lastEdited" class="flex justify-between gap-3">
@@ -273,8 +252,6 @@
 </template>
 
 <script setup>
-import { useSpaceSettings } from '@/composables/useSpaceSettings';
-import { presetRange } from '@/lib/analyticsRange';
 import { countWords, readingMinutes } from '@/lib/readingStats';
 import { useDraftWorkspaceStore } from '@/stores/draftWorkspace';
 import { useSpaceStore } from '@/stores/space';
@@ -285,8 +262,6 @@ import {
 	FormControl,
 	ScrollArea,
 	Switch,
-	Tooltip,
-	createResource,
 	dayjsLocal,
 	toast,
 	useFileUpload,
@@ -317,10 +292,6 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
-	slug: {
-		type: String,
-		default: '',
-	},
 	route: {
 		type: String,
 		default: '',
@@ -336,24 +307,12 @@ const props = defineProps({
 	},
 });
 
-const emit = defineEmits(['close', 'node-updated']);
+const emit = defineEmits(['close']);
 
 const draftStore = useDraftWorkspaceStore();
 const userStore = useUserStore();
 const spaceStore = useSpaceStore();
 const fileUploader = useFileUpload();
-
-const { openAnalytics } = useSpaceSettings();
-
-const docName = computed(() => props.docResource.doc?.name);
-const recentViews = createResource({
-	url: 'wiki.api.analytics.get_analytics',
-	makeParams: () => {
-		const [from_date, to_date] = presetRange(30);
-		return { from_date, to_date, document: docName.value };
-	},
-});
-watch(docName, (name) => name && recentViews.reload(), { immediate: true });
 
 const isSaving = ref(false);
 const isUploadingImage = ref(false);
@@ -361,7 +320,6 @@ const imageInput = ref(null);
 
 const form = reactive({
 	title: '',
-	slug: '',
 	route: '',
 	isPublished: false,
 	metaTitle: '',
@@ -374,7 +332,6 @@ const form = reactive({
 // a set of live controls, so nothing lands until Save.
 const saved = computed(() => ({
 	title: props.title || '',
-	slug: props.slug || '',
 	route: props.route || '',
 	isPublished: Boolean(props.published),
 	metaTitle: props.docResource.doc?.meta_title || '',
@@ -416,7 +373,8 @@ const isDirty = computed(() =>
 );
 
 const publicUrl = computed(() =>
-	form.route ? `${window.location.origin}/${form.route}` : '',
+	// LRI ... PDI keeps the URL left to right inside right-to-left text.
+	form.route ? `\u2066${window.location.origin}/${form.route}\u2069` : '',
 );
 
 const descriptionHint = computed(() =>
@@ -530,9 +488,6 @@ function nodeChanges() {
 	if (form.title.trim() && form.title !== current.title) {
 		changes.title = form.title.trim();
 	}
-	if (form.slug.trim() && form.slug !== current.slug) {
-		changes.slug = form.slug.trim();
-	}
 	const route = form.route.trim().replace(/^\/+/, '');
 	if (route && route !== current.route) changes.route = route;
 	if (form.isPublished !== current.isPublished) {
@@ -563,7 +518,6 @@ async function save() {
 		if (Object.keys(node).length) {
 			if (!props.docKey) throw new Error(__('No active change request'));
 			await draftStore.updateNode(props.docKey, node);
-			emit('node-updated');
 		}
 		if (Object.keys(meta).length) {
 			await props.docResource.updateMeta.submit(meta);

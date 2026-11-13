@@ -1,13 +1,16 @@
+import { requestEditorReload } from '@/lib/editorContentSync';
 import { useChangeRequestStore } from '@/stores/changeRequest';
 import {
 	clearDraft as clearPersistedDraft,
 	clearDraftsForCr as clearPersistedDraftsForCr,
 	loadDraftsForCr,
+	loadTreeSnapshot,
 	saveDraft as savePersistedDraft,
+	saveTreeSnapshot,
 } from '@/stores/draftPersistence';
 import { useUserStore } from '@/stores/user';
 import { defineStore } from 'pinia';
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, toRaw } from 'vue';
 import { createMoveScheduler } from './draftWorkspace/moveScheduler';
 import { createOperationQueue } from './draftWorkspace/operationQueue';
 import { createPageBuffers } from './draftWorkspace/pageBuffers';
@@ -28,32 +31,28 @@ import {
 
 // Local-first workspace store. Owns optimistic UI state for the active change
 // request. Sync flushes through the batched `apply_cr_operations` endpoint
-// (see specs/local_first_editor_migration_step_2.md). The legacy per-action
-// CR RPCs remain wired up under `useBatchOperations = false` for rollout
-// safety and will be removed once the batch path is stable in production.
+// (see specs/local_first_editor_migration_step_2.md).
 //
 // This file is the coordinator: it composes the sub-modules under
 // `./draftWorkspace/`, owns the user-facing action surface (createNode,
 // updateNode, etc.), and exposes the same public API consumers used
 // before the split.
 
-// Toggle to fall back to the Step 1 per-RPC sync path during rollout. Flip to
-// false to bypass `apply_cr_operations` and use create_cr_page / update_cr_page
-// / move_cr_page / reorder_cr_children / delete_cr_page directly.
-const useBatchOperations = true;
-
 export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 	const crStore = useChangeRequestStore();
 	const userStore = useUserStore();
 
 	const spaceId = ref(null);
-	const changesByKey = reactive({});
 	const isHydrating = ref(false);
 	// False until the first server tree lands (and after reset). Lets the UI
 	// show a skeleton instead of mistaking the pre-hydration empty tree for a
 	// space with no pages.
 	const hasLoadedTree = ref(false);
+	const staleTreeModel = createTreeModel();
+	const hasStaleTree = ref(false);
 	let hydratePromise = null;
+	let latestHydrate = 0;
+	let changeRequestReady = null;
 
 	const isEnabled = computed(() => userStore.shouldUseChangeRequestMode);
 	const crName = computed(() => crStore.currentChangeRequest?.name || null);
@@ -120,6 +119,8 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 					content: page.localContent,
 					title: title ?? page.title,
 					savedContent: page.content,
+					serverContent: page.serverContent,
+					sentContent: page.sentContent,
 				});
 			} else {
 				clearPersistedDraft(changeRequestName, docKey);
@@ -148,35 +149,23 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 		}
 		if (uploadStates.value.has('uploading')) return 'uploading';
 		if (uploadStates.value.has('failed')) return 'upload-failed';
-		if (queue.hasPendingMutations.value || transport.sync.status === 'saving') {
+		if (
+			!hasLoadedTree.value ||
+			queue.hasPendingMutations.value ||
+			transport.sync.status === 'saving'
+		) {
 			return 'pending';
 		}
 		if (pageBuffers.hasUnsavedEditorContent.value) return 'unsaved';
 		return null;
 	});
 
-	let summaryRefreshTimer = null;
-	function scheduleSummaryRefresh(delay = 1000) {
-		if (summaryRefreshTimer) clearTimeout(summaryRefreshTimer);
-		summaryRefreshTimer = setTimeout(async () => {
-			summaryRefreshTimer = null;
-			try {
-				await reloadChanges();
-			} catch (_err) {
-				// Summary refresh is best-effort; durable state lives in the store.
-			}
-		}, delay);
-	}
-
 	const mover = createMoveScheduler({
 		resolver,
 		queue,
 		treeModel,
 		transport,
-		useBatchOperations,
-		crStore,
 		crName: () => crName.value,
-		scheduleSummaryRefresh,
 		errorMessage,
 	});
 
@@ -193,16 +182,26 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 	function applyServerTree(serverTree) {
 		treeModel.applyServerTree(serverTree);
 		hasLoadedTree.value = true;
+		dropStaleTree();
+		saveTreeSnapshot(userStore.data?.name, spaceId.value, toRaw(serverTree));
 		if (typeof serverTree?.operation_version === 'number') {
 			transport.recordServerVersion(crName.value, serverTree.operation_version);
 		}
 	}
 
-	function applyChangesSummary(changes) {
-		for (const k of Object.keys(changesByKey)) delete changesByKey[k];
-		for (const change of changes || []) {
-			if (change?.doc_key) changesByKey[change.doc_key] = change;
-		}
+	function dropStaleTree() {
+		hasStaleTree.value = false;
+		staleTreeModel.reset();
+	}
+
+	async function paintStaleTree(targetSpaceId, run) {
+		const snapshot = await loadTreeSnapshot(
+			userStore.data?.name,
+			targetSpaceId,
+		);
+		if (!snapshot || run !== latestHydrate || hasLoadedTree.value) return;
+		staleTreeModel.applyServerTree(snapshot);
+		hasStaleTree.value = true;
 	}
 
 	// `keepTree` drops the draft session (buffers, queue, change badges) but
@@ -215,49 +214,76 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 			spaceId.value = null;
 			hasLoadedTree.value = false;
 			treeModel.reset();
+			dropStaleTree();
 		}
 		pageBuffers.reset();
 		resolver.reset();
 		queue.reset();
 		mover.reset();
 		saver.reset();
-		for (const k of Object.keys(changesByKey)) delete changesByKey[k];
 		transport.reset();
 	}
 
-	// Hydrate the workspace for a space: ensure CR exists, load tree + summary,
-	// and normalize into local state. Idempotent and de-duplicated per call.
-	async function hydrate(targetSpaceId) {
+	async function hydrate(targetSpaceId, changeRequest = null) {
 		if (!isEnabled.value || !targetSpaceId) return;
 
-		if (hydratePromise && spaceId.value === targetSpaceId) {
+		// Page buffers are keyed by doc_key, so another request's text would open in this one.
+		const switchesRequest =
+			Boolean(crName.value && changeRequest) &&
+			changeRequest.name !== crName.value;
+		if (hydratePromise && spaceId.value === targetSpaceId && !switchesRequest) {
 			return hydratePromise;
 		}
 
 		isHydrating.value = true;
+		const run = ++latestHydrate;
 		hydratePromise = (async () => {
 			if (spaceId.value !== targetSpaceId) reset();
+			else if (switchesRequest) reset({ keepTree: true });
 			spaceId.value = targetSpaceId;
+			if (!hasLoadedTree.value) paintStaleTree(targetSpaceId, run);
 
-			await crStore.initChangeRequest(targetSpaceId);
+			changeRequestReady = loadChangeRequest(changeRequest);
+			const drafts = await changeRequestReady;
 			if (!crName.value) return;
 
-			const [serverTree] = await Promise.all([
+			const treeLoaded = Promise.all([
 				transport.fetchTree(crName.value),
 				crStore.loadChanges(),
 			]);
+			transport.holdBatches(crName.value, treeLoaded);
+			const [serverTree] = await treeLoaded.catch((error) => {
+				if (run === latestHydrate) {
+					transport.markFailed('This draft could not be loaded.');
+				}
+				throw error;
+			});
+			if (run !== latestHydrate) return;
 
 			applyServerTree(serverTree);
-			applyChangesSummary(crStore.changes);
-			await restorePersistedDrafts();
+			await restorePersistedDrafts(drafts);
 		})();
 
 		try {
 			await hydratePromise;
 		} finally {
-			isHydrating.value = false;
-			hydratePromise = null;
+			if (run === latestHydrate) {
+				isHydrating.value = false;
+				hydratePromise = null;
+				changeRequestReady = null;
+			}
 		}
+	}
+
+	async function loadChangeRequest(changeRequest) {
+		if (changeRequest) crStore.currentChangeRequest = changeRequest;
+		return crName.value ? loadDraftsForCr(crName.value) : [];
+	}
+
+	async function hydrateForPage(targetSpaceId, docKey) {
+		const hydration = hydrate(targetSpaceId);
+		const drafts = await (changeRequestReady ?? hydration);
+		if (drafts?.some((draft) => draft.docKey === docKey)) await hydration;
 	}
 
 	// Read any drafts persisted to IndexedDB for the current CR and
@@ -269,13 +295,11 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 	// Entries whose `docKey` no longer corresponds to a real tree node
 	// are ignored — they're orphans from deleted pages or from tmp_*
 	// creates that never reached the server.
-	async function restorePersistedDrafts() {
-		if (!crName.value) return;
-		const drafts = await loadDraftsForCr(crName.value);
-		if (!drafts.length) return;
+	async function restorePersistedDrafts(drafts) {
+		if (!crName.value || !drafts.length) return;
 		await Promise.all(
 			drafts.map(async (draft) => {
-				const { docKey, content, title } = draft;
+				const { docKey, content } = draft;
 				if (!docKey || content == null) return;
 				// Only restore for keys that still exist server-side. tmp_*
 				// orphans (lost creates) are out of scope for this v1.
@@ -290,9 +314,11 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 				// hydrate (and survive an IndexedDB clear once re-persisted), so
 				// drop it instead of reseeding dirty state.
 				let serverContent = null;
+				let serverTitle = null;
 				try {
 					const result = await transport.fetchPage(crName.value, docKey);
 					serverContent = result?.content ?? '';
+					serverTitle = result?.title || null;
 				} catch (_err) {
 					// Couldn't reach the server — fall through and restore
 					// conservatively so we never silently discard real work.
@@ -305,6 +331,17 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 					return;
 				}
 
+				// Drafts saved before the base was recorded have no `serverContent`.
+				const changedElsewhere =
+					serverContent != null &&
+					draft.serverContent !== undefined &&
+					!pageBuffers.isBasedOn(draft, serverContent);
+				// Saves send the title, so a stale one would undo a rename made elsewhere.
+				const title = serverTitle ?? draft.title;
+				const base = {
+					serverContent: changedElsewhere ? draft.serverContent : serverContent,
+					sentContent: draft.sentContent ?? null,
+				};
 				const page = pageBuffers.get(docKey);
 				if (!page) {
 					pageBuffers.setPage(
@@ -314,6 +351,7 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 							title,
 							content: serverContent,
 							localContent: content,
+							...base,
 							node,
 						}),
 					);
@@ -321,22 +359,32 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 					page.localContent = content;
 					if (title) page.title = title;
 					if (serverContent != null) page.content = serverContent;
+					Object.assign(page, base);
 					page.saveStatus = 'idle';
 					page.error = null;
+				}
+				if (changedElsewhere) {
+					transport.flagConflict(
+						crName.value,
+						__('This draft has changed elsewhere. Reload latest.'),
+					);
 				}
 			}),
 		);
 	}
 
 	async function reloadTree() {
-		if (!crName.value) return;
-		const serverTree = await transport.fetchTree(crName.value);
+		const requestCr = crName.value;
+		const requestSpace = spaceId.value;
+		if (!requestCr) return;
+		const serverTree = await transport.fetchTree(requestCr);
+		// The change request can outlive a space switch until the new one loads.
+		if (crName.value !== requestCr || spaceId.value !== requestSpace) return;
 		applyServerTree(serverTree);
 	}
 
 	async function reloadChanges() {
 		await crStore.loadChanges();
-		applyChangesSummary(crStore.changes);
 	}
 
 	// "Reload latest" recovery. Adopts server tree + change-summary as
@@ -357,11 +405,45 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 	async function reloadFromServer() {
 		if (!crName.value) return;
 		await Promise.all([reloadTree(), reloadChanges()]);
+		await Promise.all(Object.keys(pageBuffers.pagesByKey).map(reloadPage));
 		queue.clearFailed();
 		for (const key of Object.keys(pageBuffers.pagesByKey)) {
 			pageBuffers.clearFailedFlag(key);
 		}
+		transport.clearConflict(crName.value);
 		transport.markIdle();
+	}
+
+	// Runs after the tree fetch, so the version it recorded is no newer than
+	// the page copies fetched here.
+	async function reloadPage(docKey) {
+		const node = treeModel.findNode(docKey);
+		if (!node || node.isDeleted) {
+			pageBuffers.deletePage(docKey);
+			clearEditorDraft(crName.value, docKey);
+			return;
+		}
+		const result = await transport.fetchPage(crName.value, docKey);
+		const page = pageBuffers.get(docKey);
+		if (!page) return;
+		const serverContent = result?.content || '';
+		if (
+			pageBuffers.isDirty(page) &&
+			pageBuffers.isBasedOn(page, serverContent)
+		) {
+			page.serverContent = serverContent;
+			page.sentContent = null;
+			// Saves send the title, so a stale one would undo a rename made elsewhere.
+			page.title = result?.title || '';
+			page.route = result?.route || '';
+			page.isPublished = toPublished(result?.is_published);
+			return;
+		}
+		const shown = page.localContent ?? page.content;
+		pageBuffers.clearLocalContent(docKey);
+		applyFetchedPage(docKey, result);
+		clearEditorDraft(crName.value, docKey);
+		if (shown !== serverContent) requestEditorReload(docKey, serverContent);
 	}
 
 	// Apply a fetched CR page snapshot to its buffer. A dirty buffer keeps the
@@ -381,6 +463,8 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 			route: result?.route || '',
 			content: result?.content || '',
 			localContent: null,
+			serverContent: result?.content || '',
+			sentContent: null,
 			isPublished: toPublished(result?.is_published),
 			saveStatus: 'idle',
 			error: null,
@@ -445,8 +529,24 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 			revalidateCrPage(docKey);
 			return localPage;
 		}
-		const result = await transport.fetchPage(crName.value, docKey);
-		return applyFetchedPage(docKey, result);
+		return fetchCrPage(docKey);
+	}
+
+	const pageFetches = new Map();
+	function fetchCrPage(docKey) {
+		const requestCr = crName.value;
+		const key = `${requestCr}:${docKey}`;
+		if (pageFetches.has(key)) return pageFetches.get(key);
+		const promise = transport
+			.fetchPage(requestCr, docKey)
+			.then((result) =>
+				crName.value === requestCr
+					? applyFetchedPage(docKey, result)
+					: loadCrPage(docKey),
+			)
+			.finally(() => pageFetches.delete(key));
+		pageFetches.set(key, promise);
+		return promise;
 	}
 
 	function updateLocalPageContent(docKey, content, title = null) {
@@ -455,11 +555,8 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 		return pageBuffers.updateLocalContent(docKey, realKey, content, title);
 	}
 
-	async function ensureCr() {
-		if (!isEnabled.value || !spaceId.value) return false;
-		if (crName.value) return true;
-		await crStore.initChangeRequest(spaceId.value);
-		return !!crName.value;
+	function ensureCr() {
+		return Boolean(isEnabled.value && spaceId.value && crName.value);
 	}
 
 	// Insert node locally with pending_create *before* awaiting anything,
@@ -519,6 +616,8 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 				title,
 				route: localRoute,
 				content,
+				serverContent: content || '',
+				sentContent: null,
 				isPublished,
 				saveStatus: 'idle',
 				error: null,
@@ -563,48 +662,28 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 
 				queue.setStatus(mutation.id, 'syncing');
 
-				let realKey = null;
-				let route = null;
-				let documentName = null;
-				if (useBatchOperations) {
-					const result = await transport.applyBatchOps([
-						{
-							id: mutation.id,
-							type: 'create_node',
-							temp_key: tempKey,
-							parent_key: resolvedParent,
-							title: payload.title,
-							content: payload.content || '',
-							is_group: !!payload.isGroup,
-							is_external_link: !!payload.isExternalLink,
-							external_url: payload.externalUrl ?? null,
-							route: payload.route ?? null,
-						},
-					]);
-					realKey = result?.temp_key_map?.[tempKey] || null;
-					if (realKey) {
-						const item = (result.items || []).find(
-							(it) => it.doc_key === realKey,
-						);
-						route = item?.route || null;
-						documentName = item?.document_name || null;
-					}
-				} else {
-					const result = await crStore.createPage(
-						crName.value,
-						resolvedParent,
-						payload.title,
-						payload.content,
-						payload.isGroup,
-						payload.isExternalLink,
-						payload.externalUrl,
-						payload.route ?? null,
-					);
-					realKey = typeof result === 'string' ? result : result?.doc_key;
-					route = result?.route || null;
-				}
+				const result = await transport.applyBatchOps([
+					{
+						id: mutation.id,
+						type: 'create_node',
+						temp_key: tempKey,
+						parent_key: resolvedParent,
+						title: payload.title,
+						content: payload.content || '',
+						is_group: !!payload.isGroup,
+						is_external_link: !!payload.isExternalLink,
+						external_url: payload.externalUrl ?? null,
+						route: payload.route ?? null,
+					},
+				]);
+				const realKey = result?.temp_key_map?.[tempKey] || null;
 
 				if (realKey) {
+					const item = (result.items || []).find(
+						(it) => it.doc_key === realKey,
+					);
+					const route = item?.route || null;
+					const documentName = item?.document_name || null;
 					const node = treeModel.findNode(tempKey);
 					if (node) {
 						node.docKey = realKey;
@@ -620,7 +699,6 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 					resolver.resolve(tempKey, realKey);
 				}
 				queue.clear(mutation.id);
-				scheduleSummaryRefresh();
 				return realKey || null;
 			} catch (err) {
 				const node = treeModel.findNode(tempKey);
@@ -648,8 +726,15 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 		return promise;
 	}
 
+	async function findNodeOnceLoaded(docKey) {
+		if (!hasLoadedTree.value && hydratePromise) {
+			await hydratePromise.catch(() => {});
+		}
+		return treeModel.findNode(docKey);
+	}
+
 	async function updateNode(docKey, fields) {
-		const node = treeModel.findNode(docKey);
+		const node = await findNodeOnceLoaded(docKey);
 		if (!node) return;
 
 		// Apply locally first so the UI reflects the change immediately.
@@ -691,38 +776,32 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 			const realKey = await resolver.resolveDocKey(docKey);
 			if (!realKey) throw new Error('Pending create did not resolve');
 			if (!(await ensureCr())) throw new Error('No change request');
-			if (useBatchOperations) {
-				const result = await transport.applyBatchOps([
-					{
-						id: mutation.id,
-						type: 'update_node',
-						doc_key: realKey,
-						fields,
-					},
-				]);
-				// Pick up server-recomputed metadata (notably route, when
-				// title/slug changed and the caller didn't pin a route).
-				const item = (result?.items || []).find((it) => it.doc_key === realKey);
-				if (item) {
-					const fresh =
-						treeModel.findNode(realKey) || treeModel.findNode(docKey);
-					if (fresh) {
-						if (item.route) fresh.route = item.route;
-						if (item.title != null) fresh.title = item.title;
-					}
-					const buf = pageBuffers.get(realKey) || pageBuffers.get(docKey);
-					if (buf) {
-						if (item.route) buf.route = item.route;
-						if (item.title != null) buf.title = item.title;
-					}
+			const result = await transport.applyBatchOps([
+				{
+					id: mutation.id,
+					type: 'update_node',
+					doc_key: realKey,
+					fields,
+				},
+			]);
+			// Pick up the server's copy of the route and title: it
+			// sanitizes a route the caller pinned.
+			const item = (result?.items || []).find((it) => it.doc_key === realKey);
+			if (item) {
+				const fresh = treeModel.findNode(realKey) || treeModel.findNode(docKey);
+				if (fresh) {
+					if (item.route) fresh.route = item.route;
+					if (item.title != null) fresh.title = item.title;
 				}
-			} else {
-				await crStore.updatePage(crName.value, realKey, fields);
+				const buf = pageBuffers.get(realKey) || pageBuffers.get(docKey);
+				if (buf) {
+					if (item.route) buf.route = item.route;
+					if (item.title != null) buf.title = item.title;
+				}
 			}
 			const fresh = treeModel.findNode(realKey) || treeModel.findNode(docKey);
 			if (fresh) fresh.localStatus = null;
 			queue.clear(mutation.id);
-			scheduleSummaryRefresh();
 		} catch (err) {
 			const fresh =
 				treeModel.findNode(docKey) ||
@@ -834,24 +913,20 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 		queue.setStatus(mutation.id, 'syncing');
 		try {
 			if (!(await ensureCr())) throw new Error('No change request');
-			if (useBatchOperations) {
-				const op = {
-					id: mutation.id,
-					type: 'update_content',
-					doc_key: realKey,
-					content,
-				};
-				if (title != null) op.title = title;
-				await transport.applyBatchOps([op]);
-			} else {
-				const fields = { content };
-				if (title != null) fields.title = title;
-				await crStore.updatePage(crName.value, realKey, fields);
-			}
+			const op = {
+				id: mutation.id,
+				type: 'update_content',
+				doc_key: realKey,
+				content,
+			};
+			if (title != null) op.title = title;
+			await transport.applyBatchOps([op]);
 
 			const targetPage = pageBuffers.get(realKey) || pageBuffers.get(docKey);
 			if (targetPage) {
 				targetPage.content = content;
+				targetPage.serverContent = content;
+				targetPage.sentContent = null;
 				if (title != null) targetPage.title = title;
 				if (targetPage.localContent === content) {
 					targetPage.localContent = null;
@@ -878,11 +953,11 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 				transport.markSaved();
 			}
 			queue.clear(mutation.id);
-			scheduleSummaryRefresh();
 		} catch (err) {
 			const targetPage = pageBuffers.get(realKey) || pageBuffers.get(docKey);
 			if (targetPage) {
 				if (targetPage.localContent == null) targetPage.localContent = content;
+				if (err.code !== 'version_conflict') targetPage.sentContent = content;
 				targetPage.saveStatus = 'failed';
 				targetPage.error = errorMessage(err);
 				persistEditorDraft(realKey, targetPage.title, { immediate: true });
@@ -896,7 +971,8 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 	// Record the editor's canonical markdown immediately so submit/merge
 	// gating observes the same snapshot that will be persisted and saved.
 	function recordEditorContent(docKey, content, title, options = {}) {
-		if (!docKey) return;
+		// An editor still mounted after a merge or discard reports its last content.
+		if (!docKey || !crName.value) return;
 		const realKey = resolver.resolveKey(docKey) || docKey;
 		pageBuffers.ensure(realKey, { title: title || '' });
 		pageBuffers.setLocalContent(realKey, content);
@@ -909,7 +985,7 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 	// markdown with its configured parser. Rebasing here prevents harmless
 	// markdown round-trip differences from manufacturing dirty state.
 	function reconcileEditorContent(docKey, content, savedContent, title) {
-		if (!docKey) return;
+		if (!docKey || !crName.value) return;
 		const realKey = resolver.resolveKey(docKey) || docKey;
 		const page = pageBuffers.reconcileEditorContent(
 			realKey,
@@ -927,7 +1003,7 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 	// server, just drop the local node and the failed-create mutation rather
 	// than calling delete_cr_page with a tmp_* key.
 	async function deleteNode(docKey) {
-		const node = treeModel.findNode(docKey);
+		const node = await findNodeOnceLoaded(docKey);
 		if (!node) return;
 		node.localStatus = 'pending_delete';
 		treeModel.setSubtreeDeleted(docKey, true);
@@ -954,21 +1030,16 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 				}
 			}
 			if (!(await ensureCr())) throw new Error('No change request');
-			if (useBatchOperations) {
-				await transport.applyBatchOps([
-					{
-						id: mutation.id,
-						type: 'delete_node',
-						doc_key: resolvedKey,
-					},
-				]);
-			} else {
-				await crStore.deletePage(crName.value, resolvedKey);
-			}
+			await transport.applyBatchOps([
+				{
+					id: mutation.id,
+					type: 'delete_node',
+					doc_key: resolvedKey,
+				},
+			]);
 			const synced = treeModel.findNode(docKey);
 			if (synced) synced.localStatus = null;
 			queue.clear(mutation.id);
-			scheduleSummaryRefresh();
 		} catch (err) {
 			const fresh = treeModel.findNode(docKey);
 			if (fresh) fresh.localStatus = null;
@@ -991,15 +1062,10 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 		try {
 			const resolvedKey = resolver.resolveKey(docKey) || docKey;
 			if (!(await ensureCr())) throw new Error('No change request');
-			if (useBatchOperations) {
-				await transport.applyBatchOps([
-					{ id: mutation.id, type: 'restore_node', doc_key: resolvedKey },
-				]);
-			} else {
-				await crStore.restorePage(crName.value, resolvedKey);
-			}
+			await transport.applyBatchOps([
+				{ id: mutation.id, type: 'restore_node', doc_key: resolvedKey },
+			]);
 			queue.clear(mutation.id);
-			scheduleSummaryRefresh();
 		} catch (err) {
 			treeModel.setSubtreeDeleted(docKey, true);
 			queue.setStatus(mutation.id, 'failed', errorMessage(err));
@@ -1013,12 +1079,14 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 		rootKey: treeModel.rootKey,
 		tree: treeModel.tree,
 		pagesByKey: pageBuffers.pagesByKey,
-		changesByKey,
 		pending: queue.pending,
 		operationVersion: transport.operationVersion,
 		sync: transport.sync,
 		isHydrating,
+		hydrateForPage,
 		hasLoadedTree,
+		hasStaleTree,
+		staleTreeAsLegacy: staleTreeModel.treeAsLegacy,
 		tempKeyResolutions: resolver.tempKeyResolutions,
 		// getters
 		isEnabled,
@@ -1042,7 +1110,6 @@ export const useDraftWorkspaceStore = defineStore('draftWorkspace', () => {
 		reset,
 		discardPersistedDraftsForCr,
 		ensureCr,
-		scheduleSummaryRefresh,
 		resolveDocKey: resolver.resolveDocKey,
 		createNode,
 		updateNode,

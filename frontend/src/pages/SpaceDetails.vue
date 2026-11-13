@@ -34,7 +34,7 @@
             <MobileDrawer
                 v-if="isMobile"
                 :open="mobileTreeOpen"
-                side="left"
+                side="start"
                 :title="__('Pages')"
                 @update:open="mobileTreeOpen = $event"
             >
@@ -45,7 +45,7 @@
                     :space-loaded="spaceStore.isLoaded"
                     :tree-data="spaceStore.treeData"
                     :change-type-map="spaceStore.changeTypeMap"
-                    :readonly="spaceStore.isReadonly"
+                    :readonly="spaceStore.isReadonly || spaceStore.isTreeStale"
                     :selected-page-id="currentPageId"
                     :selected-draft-key="currentDraftKey"
                     @refresh="spaceStore.refreshTree"
@@ -58,13 +58,20 @@
                  scrolls under its sticky toolbar instead of the whole panel
                  sliding inside a second one. -->
             <main class="flex min-h-0 min-w-0 flex-1 flex-col bg-surface-base">
-                <router-view
-                    :space-id="spaceId"
-                    :readonly="spaceStore.isReadonly"
-                    @refresh="spaceStore.refreshTree"
-                />
+                <!-- The review loads one change request per mount. -->
+                <router-view v-slot="{ Component, route: child }">
+                    <component
+                        :is="Component"
+                        :key="child.params.changeRequestId"
+                        :space-id="spaceId"
+                        :readonly="spaceStore.isReadonly"
+                        @refresh="spaceStore.refreshTree"
+                    />
+                </router-view>
             </main>
         </div>
+
+        <StartEditingDialog />
 
         <SpaceSettings
             v-model="showSpaceSettings"
@@ -156,10 +163,12 @@ import MobileDrawer from '../components/MobileDrawer.vue';
 import SpaceModeStrip from '../components/SpaceModeStrip.vue';
 import SpaceSettings from '../components/SpaceSettings/SpaceSettings.vue';
 import SpaceTreePanel from '../components/SpaceTreePanel.vue';
+import StartEditingDialog from '../components/StartEditingDialog.vue';
 import { useMobile } from '../composables/useMobile';
 import { useNewPageRequest } from '../composables/useNewPageRequest';
 import { useSpaceSettings } from '../composables/useSpaceSettings';
 import { SPACE_TREE_KEY, firstPageIn } from '../lib/spaceTree.js';
+import { useChangeRequestStore } from '../stores/changeRequest';
 import { useDraftWorkspaceStore } from '../stores/draftWorkspace';
 import { useSpaceStore } from '../stores/space';
 
@@ -173,6 +182,7 @@ const props = defineProps({
 const route = useRoute();
 
 const router = useRouter();
+const crStore = useChangeRequestStore();
 const draftStore = useDraftWorkspaceStore();
 const spaceStore = useSpaceStore();
 const { showSpaceSettings, open: openSpaceSettings } = useSpaceSettings();
@@ -323,7 +333,7 @@ let autoOpening = false;
 function autoOpenPage() {
 	if (autoOpening || route.name !== 'SpaceDetails') return;
 	const tree = spaceStore.treeData;
-	if (!tree) return;
+	if (!tree || spaceStore.isTreeStale) return;
 
 	const remembered = localStorage.getItem(lastPageKey());
 	// A page staged for deletion is still in the tree, so the remembered one has
@@ -350,6 +360,8 @@ function autoOpenPage() {
 
 // treeData hydrates asynchronously (CR hydrate or readonly fetch), so refire
 // as it — and the route — settle.
+// The saved tree from the last visit can be out of date, so only the fresh
+// tree may redirect.
 watch([() => spaceStore.treeData, () => route.name], autoOpenPage, {
 	immediate: true,
 });
@@ -365,9 +377,25 @@ watch(
 		() => route.params.pageId,
 	],
 	([tree, name, pageId]) => {
-		if (name !== 'SpacePage' || !tree || !pageId) return;
+		if (name !== 'SpacePage' || !tree || !pageId || spaceStore.isTreeStale)
+			return;
 		const node = findNodeByDocumentName(tree.children, pageId);
 		if (!node?.is_deleted) return;
+		router.replace({ name: 'SpaceDetails', params: { spaceId: props.spaceId } });
+	},
+	{ immediate: true },
+);
+
+watch(
+	[
+		() => route.name,
+		() => spaceStore.isEditing,
+		() => spaceStore.canContribute,
+		() => crStore.finalizing,
+	],
+	([name, editing, mayContribute, finalizing]) => {
+		if (name !== 'DraftChangeRequest' || editing || finalizing) return;
+		if (mayContribute === null) return;
 		router.replace({ name: 'SpaceDetails', params: { spaceId: props.spaceId } });
 	},
 	{ immediate: true },

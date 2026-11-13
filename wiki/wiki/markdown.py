@@ -15,6 +15,7 @@ Supported types: note, tip, caution, danger, warning (alias for caution)
 
 import re
 
+import html5lib
 from markdown_it import MarkdownIt
 from markdown_it.common.utils import escapeHtml
 from markdown_it.token import Token
@@ -487,6 +488,18 @@ def _render_blank_line(tokens, idx, options, env) -> str:
 	return '<p class="wiki-blank-line" aria-hidden="true"><br></p>\n'
 
 
+# The exact `<picture>` the editor writes for an image with a dark mode file,
+# a width or an alignment, plus its optional `*caption*` line. markdown-it reads
+# it as one raw HTML block, caption included, so the caption would otherwise
+# show as literal asterisks.
+PICTURE_BLOCK_PATTERN = re.compile(
+	r'<picture>\s*(?:<source srcset="(?P<dark_src>[^"]*)" media="\(prefers-color-scheme: dark\)">\s*)?'
+	r'<img src="(?P<src>[^"]*)" alt="(?P<alt>[^"]*)"(?: title="(?P<title>[^"]*)")?'
+	r'(?: width="(?P<width>\d+)")?(?: data-align="(?P<align>left|center|right)")?\s*/?>\s*</picture>'
+	r"(?:\n\*(?P<caption>[^*\n]+)\*)?\s*"
+)
+
+
 def _build_markdown() -> MarkdownIt:
 	"""Build a configured markdown-it-py instance with our render overrides."""
 	md = (
@@ -543,6 +556,44 @@ def _build_markdown() -> MarkdownIt:
 		return s + " />"
 
 	md.renderer.rules["image"] = image_render
+
+	def html_block_render(tokens, idx, options, env):
+		# Pictures with no blank line between them arrive as one HTML block.
+		content = tokens[idx].content
+		pictures = []
+		position = 0
+		while position < len(content):
+			match = PICTURE_BLOCK_PATTERN.match(content, position)
+			if not match:
+				return "".join(pictures) + content[position:]
+			pictures.append(render_picture(match))
+			position = match.end()
+		return "".join(pictures)
+
+	def render_picture(match):
+		# Same shape as a plain image with a caption, so the caption CSS is shared.
+		alt = _remove_script_tags(match["alt"])
+		title = _remove_script_tags(match["title"])
+		img_attrs = f' title="{title}"' if title else ""
+		if match["width"]:
+			img_attrs += f' width="{match["width"]}"'
+		if match["align"]:
+			img_attrs += f' data-align="{match["align"]}"'
+		source = (
+			f'<source srcset="{match["dark_src"]}" media="(prefers-color-scheme: dark)">'
+			if match["dark_src"] is not None
+			else ""
+		)
+		caption = match["caption"]
+		caption_html = f"\n<em>{md.renderInline(caption)}</em>" if caption else ""
+		# On the <p> too, so the PDF renderer (no :has()) can align image and caption together.
+		paragraph_attrs = f' data-align="{match["align"]}"' if match["align"] else ""
+		return (
+			f'<p{paragraph_attrs}><picture>{source}<img src="{match["src"]}" alt="{alt}"{img_attrs} /></picture>'
+			f"{caption_html}</p>\n"
+		)
+
+	md.renderer.rules["html_block"] = html_block_render
 
 	def softbreak_render(tokens, idx, options, env):
 		# No <br> before a caption, so the `img + em` caption CSS still matches.
@@ -660,7 +711,18 @@ def render_markdown_with_toc(content: str) -> tuple[str, list]:
 	if _TABLE_CODE_PIPE_SENTINEL in html:
 		html = html.replace(_TABLE_CODE_PIPE_SENTINEL, "|")
 
-	return html, headings
+	return fix_unbalanced_tags(html), headings
+
+
+def fix_unbalanced_tags(html: str) -> str:
+	"""Close open tags and drop stray end tags, so page HTML stays inside its container."""
+	parser = html5lib.HTMLParser(namespaceHTMLElements=False)
+	fragment = parser.parseFragment(html)
+	if not parser.errors:
+		return html
+	return html5lib.serialize(
+		fragment, omit_optional_tags=False, quote_attr_values="always", use_trailing_solidus=True
+	)
 
 
 def render_markdown(content: str) -> str:

@@ -39,7 +39,7 @@
 						<MobileNavItem
 							:label="__('Change Requests')"
 							:route="{ name: 'ChangeRequests' }"
-							:active="['ChangeRequests', 'ChangeRequestReview'].includes(route.name)"
+							:active="route.name === 'ChangeRequests'"
 						>
 							<template #default="{ active }">
 								<span
@@ -50,27 +50,30 @@
 					</MobileNav>
 				</template>
 			</MobileShell>
-			<DesktopShell v-else class="wiki-desktop-shell h-full">
-				<!-- //// Neoffice — added. Shared Neoffice chrome (ADR-015) in place of the
-				     library sidebar upstream mounts at the top level (LibrarySidebar); it
-				     falls back to that sidebar on its own if the cockpit fails to boot.
-				     It sits in the shell's `rail` slot so that, inside a space, it stays
-				     beside the space's own tree (SpaceSidebar, `sidebar` slot) the way it
-				     stood beside the tree column before 3.3.0 moved the tree into the
-				     sidebar. Readers get NO cockpit at all: theirs held a single "Spaces"
-				     link and an upstream product name, so it cost a column of screen and
-				     gave nothing back. The space tree is their navigation. -->
-				<template v-if="!isReader" #rail>
-					<NeoCockpitWikiSidebar />
-				</template>
-				<template #sidebar>
-					<!-- //// Neoffice — upstream's `v-else <LibrarySidebar />` is gone: the library
-					     level is what the shared Neoffice chrome in the rail slot above replaces
-					     (LibrarySidebar is that chrome's own fallback). Inside a space: the tree. -->
-					<SpaceSidebar v-if="spaceId" :key="spaceId" :space-id="spaceId" />
-				</template>
-				<slot></slot>
-			</DesktopShell>
+			<div v-else class="flex h-full">
+				<DesktopShell class="wiki-desktop-shell h-full min-w-0 flex-1">
+					<!-- //// Neoffice — added. Shared Neoffice chrome (ADR-015) in place of the
+					     library sidebar upstream mounts at the top level (LibrarySidebar); it
+					     falls back to that sidebar on its own if the cockpit fails to boot.
+					     It sits in the shell's `rail` slot so that, inside a space, it stays
+					     beside the space's own tree (SpaceSidebar, `sidebar` slot) the way it
+					     stood beside the tree column before 3.3.0 moved the tree into the
+					     sidebar. Readers get NO cockpit at all: theirs held a single "Spaces"
+					     link and an upstream product name, so it cost a column of screen and
+					     gave nothing back. The space tree is their navigation. -->
+					<template v-if="!isReader" #rail>
+						<NeoCockpitWikiSidebar />
+					</template>
+					<template #sidebar>
+						<!-- //// Neoffice — upstream's `v-else-if="isRouteReady" <LibrarySidebar />` is gone: the
+						     library level is what the shared Neoffice chrome in the rail slot above replaces
+						     (LibrarySidebar is that chrome's own fallback). Inside a space: the tree. -->
+						<SpaceSidebar v-if="spaceId" :key="spaceId" :space-id="spaceId" />
+					</template>
+					<slot></slot>
+				</DesktopShell>
+				<div id="wiki-side-panel" class="flex" />
+			</div>
 		</template>
 		<div
 			v-else
@@ -121,7 +124,7 @@
 <script setup>
 import { useUserStore } from '@/stores/user';
 import { DesktopShell, MobileNav, MobileNavItem, MobileShell } from 'frappe-ui';
-import { computed, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import CommandPalette from '../components/CommandPalette.vue';
 //// Neoffice — added. The shared Neoffice chrome (ADR-015) replaces upstream's library
@@ -154,6 +157,12 @@ const isReader = computed(
 
 const spaceId = computed(() => route.params.spaceId || null);
 
+const isRouteReady = ref(false);
+const markRouteReady = () => {
+	isRouteReady.value = true;
+};
+router.isReady().then(markRouteReady, markRouteReady);
+
 // Spaces stays lit across every space route (overview + space details).
 const isSpacesRoute = computed(
 	() => route.name === 'AllSpaces' || Boolean(spaceId.value),
@@ -181,7 +190,7 @@ watch(
    outer corners, so a second radius inside it just reads as noise. */
 .wiki-desktop-shell :deep([data-slot='desktop-shell-content']) {
 	background-color: var(--surface-base);
-	border-left: 1px solid var(--outline-gray-2);
+	border-inline-start: 1px solid var(--outline-gray-2);
 	overflow: hidden;
 }
 

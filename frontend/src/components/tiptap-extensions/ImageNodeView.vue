@@ -1,97 +1,104 @@
 <template>
-    <NodeViewWrapper class="wiki-image-wrapper" :class="{ 'is-selected': selected }">
-        <div class="wiki-image-container">
-            <div class="wiki-image-frame">
-                <!-- //// Neoffice — two changes inside this img tag, both listed in
-                     //// NEOFFICE_FORK_MARKERS.md because a comment cannot sit between
-                     //// attributes: :width was dropped (the width now goes through :style, so
-                     //// a resized image scales instead of being letterboxed) and @click was
-                     //// re-pointed from selectNode to handleImageClick, which selects in edit
-                     //// mode and opens the lightbox in read mode. -->
+    <NodeViewWrapper class="wiki-image-wrapper my-2">
+        <div
+            class="max-w-full"
+            :class="alignClass"
+            :style="{ width: frameWidth ? `${frameWidth}px` : 'fit-content' }"
+        >
+            <div
+                class="relative isolate overflow-hidden rounded-4"
+                :class="{ 'ring-2 ring-outline-gray-3 ring-offset-2 ring-offset-[var(--surface-base)]': selected }"
+            >
                 <img
-                    :src="node.attrs.src"
+                    ref="imageRef"
+                    :src="displayedSrc"
                     :alt="node.attrs.alt || ''"
                     :title="node.attrs.title || ''"
-                    :height="node.attrs.height || undefined"
-                    class="wiki-image"
-                    :class="{ 'is-loading': node.attrs.loading }"
-                    :style="imageStyle"
-                    @click="handleImageClick"
+                    class="wiki-image block rounded-4"
+                    :class="[frameWidth ? 'w-full' : 'max-w-full', { 'brightness-75': isUploading }]"
+                    @click="selectNode"
                 />
-                <!-- Upload / optimization progress overlay -->
-                <div v-if="node.attrs.loading" class="wiki-image-loading-overlay">
-                    <span class="wiki-image-spinner" />
-                    <span class="wiki-image-loading-text">Uploading…</span>
+                <div
+                    v-if="isEditable && hasFile && (selected || menuOpen)"
+                    class="absolute end-2.5 top-2.5 z-20"
+                >
+                    <Dropdown v-model:open="menuOpen" :options="menuOptions" align="end">
+                        <template #trigger>
+                            <button
+                                type="button"
+                                :class="CHROME_BUTTON"
+                                aria-label="Image options"
+                                @click.stop
+                                @pointerdown.stop
+                            >
+                                <span class="lucide-ellipsis size-4" aria-hidden="true" />
+                            </button>
+                        </template>
+                    </Dropdown>
+                </div>
+                <button
+                    v-if="isEditable && hasFile && selected"
+                    type="button"
+                    :class="[CHROME_BUTTON, 'absolute bottom-2.5 right-2.5 z-30 cursor-nwse-resize touch-none']"
+                    aria-label="Resize image"
+                    @pointerdown.prevent.stop="startResize"
+                    @keydown="resizeWithKeys"
+                >
+                    <span class="lucide-move-diagonal-2 size-4" aria-hidden="true" />
+                </button>
+                <input
+                    v-if="canReplace"
+                    ref="fileInput"
+                    type="file"
+                    accept="image/*"
+                    class="hidden"
+                    @change="uploadSelectedFile"
+                />
+                <div
+                    v-if="isUploading"
+                    class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/35 text-sm text-white"
+                >
+                    <LoadingIndicator class="size-5" />
+                    <span>Uploading…</span>
                 </div>
             </div>
-            <!-- //// Neoffice — added. Upstream has no way to resize an image;
-                 authors were pasting screenshots that rendered full-bleed. -->
-            <div v-if="selected && isEditable" class="wiki-image-size-controls">
-                <button
-                    v-for="opt in sizeOptions"
-                    :key="opt.label"
-                    class="wiki-image-size-btn"
-                    :class="{ active: currentSize === opt.value }"
-                    :title="opt.label"
-                    @click.stop="setSize(opt.value)"
-                >
-                    {{ opt.label }}
-                </button>
-                <span class="wiki-image-size-separator"></span>
-                <input
-                    type="number"
-                    class="wiki-image-width-input"
-                    :value="node.attrs.width || ''"
-                    placeholder="px"
-                    min="100"
-                    max="2000"
-                    @change="setCustomWidth($event)"
-                    @click.stop
-                />
-            </div>
-            <div v-if="node.attrs.error" class="wiki-image-error">
+            <div v-if="node.attrs.error" class="wiki-image-error py-2 text-center text-sm text-ink-red-4">
                 Upload failed: {{ node.attrs.error }}
             </div>
             <input
-                v-if="(isEditable || node.attrs.caption) && !node.attrs.error"
+                v-else-if="isEditable && showCaption"
                 ref="captionInput"
                 v-model="caption"
                 type="text"
-                class="wiki-image-caption-input"
-                :class="{ 'has-caption': !!caption }"
-                placeholder="Add caption..."
-                :disabled="!isEditable"
+                draggable="false"
+                class="h-7 w-full border-none bg-transparent text-center text-sm italic text-ink-gray-6 placeholder-ink-gray-4 focus:ring-0"
+                placeholder="Add a caption"
+                aria-label="Caption"
                 @input="updateCaption"
                 @keydown="handleKeydown"
             />
-        </div>
-
-        <!-- //// Neoffice — added. Readers need to enlarge screenshots; the
-             image is capped at 860px in the flow. Read mode only. -->
-        <Teleport to="body">
-            <div v-if="showLightbox" class="wiki-lightbox-overlay" @click="closeLightbox">
-                <button class="wiki-lightbox-close" @click.stop="closeLightbox">&times;</button>
-                <img
-                    :src="node.attrs.src"
-                    :alt="node.attrs.alt || ''"
-                    class="wiki-lightbox-image"
-                    @click.stop
-                />
-                <p v-if="caption" class="wiki-lightbox-caption">{{ caption }}</p>
+            <div
+                v-else-if="!isEditable && node.attrs.caption"
+                class="px-1 pt-1 text-center text-sm italic text-ink-gray-6"
+            >
+                {{ node.attrs.caption }}
             </div>
-        </Teleport>
+        </div>
     </NodeViewWrapper>
 </template>
 
 <script setup>
 import { useNodeViewEditable } from '@/composables/useNodeViewEditable';
+import { useTheme } from '@/composables/useTheme';
 import { NodeViewWrapper } from '@tiptap/vue-3';
-//// Neoffice — computed added: imageStyle and currentSize below (image sizing
-//// presets and the read-mode lightbox) are ours.
-import { computed, ref, watch } from 'vue';
-//// Neoffice — withoutImageSizeClass: a size chosen with the buttons below replaces an
-//// img-* size class of the image (neoffice-maintenance#1085).
+import { Dropdown, LoadingIndicator } from 'frappe-ui';
+import { computed, nextTick, onBeforeUnmount, ref, toRaw, watch } from 'vue';
+//// Neoffice — withoutImageSizeClass: a width chosen here replaces a size class of the image (#1085).
 import { withoutImageSizeClass } from './image-markdown.js';
+
+const CHROME_BUTTON =
+	'flex size-7 items-center justify-center rounded-4 bg-black-overlay-300 text-white transition-colors hover:bg-black-overlay-400 active:bg-black-overlay-500 data-[state=open]:bg-black-overlay-500';
+const MIN_WIDTH = 50;
 
 const props = defineProps({
 	node: {
@@ -114,76 +121,219 @@ const props = defineProps({
 		type: Function,
 		required: true,
 	},
+	extension: {
+		type: Object,
+		required: true,
+	},
 });
 
-const isEditable = useNodeViewEditable(props.editor);
+// The reactive proxy fails ProseMirror's "mismatched transaction" check.
+const editor = toRaw(props.editor);
+const isEditable = useNodeViewEditable(editor);
+const { resolvedTheme } = useTheme();
+const imageRef = ref(null);
 const captionInput = ref(null);
+const fileInput = ref(null);
 const caption = ref(props.node.attrs.caption || '');
-//// Neoffice — everything from here to setCustomWidth() is ours: image size
-//// presets, a free px width, and a read-mode lightbox. Upstream renders images
-//// at their natural size with no controls.
-const showLightbox = ref(false);
+const replacingVariant = ref(null);
+const isReplacing = ref(false);
+const menuOpen = ref(false);
+const dragWidth = ref(null);
+// Only images added in this session have an uploadId.
+const captionOpen = ref(!!props.node.attrs.uploadId);
 
-const sizeOptions = [
-	{ label: 'S', value: 320 },
-	{ label: 'M', value: 480 },
-	{ label: 'L', value: 720 },
-	{ label: 'XL', value: 960 },
-	{ label: '100%', value: null },
-];
+const isUploading = computed(
+	() => props.node.attrs.loading || isReplacing.value,
+);
+const hasFile = computed(
+	() => !!props.node.attrs.src && !isUploading.value && !props.node.attrs.error,
+);
+const frameWidth = computed(() => dragWidth.value ?? props.node.attrs.width);
+const showCaption = computed(
+	() => captionOpen.value || !!props.node.attrs.caption,
+);
 
-const currentSize = computed(() => props.node.attrs.width || null);
+const alignClass = computed(
+	() =>
+		({ left: 'mr-auto', right: 'ml-auto' })[props.node.attrs.align] ||
+		'mx-auto',
+);
 
-const imageStyle = computed(() => {
-	const w = props.node.attrs.width;
-	if (w) {
-		return { width: `${w}px`, maxWidth: '100%', height: 'auto' };
+const displayedSrc = computed(() =>
+	resolvedTheme.value === 'dark' && props.node.attrs.darkSrc
+		? props.node.attrs.darkSrc
+		: props.node.attrs.src,
+);
+
+const canReplace = computed(
+	() => isEditable.value && !!props.extension.options.uploadImage,
+);
+
+const menuOptions = computed(() => [
+	{
+		group: 'caption',
+		hideLabel: true,
+		options: [
+			{
+				label: 'Caption',
+				icon: 'lucide-captions',
+				switch: true,
+				switchValue: showCaption.value,
+				onClick: toggleCaption,
+			},
+		],
+	},
+	{
+		group: 'Align',
+		options: [
+			{ value: 'left', label: 'Left', icon: 'lucide-align-left' },
+			{ value: 'center', label: 'Center', icon: 'lucide-align-center' },
+			{ value: 'right', label: 'Right', icon: 'lucide-align-right' },
+		].map(({ value, label, icon }) => ({
+			label,
+			icon,
+			selected: (props.node.attrs.align || 'center') === value,
+			onClick: () =>
+				props.updateAttributes({ align: value === 'center' ? null : value }),
+		})),
+	},
+	...(canReplace.value
+		? [
+				{
+					group: 'replace',
+					hideLabel: true,
+					options: [{ label: 'Replace image', icon: 'lucide-refresh-cw', submenu: replaceOptions.value }],
+				},
+			]
+		: []),
+]);
+
+const replaceOptions = computed(() => [
+	{
+		label: 'For both modes',
+		icon: 'lucide-image',
+		onClick: () => chooseFile('both'),
+	},
+	{
+		label: 'For light mode',
+		icon: 'lucide-sun',
+		onClick: () => chooseFile('light'),
+	},
+	{
+		label: 'For dark mode',
+		icon: 'lucide-moon',
+		onClick: () => chooseFile('dark'),
+	},
+	...(props.node.attrs.darkSrc
+		? [
+				{
+					label: 'Remove dark mode image',
+					icon: 'lucide-trash-2',
+					onClick: () => props.updateAttributes({ darkSrc: null }),
+				},
+			]
+		: []),
+]);
+
+function toggleCaption() {
+	captionOpen.value = !showCaption.value;
+	if (captionOpen.value) {
+		nextTick(() => captionInput.value?.focus());
+	} else if (props.node.attrs.caption) {
+		caption.value = '';
+		props.updateAttributes({ caption: null });
 	}
-	// min(860px, 100%): cap width on desktop but never overflow a narrow
-	// (mobile) container.
-	return {
-		maxWidth: 'min(860px, 100%)',
-		maxHeight: '600px',
-		height: 'auto',
-		objectFit: 'contain',
-	};
-});
+}
 
-function handleImageClick() {
-	if (isEditable.value) {
-		selectNode();
+function chooseFile(variant) {
+	replacingVariant.value = variant;
+	fileInput.value?.click();
+}
+
+async function uploadSelectedFile(event) {
+	const file = event.target.files?.[0];
+	event.target.value = '';
+	if (!file) return;
+
+	isReplacing.value = true;
+	let url;
+	try {
+		url = await props.extension.options.uploadImage(file);
+	} catch {
+		// uploadImage already told the author; the image keeps its current file.
 		return;
+	} finally {
+		isReplacing.value = false;
 	}
-	// Read mode: open the lightbox.
-	showLightbox.value = true;
-	document.body.style.overflow = 'hidden';
+	if (editor.isDestroyed) return;
+
+	const attributes = {
+		both: { src: url, darkSrc: null },
+		light: { src: url },
+		dark: { darkSrc: url },
+	};
+	props.updateAttributes(attributes[replacingVariant.value]);
 }
 
-function closeLightbox() {
-	showLightbox.value = false;
-	document.body.style.overflow = '';
+function maxWidth() {
+	return editor.view.dom.clientWidth;
 }
 
-function setSize(value) {
-	//// Neoffice — className: the reader's CSS for img-md (or xs, sm, lg, full) would win over
-	//// the width chosen here, so that size class goes; img-center and the like stay (#1085).
-	props.updateAttributes({
-		width: value,
-		height: null,
+function clampWidth(width) {
+	return Math.round(Math.min(Math.max(width, MIN_WIDTH), maxWidth()));
+}
+
+let stopDragTracking = null;
+
+function startResize(event) {
+	selectNode();
+	const startX = event.clientX;
+	const startWidth = imageRef.value.offsetWidth;
+	const onMove = (moveEvent) => {
+		dragWidth.value = clampWidth(startWidth + moveEvent.clientX - startX);
+	};
+	window.addEventListener('pointermove', onMove);
+	window.addEventListener('pointerup', stopResize);
+	document.body.style.cursor = 'nwse-resize';
+	stopDragTracking = () => {
+		window.removeEventListener('pointermove', onMove);
+		window.removeEventListener('pointerup', stopResize);
+		document.body.style.cursor = '';
+	};
+}
+
+function stopResize() {
+	stopDragTracking?.();
+	if (dragWidth.value && !editor.isDestroyed) {
+		//// Neoffice — sizedWidth(): the size class (img-md…) goes with a width chosen here (#1085).
+		props.updateAttributes(sizedWidth(dragWidth.value));
+	}
+	dragWidth.value = null;
+}
+
+onBeforeUnmount(() => stopDragTracking?.());
+
+function resizeWithKeys(event) {
+	const step = { ArrowLeft: -20, ArrowUp: -20, ArrowRight: 20, ArrowDown: 20 }[
+		event.key
+	];
+	if (!step) return;
+	event.preventDefault();
+	//// Neoffice — sizedWidth(), as in stopResize (#1085).
+	props.updateAttributes(
+		sizedWidth(clampWidth(imageRef.value.offsetWidth + step)),
+	);
+}
+
+//// Neoffice — added. A hand-written <img class="img-md"> keeps its class through a save
+//// (image-markdown.js), and the reader's CSS for a size class (img-xs … img-full) wins over a
+//// width: once the image is resized here, its size class has to go, or the reader would show
+//// the old size. The other classes (img-center, img-shadow…) stay (neoffice-maintenance#1085).
+function sizedWidth(width) {
+	return {
+		width,
 		className: withoutImageSizeClass(props.node.attrs.className),
-	});
-}
-
-function setCustomWidth(event) {
-	const val = Number.parseInt(event.target.value, 10);
-	if (val && val >= 100 && val <= 2000) {
-		//// Neoffice — as in setSize, a size class of the image goes with a width chosen here (#1085).
-		props.updateAttributes({
-			width: val,
-			height: null,
-			className: withoutImageSizeClass(props.node.attrs.className),
-		});
-	}
+	};
 }
 
 // Watch for external changes to caption attribute
@@ -197,13 +347,15 @@ watch(
 );
 
 function updateCaption() {
+	// Keeps the field open while the author clears it to retype.
+	captionOpen.value = true;
 	props.updateAttributes({ caption: caption.value });
 }
 
 function selectNode() {
 	const pos = props.getPos();
 	if (typeof pos === 'number') {
-		props.editor.commands.setNodeSelection(pos);
+		editor.commands.setNodeSelection(pos);
 	}
 }
 
@@ -215,7 +367,7 @@ function handleKeydown(event) {
 		event.preventDefault();
 		// Insert paragraph after image and move cursor there
 		const endPos = pos + props.node.nodeSize;
-		props.editor
+		editor
 			.chain()
 			.focus()
 			.insertContentAt(endPos, { type: 'paragraph' })
@@ -225,243 +377,28 @@ function handleKeydown(event) {
 		event.preventDefault();
 		// Move cursor after the image
 		const endPos = pos + props.node.nodeSize;
-		props.editor.chain().focus().setTextSelection(endPos).run();
+		editor.chain().focus().setTextSelection(endPos).run();
 	} else if (event.key === 'ArrowUp') {
 		event.preventDefault();
 		// Move cursor before the image
-		props.editor.chain().focus().setTextSelection(pos).run();
+		editor.chain().focus().setTextSelection(pos).run();
+	} else if (event.key === 'Backspace' && !caption.value) {
+		event.preventDefault();
+		toggleCaption();
+		selectNode();
 	}
 }
 </script>
 
 <style scoped>
-.wiki-image-wrapper {
-    display: block;
-    margin: 1rem 0;
-}
-
-.wiki-image-wrapper.is-selected .wiki-image {
-    outline: 2px solid var(--primary, #171717);
-    outline-offset: 2px;
-}
-
-.wiki-image-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 0;
-}
-
-.wiki-image-frame {
-    position: relative;
-    display: inline-flex;
-    max-width: 100%;
+.wiki-image-wrapper.ProseMirror-selectednode,
+.wiki-image-wrapper:focus {
+    outline: none;
 }
 
 .wiki-image {
-    max-width: 100%;
+    margin: 0;
     height: auto;
-    border-radius: 0.375rem;
     cursor: pointer;
-    margin: 0;
-}
-
-.wiki-image.is-loading {
-    filter: brightness(0.7);
-}
-
-.wiki-image-loading-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    border-radius: 0.375rem;
-    background: rgba(17, 17, 17, 0.35);
-    color: #fff;
-    font-size: 0.8125rem;
-}
-
-.wiki-image-spinner {
-    width: 1.25rem;
-    height: 1.25rem;
-    border: 2px solid rgba(255, 255, 255, 0.4);
-    border-top-color: #fff;
-    border-radius: 50%;
-    animation: wiki-image-spin 0.7s linear infinite;
-}
-
-@keyframes wiki-image-spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.wiki-image-error {
-    width: 100%;
-    text-align: center;
-    font-size: 0.8125rem;
-    color: var(--ink-red-4, #dc2626);
-    padding: 0.5rem 0;
-}
-
-.wiki-image-caption-input {
-    width: 100%;
-    max-width: 100%;
-    text-align: center;
-    background: transparent;
-    border: none;
-    font-style: italic;
-    font-size: 0.875rem;
-    color: var(--ink-gray-6, #4b5563);
-    padding: 0 0.25rem;
-    margin-top: 0.25rem;
-    outline: none;
-    box-shadow: none;
-}
-
-.wiki-image-caption-input::placeholder {
-    color: var(--ink-gray-4, #9ca3af);
-}
-
-.wiki-image-caption-input:focus {
-    outline: none;
-    box-shadow: none;
-    border: none;
-}
-
-.wiki-image-caption-input:disabled {
-    cursor: default;
-}
-
-.wiki-image-caption-input:disabled:not(.has-caption) {
-    display: none;
-}
-
-/* //// Neoffice — styles for the added size controls */
-.wiki-image-size-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    margin-top: 0.5rem;
-    padding: 0.25rem 0.5rem;
-    background: var(--surface-gray-2, #f3f4f6);
-    border: 1px solid var(--outline-gray-2, #e5e7eb);
-    border-radius: 0.375rem;
-}
-
-.wiki-image-size-btn {
-    padding: 0.125rem 0.5rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    border: 1px solid transparent;
-    border-radius: 0.25rem;
-    background: transparent;
-    color: var(--ink-gray-6, #4b5563);
-    cursor: pointer;
-    transition: all 0.15s;
-}
-
-.wiki-image-size-btn:hover {
-    background: var(--surface-gray-3, #e5e7eb);
-}
-
-.wiki-image-size-btn.active {
-    background: var(--surface-white, #fff);
-    border-color: var(--outline-gray-3, #d1d5db);
-    color: var(--ink-gray-9, #111827);
-    font-weight: 600;
-}
-
-.wiki-image-size-separator {
-    width: 1px;
-    height: 1rem;
-    background: var(--outline-gray-2, #e5e7eb);
-    margin: 0 0.25rem;
-}
-
-.wiki-image-width-input {
-    width: 3.5rem;
-    padding: 0.125rem 0.25rem;
-    font-size: 0.75rem;
-    border: 1px solid var(--outline-gray-2, #e5e7eb);
-    border-radius: 0.25rem;
-    background: var(--surface-white, #fff);
-    color: var(--ink-gray-8, #1f2937);
-    text-align: center;
-    outline: none;
-    -moz-appearance: textfield;
-}
-
-.wiki-image-width-input::-webkit-inner-spin-button,
-.wiki-image-width-input::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-.wiki-image-width-input:focus {
-    border-color: var(--outline-gray-3, #d1d5db);
-}
-</style>
-
-<style>
-/* //// Neoffice — lightbox styles. Global (not scoped) on purpose: the markup
-   is Teleport'd to <body>, where scoped attributes do not reach it. */
-.wiki-lightbox-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 99999;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(4px);
-    cursor: zoom-out;
-    padding: 2rem;
-    animation: wiki-lightbox-in 0.2s ease-out;
-}
-
-@keyframes wiki-lightbox-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-.wiki-lightbox-close {
-    position: absolute;
-    top: 1rem;
-    right: 1.5rem;
-    background: none;
-    border: none;
-    color: white;
-    font-size: 2.5rem;
-    cursor: pointer;
-    line-height: 1;
-    opacity: 0.7;
-    transition: opacity 0.15s;
-    z-index: 1;
-}
-
-.wiki-lightbox-close:hover {
-    opacity: 1;
-}
-
-.wiki-lightbox-image {
-    max-width: 90vw;
-    max-height: 85vh;
-    object-fit: contain;
-    border-radius: 0.5rem;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
-    cursor: default;
-}
-
-.wiki-lightbox-caption {
-    color: rgba(255, 255, 255, 0.8);
-    font-style: italic;
-    font-size: 0.875rem;
-    margin-top: 0.75rem;
-    text-align: center;
 }
 </style>

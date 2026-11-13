@@ -11,7 +11,7 @@
 		<SidebarHeader
 			:title="__('Wiki')"
 			:subtitle="userStore.data?.full_name"
-			logo="/assets/wiki/images/wiki-logo.png"
+			logo="/assets/wiki/images/frappe-wiki-logo.svg"
 			:menu-items="headerMenuItems"
 		/>
 		<ScrollArea class="min-h-0 flex-1" viewport-class="px-2 pt-1">
@@ -23,7 +23,6 @@
 					:icon="item.icon"
 					:route="item.to"
 					:active="item.routeNames.includes(route.name)"
-					:suffix="item.suffix?.value"
 				/>
 				<SidebarItem
 					:label="__('Search')"
@@ -31,7 +30,7 @@
 					@click="openCommandPalette('click')"
 				>
 					<template #suffix>
-						<KeyboardShortcut combo="Mod+K" class="mr-2 text-ink-gray-4" />
+						<KeyboardShortcut combo="Mod+K" class="me-2 text-ink-gray-4" dir="ltr" />
 					</template>
 				</SidebarItem>
 
@@ -61,7 +60,7 @@
 								</template>
 								<!-- No unpublished icon: the Unpublished section already says it. -->
 								<template #suffix>
-									<span class="mr-2 flex items-center gap-1">
+									<span class="me-2 flex items-center gap-1">
 										<Tooltip v-if="isPinned(space.name)" :text="__('Pinned to top')">
 											<span class="lucide-pin size-3.5 text-ink-gray-5" aria-hidden="true" />
 										</Tooltip>
@@ -118,7 +117,6 @@ import {
 	SidebarItem,
 	SidebarSection,
 	Tooltip,
-	createResource,
 	toast,
 } from 'frappe-ui';
 
@@ -159,18 +157,6 @@ const { spaces, orderedSpaces, restrictedSpaces, isPinned, togglePin } =
 		// in; for everyone else an unpublished space is not part of the wiki yet.
 		publishedOnly: computed(() => !userStore.isWikiManager),
 	});
-
-// Merged, rejected and archived requests are done, so they do not belong in
-// the sidebar count. `get_count` runs through the same permission query as the
-// list, so this is the user's own count, not the wiki's.
-const openChangeRequests = createResource({
-	url: 'frappe.client.get_count',
-	params: {
-		doctype: 'Wiki Change Request',
-		filters: { status: ['not in', ['Merged', 'Rejected', 'Archived']] },
-	},
-	auto: true,
-});
 
 const unpublishedCollapsed = useStorage(
 	'wiki:sidebar-unpublished-collapsed',
@@ -255,10 +241,6 @@ const headerMenuItems = computed(() => [
 	{ label: __('Log out'), icon: 'lucide-log-out', onClick: logout },
 ]);
 
-const openChangeRequestCount = computed(() =>
-	openChangeRequests.data ? String(openChangeRequests.data) : '',
-);
-
 const navItems = computed(() => [
 	...(userStore.isWikiManager
 		? [
@@ -280,8 +262,7 @@ const navItems = computed(() => [
 		label: __('Change Requests'),
 		icon: 'lucide-git-branch',
 		to: { name: 'ChangeRequests' },
-		routeNames: ['ChangeRequests', 'ChangeRequestReview'],
-		suffix: openChangeRequestCount,
+		routeNames: ['ChangeRequests'],
 	},
 ]);
 

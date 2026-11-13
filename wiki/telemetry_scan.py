@@ -52,7 +52,7 @@ BLOCK_TESTS = {
 	"blocks_pdf": "%.pdf)%",
 	"blocks_image": "%![%",
 	# The delimiter row of a GFM table: `| --- |`, with or without alignment colons.
-	"blocks_table": r"\|[[:space:]]*:?-{3,}",
+	"blocks_table": r"\|\s*:?-{3,}",
 }
 
 
@@ -94,7 +94,6 @@ def collect() -> dict:
 
 def identity() -> dict:
 	return {
-		"frappe_cloud": bool(frappe.conf.get("fc_team")),
 		"site_age_days": site_age() or 0,
 		"wiki_installed_days_ago": days_since(
 			frappe.db.get_value("Installed Application", {"app_name": "wiki"}, "creation")

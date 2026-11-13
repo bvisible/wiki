@@ -1,4 +1,5 @@
 import json
+import os
 import re
 from functools import lru_cache
 
@@ -71,6 +72,14 @@ def get_asset_hash(path: str) -> str:
 			return get_content_hash(f.read())
 	except OSError:
 		return ""
+
+
+@lru_cache
+def fingerprint_js_url() -> str:
+	# Frappe v16 bundles FingerprintJS; v15's own website_script.js loads it from the CDN.
+	if os.path.exists(frappe.get_app_path("frappe", "public", "js", "lib", "fingerprintjs.js")):
+		return "/assets/frappe/js/lib/fingerprintjs.js"
+	return "https://openfpcdn.io/fingerprintjs/v3"
 
 
 def check_app_permission():
@@ -187,3 +196,15 @@ def space_mark(space) -> dict:
 		return {**mark, "mode": "logo", "image": logo}
 
 	return mark
+
+
+def see_latest_rows_after_lock_wait() -> None:
+	"""Make a locking read return the latest committed row, as MariaDB did before 11.6.
+
+	From 11.6, innodb_snapshot_isolation rejects a locking read of a row changed since the
+	transaction's snapshot with error 1020, and the wiki's locks rely on that read.
+	"""
+	if frappe.db.db_type != "mariadb":
+		return
+	if frappe.db.sql("show variables like 'innodb_snapshot_isolation'"):
+		frappe.db.sql("set session innodb_snapshot_isolation = off")

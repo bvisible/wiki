@@ -5,10 +5,10 @@ from pathlib import Path
 from unittest.mock import patch
 
 import frappe
-from frappe.tests import IntegrationTestCase
 
 from wiki import telemetry_scan
 from wiki.frappe_wiki.doctype.wiki_change_request.wiki_change_request import create_change_request
+from wiki.tests import WikiTestCase as IntegrationTestCase
 from wiki.tests.factory import WikiFixtures
 
 
@@ -169,7 +169,7 @@ class TestSiteProfileShape(IntegrationTestCase):
 
 	def test_every_property_the_profile_sends_is_documented(self):
 		app_root = Path(frappe.get_app_path("wiki")).parent
-		catalogue = (app_root / "docs" / "telemetry.md").read_text()
+		catalogue = (app_root / "specs" / "telemetry.md").read_text()
 
 		undocumented = {key for key in telemetry_scan.collect() if f"`{key}`" not in catalogue}
-		self.assertEqual(undocumented, set(), "add these to docs/telemetry.md")
+		self.assertEqual(undocumented, set(), "add these to specs/telemetry.md")

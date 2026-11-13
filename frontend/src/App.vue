@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { FrappeUIProvider, setConfig, toast } from 'frappe-ui';
+import { ConfigProvider } from 'reka-ui';
 //// Neoffice — computed + useRoute added for the viewKey below (header space switcher).
 import { computed, onBeforeUnmount, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
@@ -23,6 +24,8 @@ const viewKey = computed(() =>
 setConfig('systemTimezone', window.timezone?.system || null);
 setConfig('localTimezone', window.timezone?.user || null);
 
+const dir = document.documentElement.dir === 'rtl' ? 'rtl' : 'ltr';
+
 // Realtime reviewer-decision pings to the change-request author. The matching
 // Notification Log entry (created server-side) is the durable copy; this is
 // just the live nudge while the author has the app open.
@@ -39,11 +42,13 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-	<FrappeUIProvider>
-		<MainLayout>
-			<!-- //// Neoffice — :key added, see viewKey in the script above: without it a
-			     //// space switch never re-created SpaceDetails, which reads its spaceId once. -->
-			<router-view :key="viewKey" />
-		</MainLayout>
-	</FrappeUIProvider>
+	<ConfigProvider :dir="dir">
+		<FrappeUIProvider>
+			<MainLayout>
+				<!-- //// Neoffice — :key added, see viewKey in the script above: without it a
+				     //// space switch never re-created SpaceDetails, which reads its spaceId once. -->
+				<router-view :key="viewKey" />
+			</MainLayout>
+		</FrappeUIProvider>
+	</ConfigProvider>
 </template>

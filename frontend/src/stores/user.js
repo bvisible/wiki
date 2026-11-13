@@ -5,7 +5,7 @@ import { computed } from 'vue';
 export const useUserStore = defineStore('user', () => {
 	const userResource = createResource({
 		url: 'wiki.api.get_user_info',
-		cache: 'User',
+		initialData: window.user_info,
 		onError(error) {
 			if (error && error.exc_type === 'AuthenticationError') {
 				window.location.href = '/login';
@@ -51,8 +51,12 @@ export const useUserStore = defineStore('user', () => {
 	//// role, not merely an account.
 	const shouldUseChangeRequestMode = computed(() => isWikiEditor.value);
 
+	let pendingFetch = null;
 	function fetch() {
-		return userResource.fetch();
+		pendingFetch ??= userResource.fetch().finally(() => {
+			pendingFetch = null;
+		});
+		return pendingFetch;
 	}
 
 	function reload() {

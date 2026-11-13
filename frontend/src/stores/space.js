@@ -10,6 +10,13 @@ import { toPublished } from './draftWorkspace/utils';
 //// Neoffice — useUserStore added: the reader branch below keys off the authoring role.
 import { useUserStore } from './user';
 
+const EDITABLE_STATUSES = ['Draft', 'Changes Requested'];
+const REVIEW_STATUSES = ['In Review', 'Approved'];
+
+// Per tab, so a reload comes back to the change request in review the user was
+// editing, and another tab is not pulled into it.
+const reviewEditKey = (spaceId) => `wiki:editing-in-review:${spaceId}`;
+
 /**
  * The space the app is currently in: its document, its tree, and its sync
  * state.
@@ -41,7 +48,7 @@ export const useSpaceStore = defineStore('space', () => {
 	const selectedDraftKey = computed(() => route.value.params.docKey || null);
 
 	// createDocumentResource caches by doctype+name, so re-entering a space
-	// reuses the loaded document instead of refetching it.
+	// shows the loaded document until the bootstrap below refreshes it.
 	const space = ref(null);
 	//// Neoffice — added. For a reader, ONE call (get_public_space_info) answers both
 	//// the space and its tree, and refreshing the tree reloads it. Exposed as `.doc`
@@ -76,7 +83,7 @@ export const useSpaceStore = defineStore('space', () => {
 				? createDocumentResource({
 						doctype: 'Wiki Space',
 						name: id,
-						auto: true,
+						auto: false,
 						whitelistedMethods: {
 							updateRoutes: 'update_routes',
 							cloneWikiSpace: 'clone_wiki_space_in_background',
@@ -123,70 +130,160 @@ export const useSpaceStore = defineStore('space', () => {
 	const canEdit = computed(
 		() => !isGitSynced.value && canContribute.value === true,
 	);
-	const capabilitiesResource = createResource({
-		url: 'wiki.api.get_space_capabilities',
-		onSuccess: (data) => {
-			canWriteSpace.value = Boolean(data?.can_write);
-			canDeleteSpace.value = Boolean(data?.can_delete);
-			canContribute.value = Boolean(data?.can_contribute);
-		},
+
+	// A change request in review is edited only after its Edit button, never
+	// because the user happens to own one.
+	const reviewEditName = ref(null);
+	const isEditingInReview = computed(() => {
+		const changeRequest = crStore.currentChangeRequest;
+		return (
+			canEdit.value &&
+			changeRequest?.wiki_space === spaceId.value &&
+			changeRequest.name === reviewEditName.value &&
+			REVIEW_STATUSES.includes(changeRequest.status)
+		);
 	});
+
+	const isEditing = computed(() => {
+		const changeRequest = crStore.currentChangeRequest;
+		if (!canEdit.value || changeRequest?.wiki_space !== spaceId.value) {
+			return false;
+		}
+		return (
+			Boolean(crStore.finalizing) ||
+			EDITABLE_STATUSES.includes(changeRequest.status) ||
+			isEditingInReview.value
+		);
+	});
+	const isReading = computed(() => canEdit.value && !isEditing.value);
+	const showsLiveTree = computed(() => isReadonly.value || isReading.value);
+
+	const readonlyTreeResource = createResource({
+		url: 'wiki.api.wiki_space.get_wiki_tree',
+		method: 'GET',
+	});
+
+	const readonlyTreeSpaceId = ref(null);
+
+	// The space document, the capabilities and the user's draft, in one round
+	// trip instead of three in a row.
+	const bootstrapResource = createResource({
+		url: 'wiki.api.wiki_space.get_space_bootstrap',
+		method: 'GET',
+	});
+
+	async function loadSpace(id) {
+		const inReview = sessionStorage.getItem(reviewEditKey(id));
+		const params = { space_id: id };
+		if (inReview) params.change_request = inReview;
+		const data = await bootstrapResource.submit(params).catch(() => null);
+		if (!data || id !== spaceId.value) return;
+		space.value.setDoc(data.doc);
+		space.value.originalDoc = JSON.parse(JSON.stringify(data.doc));
+		canWriteSpace.value = Boolean(data.capabilities.can_write);
+		canDeleteSpace.value = Boolean(data.capabilities.can_delete);
+		canContribute.value = Boolean(data.capabilities.can_contribute);
+		const changeRequest = data.change_request;
+		if (inReview && changeRequest?.name !== inReview) {
+			sessionStorage.removeItem(reviewEditKey(id));
+		}
+		reviewEditName.value =
+			inReview && changeRequest?.name === inReview ? inReview : null;
+		if (changeRequest) draftStore.hydrate(id, changeRequest);
+		else if (crStore.currentChangeRequest) stopEditing();
+	}
 
 	//// Neoffice — watches isReader as well as the space: a reader answers locally below.
 	watch(
 		[spaceId, isReader],
-		([id, reader]) => {
+		async ([id, reader]) => {
 			canWriteSpace.value = false;
 			canDeleteSpace.value = false;
 			canContribute.value = null;
-			//// Neoffice — the capabilities endpoint needs a session, and a reader can
-			//// neither write nor contribute: answer locally rather than eat a 403. Saying
-			//// `false` (not leaving it null) is what sends them down the read-only tree
-			//// path below instead of waiting forever for a yes.
+			//// Neoffice — the bootstrap needs a session and the right to read the space
+			//// document, and a reader can neither write nor contribute: answer locally
+			//// rather than eat a 403. Saying `false` (not leaving it null) is what sends
+			//// them down the read-only tree path below instead of waiting forever for a yes.
 			if (id && reader) {
 				canContribute.value = false;
 				return;
 			}
-			if (id) capabilitiesResource.submit({ space: id });
+			if (!id) return;
+			const changeRequest = crStore.currentChangeRequest;
+			if (changeRequest && changeRequest.wiki_space !== id) stopEditing();
+			await loadSpace(id);
 		},
 		{ immediate: true },
 	);
 
-	const readonlyTreeResource = createResource({
-		url: 'wiki.api.wiki_space.get_wiki_tree',
+	// A review inside the space can merge or reopen the draft the space shows.
+	async function reload() {
+		await loadSpace(spaceId.value);
+		if (showsLiveTree.value) await loadReadonlyTree();
+	}
+
+	const createChangeRequestResource = createResource({
+		url: 'wiki.frappe_wiki.doctype.wiki_change_request.wiki_change_request.create_change_request',
 	});
 
-	// The space the loaded readonly tree belongs to. The resource holds the
-	// previous space's tree until the new one lands, so track the owner and let
-	// `treeData` reject a stale cross-space tree.
-	const readonlyTreeSpaceId = ref(null);
+	async function startEditing({ title, description }) {
+		const id = spaceId.value;
+		const changeRequest = await createChangeRequestResource.submit({
+			wiki_space: id,
+			title,
+			description,
+		});
+		await draftStore.hydrate(id, changeRequest);
+		return changeRequest;
+	}
 
-	// Adapt get_wiki_tree's (name-keyed) shape into the snake_case shape the tree
-	// components consume. The Wiki Document `name` doubles as both the navigation
-	// target (document_name) and the row key (doc_key) here — synced trees have
-	// no CR overlay, so the internal doc_key is never needed.
+	async function editInReview(changeRequest) {
+		const id = changeRequest.wiki_space;
+		sessionStorage.setItem(reviewEditKey(id), changeRequest.name);
+		reviewEditName.value = changeRequest.name;
+		// Entering the space bootstraps it; only an open space needs this here.
+		if (id === spaceId.value) await draftStore.hydrate(id, changeRequest);
+	}
+
+	// Back to the user's own draft, if they have one.
+	async function stopEditingInReview() {
+		const id = crStore.currentChangeRequest?.wiki_space;
+		if (!id) return;
+		sessionStorage.removeItem(reviewEditKey(id));
+		reviewEditName.value = null;
+		stopEditing();
+		if (id === spaceId.value) await loadSpace(id);
+	}
+
+	function stopEditing() {
+		crStore.currentChangeRequest = null;
+		crStore.clearChanges();
+		draftStore.reset({ keepTree: true });
+		readonlyTreeSpaceId.value = null;
+	}
+
 	function adaptReadonlyNode(node) {
 		return {
-			doc_key: node.name,
+			doc_key: node.doc_key,
 			document_name: node.name,
 			title: node.title,
 			route: node.route,
 			is_group: !!node.is_group,
 			is_published: toPublished(node.is_published),
-			is_external_link: false,
-			external_url: null,
+			is_external_link: Boolean(node.is_external_link),
+			external_url: node.external_url || null,
 			children: (node.children || []).map(adaptReadonlyNode),
 		};
 	}
 
-	const readonlyTreeData = computed(() => {
+	const liveTreeData = computed(() => {
 		//// Neoffice — get_public_space_info wraps the same payload as {space, tree}.
 		const data = isReader.value
 			? publicInfo.value?.data?.tree
 			: readonlyTreeResource.data;
-		if (!data) return null;
+		if (!data || readonlyTreeSpaceId.value !== spaceId.value) return null;
 		return {
-			root_group: data.root_group || '',
+			root_group: data.root_key || '',
 			children: (data.children || []).map(adaptReadonlyNode),
 		};
 	});
@@ -202,29 +299,34 @@ export const useSpaceStore = defineStore('space', () => {
 		readonlyTreeSpaceId.value = target;
 	}
 
-	// Tree, page drafts, and pending mutations live in the draft workspace store.
-	// We hydrate it on space load and after merge/archive transitions; routine
-	// edits update the store optimistically without a server round-trip.
-	// `treeAsLegacy` is an empty-but-truthy object before hydration, so gate on
-	// `hasLoadedTree` — otherwise the sidebar flashes "No pages yet" instead of
-	// the loading skeleton while the tree is being fetched.
+	const hasDraftTree = computed(
+		() => draftStore.spaceId === spaceId.value && draftStore.hasLoadedTree,
+	);
+
 	const treeData = computed(() => {
-		// Both sources outlive a space switch: the readonly resource keeps the old
-		// space's tree until the new fetch lands, and draftStore is a global
-		// singleton still hydrated for the previous space. Returning a stale tree
-		// here makes auto-open navigate into the wrong space's page, so gate each
-		// on belonging to the current space.
-		if (isReadonly.value) {
-			return readonlyTreeSpaceId.value === spaceId.value
-				? readonlyTreeData.value
-				: null;
+		if (showsLiveTree.value) {
+			if (liveTreeData.value || !hasDraftTree.value) return liveTreeData.value;
+			return draftStore.treeAsLegacy;
 		}
+		if (hasDraftTree.value) return draftStore.treeAsLegacy;
+		if (liveTreeData.value) return liveTreeData.value;
 		if (draftStore.spaceId !== spaceId.value) return null;
-		return draftStore.hasLoadedTree ? draftStore.treeAsLegacy : null;
+		return draftStore.hasStaleTree ? draftStore.staleTreeAsLegacy : null;
 	});
+
+	const isTreeStale = computed(
+		() =>
+			!showsLiveTree.value &&
+			!hasDraftTree.value &&
+			!liveTreeData.value &&
+			draftStore.spaceId === spaceId.value &&
+			draftStore.hasStaleTree,
+	);
 
 	const changeTypeMap = computed(() => {
 		const map = new Map();
+		// A merge from the review page clears the change request but not its changes.
+		if (showsLiveTree.value) return map;
 		for (const change of crStore.changes) {
 			map.set(change.doc_key, change.change_type);
 		}
@@ -299,53 +401,11 @@ export const useSpaceStore = defineStore('space', () => {
 	// riding a component's lifecycle.
 	useSocket()?.on('wiki_git_sync_update', onSyncRealtime);
 
-	// Keyed on the two fields that decide which workspace to build — never on
-	// `doc` itself. `setValue` replaces the document with a fresh object on
-	// every field write, so watching the document made a logo shuffle, a rename
-	// or a publish toggle look exactly like a move to another space: the change
-	// request was dropped, the draft workspace reset and the tree refetched,
-	// flashing the sidebar and the breadcrumbs for a change that touched
-	// neither. Sources are passed as an array so Vue compares them one by one.
 	watch(
-		[
-			() => doc.value?.name,
-			() => doc.value?.git_synced,
-			() => crStore.isChangeRequestMode,
-			canContribute,
-		],
-		async ([name, gitSynced, isMode, mayContribute], previous) => {
-			if (!name || !isMode) return;
-			// Contributions can be switched off for a space, or withheld from this
-			// user. Opening a change request would be refused server-side, leaving
-			// the tree stuck on its loading skeleton.
-			if (mayContribute !== true) return;
-			// Synced spaces never open a change request — they hydrate the
-			// read-only tree path below instead.
-			if (gitSynced) return;
-
-			// A different space, not a different revision of the same one.
-			if (name !== previous?.[0]) {
-				crStore.currentChangeRequest = null;
-				draftStore.reset();
-			}
-
-			await draftStore.hydrate(spaceId.value);
-		},
-		{ immediate: true },
-	);
-
-	// Read-only tree hydration: git-synced spaces, and anyone who cannot open a
-	// change request here. Loads the published live tree (no CR) and, for a
-	// never-synced space (e.g. just created), kicks off the first sync so its
-	// content appears without a manual click.
-	// Same keying as above, and for the same reason: a field write on a synced
-	// space must not refetch its tree.
-	watch(
-		[() => doc.value?.name, () => doc.value?.git_synced, canContribute],
-		async ([name, gitSynced, mayContribute]) => {
+		[() => doc.value?.name, () => doc.value?.git_synced, showsLiveTree],
+		async ([name, gitSynced, live]) => {
 			const currentDoc = doc.value;
-			if (!name || !currentDoc) return;
-			if (!gitSynced && mayContribute !== false) return;
+			if (!name || !currentDoc || !live) return;
 			await loadReadonlyTree();
 			if (!gitSynced) return;
 			// First-ever sync of a freshly-created space: kick it once, silently —
@@ -364,7 +424,7 @@ export const useSpaceStore = defineStore('space', () => {
 	);
 
 	async function refreshTree() {
-		if (isReadonly.value) {
+		if (showsLiveTree.value) {
 			await loadReadonlyTree();
 			return;
 		}
@@ -418,14 +478,23 @@ export const useSpaceStore = defineStore('space', () => {
 		canContribute,
 		isReadonly,
 		canEdit,
+		isEditing,
+		isEditingInReview,
+		isReading,
+		startEditing,
+		stopEditing,
+		editInReview,
+		stopEditingInReview,
 		selectedPageId,
 		selectedDraftKey,
 		treeData,
+		isTreeStale,
 		changeTypeMap,
 		isTreeReordering,
 		setTreeReordering,
 		syncing,
 		syncNow,
 		refreshTree,
+		reload,
 	};
 });

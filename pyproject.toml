@@ -4,9 +4,6 @@ authors = [
     { name = "Frappe Technologies Pvt Ltd", email = "developers@frappe.io"}
 ]
 description = "Simple Wiki App"
-# //// Neoffice — was ">=3.14" upstream (v3 targets a Python the fleet does not
-# //// run). Our instances are on 3.10/3.11, where pip refused to install the app
-# //// at all. Drop this once the fleet moves past the version upstream requires.
 requires-python = ">=3.10"
 readme = "README.md"
 dynamic = ["version"]
@@ -64,4 +61,9 @@ indent-style = "tab"
 # docstring-code-format = true
 
 [tool.bench.frappe-dependencies]
-frappe = ">=16.0.0-dev,<=17.0.0-dev"
+frappe = ">=15.0.0,<=17.0.0-dev"
+
+[tool.bench.assets]
+build_dir = "./frontend"
+out_dir = "./wiki/public/frontend"
+index_html_path = "./wiki/www/wiki-app.html"

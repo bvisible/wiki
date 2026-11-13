@@ -1,15 +1,12 @@
 import { Node, mergeAttributes, nodeInputRule } from '@tiptap/core';
 import { VueNodeViewRenderer } from '@tiptap/vue-3';
 import ImageNodeView from './ImageNodeView.vue';
-//// Neoffice — the <img> tag helpers of image-markdown.js: a width, a class (#1085)
 import {
-	imageHtmlStart,
+	imageCaptionTokenizer,
+	//// Neoffice — imageNodeAttrs: upstream's attributes plus the class of an <img> tag (#1085).
 	imageNodeAttrs,
 	renderImageMarkdown,
-	tokenizeImageHtml,
 } from './image-markdown.js';
-import { isPdfUrl } from './pdf-block.js';
-import { isVideoUrl } from './video-block.js';
 
 // Markdown image regex: ![alt](src "title")
 // The src allows spaces and one level of balanced parens so Frappe filenames
@@ -28,75 +25,8 @@ const inputRegex =
  *
  * - alt: For accessibility (screen readers)
  * - caption: Visible caption text below the image
+ * - darkSrc, width, align: saved on a `<picture>` block when any is set
  */
-
-/**
- * Custom marked tokenizer that matches image followed by caption on next line.
- * Pattern: ![alt](src "title")\n*caption*
- */
-const imageCaptionTokenizer = {
-	name: 'wikiImage',
-	level: 'block',
-
-	start(src) {
-		//// Neoffice — an <img> tag alone on its line starts an image block too (#1085).
-		const markdown = src.indexOf('![');
-		const html = imageHtmlStart(src);
-		if (html < 0) return markdown;
-		return markdown < 0 ? html : Math.min(markdown, html);
-	},
-
-	tokenize(src, tokens, lexer) {
-		//// Neoffice — an image written as an <img> tag (a width, a class), see image-markdown.js
-		//// (#1085). A video or a PDF is left to its own block, as for the markdown syntax.
-		const htmlToken = tokenizeImageHtml(src);
-		if (htmlToken) {
-			return isVideoUrl(htmlToken.href) || isPdfUrl(htmlToken.href)
-				? undefined
-				: htmlToken;
-		}
-
-		// Match: ![alt](src) or ![alt](src "title") optionally followed by \n*caption*
-		// The URL allows spaces and one level of balanced parens so Frappe
-		// filenames like `/files/CleanShot 2026-05-27 at 00.06.09@2x.png` or
-		// `/files/image (24).png` survive (otherwise spaces / inner `)` break it).
-		// The URL group is non-greedy so a trailing quoted title is still split
-		// off instead of being absorbed into the src.
-		const imagePattern =
-			/^!\[([^\]]*)\]\(((?:[^()"]|\([^()"]*\))+?)(?:\s+"([^"]*)")?\)/;
-		const captionPattern = /^\n\*([^*]+)\*/;
-
-		const imageMatch = imagePattern.exec(src);
-		if (!imageMatch) {
-			return undefined;
-		}
-
-		const [imageRaw, alt, hrefRaw, title] = imageMatch;
-		const href = (hrefRaw || '').trim();
-		if (isVideoUrl(href) || isPdfUrl(href)) {
-			return undefined;
-		}
-		let caption = null;
-		let raw = imageRaw;
-
-		// Check for caption on next line
-		const remaining = src.slice(imageRaw.length);
-		const captionMatch = captionPattern.exec(remaining);
-		if (captionMatch) {
-			caption = captionMatch[1];
-			raw += captionMatch[0];
-		}
-
-		return {
-			type: 'wikiImage',
-			raw,
-			text: alt || '',
-			href: href || '',
-			title: title || null,
-			caption: caption,
-		};
-	},
-};
 
 export const WikiImage = Node.create({
 	name: 'image',
@@ -110,6 +40,7 @@ export const WikiImage = Node.create({
 			inline: false,
 			allowBase64: true,
 			HTMLAttributes: {},
+			uploadImage: null,
 		};
 	},
 
@@ -127,8 +58,20 @@ export const WikiImage = Node.create({
 			caption: {
 				default: null,
 			},
+			darkSrc: {
+				default: null,
+				parseHTML: (element) => element.getAttribute('data-dark-src'),
+				renderHTML: (attributes) =>
+					attributes.darkSrc ? { 'data-dark-src': attributes.darkSrc } : {},
+			},
 			width: {
 				default: null,
+			},
+			align: {
+				default: null,
+				parseHTML: (element) => element.getAttribute('data-align'),
+				renderHTML: (attributes) =>
+					attributes.align ? { 'data-align': attributes.align } : {},
 			},
 			height: {
 				default: null,
@@ -181,13 +124,10 @@ export const WikiImage = Node.create({
 
 	// Parse markdown image with optional caption
 	parseMarkdown: (token, helpers) => {
-		//// Neoffice — imageNodeAttrs adds the width and the class of an <img> tag (#1085).
+		//// Neoffice — imageNodeAttrs: the same attributes, plus the class of an <img> tag (#1085).
 		return helpers.createNode('image', imageNodeAttrs(token));
 	},
 
-	// Render to markdown using Stack Overflow caption pattern:
-	// ![alt](src "title")
-	// *caption*
 	renderMarkdown: renderImageMarkdown,
 
 	addNodeView() {

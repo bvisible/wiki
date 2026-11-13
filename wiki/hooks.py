@@ -10,7 +10,7 @@ app_license = "MIT"
 add_to_apps_screen = [
 	{
 		"name": "wiki",
-		"logo": "/assets/wiki/images/wiki-logo.png",
+		"logo": "/assets/wiki/images/frappe-wiki-logo.svg",
 		"title": "Wiki",
 		"route": "/wiki-app",
 		"has_permission": "wiki.utils.check_app_permission",
@@ -138,6 +138,10 @@ doc_events = {
 	},
 }
 
+# The cached sitemap also lists the site's other pages (Builder, Web Page, ...),
+# which change without touching the wiki but always clear the website cache.
+website_clear_cache = "wiki.wiki.crawler_cache.clear_crawler_cache"
+
 # Auto-prune the webhook delivery log (Frappe's daily log-clearing runs each
 # doctype's `clear_old_logs`).
 default_log_clearing_doctypes = {
@@ -218,3 +222,6 @@ website_route_rules = [
 # //// so on an instance where a Wiki Space owns the route "wiki" it would hide
 # //// that space's public reader. It is posted per-instance, only when /wiki is
 # //// free, by wiki.frappe_wiki.patches.redirect_bare_wiki_route_to_app.
+# Expose method source code through the API discovery endpoints. Safe for open
+# source apps and helps API clients understand what a method does.
+expose_discovery_source = True

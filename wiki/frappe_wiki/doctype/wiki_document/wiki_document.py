@@ -3,6 +3,7 @@
 
 import json
 import re
+from functools import wraps
 from urllib.parse import quote, urlparse
 
 import frappe
@@ -15,7 +16,8 @@ from frappe.website.utils import clear_cache as clear_website_cache
 from frappe.website.website_components.metatags import MetaTags
 from werkzeug.wrappers import Response
 
-from wiki.telemetry import capture
+from wiki.telemetry import capture, reader_config
+from wiki.utils import fingerprint_js_url, see_latest_rows_after_lock_wait
 from wiki.wiki.markdown import render_markdown, render_markdown_with_toc
 
 WIKI_DOCUMENT_PRINT_FORMAT = "Standard Wiki Document"
@@ -27,13 +29,17 @@ WIKI_DOCUMENT_PRINT_FORMAT = "Standard Wiki Document"
 # e2e/helpers/routes.ts.
 APP_ROUTE = "wiki-app"
 
+# Sidebar trees, keyed by the space's root group. The full tree keeps unpublished pages.
 WIKI_TREE_CACHE_KEY = "wiki_public_tree"
+WIKI_FULL_TREE_CACHE_KEY = "wiki_full_tree"
 # //// Neoffice — added: the field suffix of the staff's tree in WIKI_TREE_CACHE_KEY,
 # //// which keeps the pages flagged `is_private` (see get_public_wiki_tree, #2234).
 STAFF_TREE_SUFFIX = "|with-private"
 
 # Per-document rendered HTML + TOC, keyed by document name.
 WIKI_CONTENT_CACHE_KEY = "wiki_rendered_content"
+
+EXTERNAL_LINK_SCHEMES = ("http", "https", "mailto")
 
 # An internal link, `[Label](wiki:<doc_key>)`, as render_markdown emits it.
 WIKI_LINK_PATTERN = re.compile(r'<a data-wiki-link="(\w+)"([^>]*)>(.*?)</a>', re.DOTALL)
@@ -124,6 +130,33 @@ def sanitize_route(route: str | None) -> str:
 	return "/".join(segment for segment in segments if segment)
 
 
+def validate_external_url(url: str | None) -> None:
+	# HTML escaping can't stop a `javascript:` href, so only known schemes are allowed.
+	if url and urlparse(url.strip()).scheme.lower() not in EXTERNAL_LINK_SCHEMES:
+		frappe.throw(_("External links must start with http://, https:// or mailto:"))
+
+
+def memoize_tree_lookups(method):
+	"""Reuse a page's ancestors and space for the length of one render.
+
+	A render asks for them through half a dozen helpers, each a query or two. The
+	memo lives only for the call: a cached instance can outlive a move of its
+	ancestors, so a longer-lived memo would go stale.
+	"""
+
+	@wraps(method)
+	def wrapper(self, *args, **kwargs):
+		if "_tree_memo" in self.__dict__:
+			return method(self, *args, **kwargs)
+		self._tree_memo = {}
+		try:
+			return method(self, *args, **kwargs)
+		finally:
+			del self._tree_memo
+
+	return wrapper
+
+
 class WikiDocument(NestedSet):
 	# begin: auto-generated types
 	# This code is auto-generated. Do not modify anything in this block.
@@ -155,13 +188,40 @@ class WikiDocument(NestedSet):
 	# end: auto-generated types
 
 	def validate(self):
+		self.lock_wiki_space()
 		self.set_doc_key()
 		self.set_slug()
 		self.set_sort_order_for_new_document()
 		self.set_route()
 		self.remove_leading_slash_from_route()
 		self.validate_unique_route_for_leaves()
+		if self.has_value_changed("external_url"):
+			validate_external_url(self.external_url)
 		self.set_boilerplate_content()
+
+	def lock_wiki_space(self):
+		# Merges lock the space before its pages, so take locks in the same order.
+		if frappe.flags.in_apply_merge_revision:
+			return
+
+		from wiki.api.wiki_space import _get_wiki_space_for_document, lock_wiki_space
+
+		space_name = _get_wiki_space_for_document(self.parent_wiki_document or self.name)
+		if space_name:
+			lock_wiki_space(space_name)
+
+	def on_update(self):
+		# Each update_nsm shifts lft/rgt across the whole table; bulk writers renumber once at the end.
+		if frappe.flags.defer_wiki_nested_set:
+			self.validate_ledger()
+			return
+		super().on_update()
+
+	def on_trash(self, allow_root_deletion=False):
+		if frappe.flags.defer_wiki_nested_set:
+			self.validate_if_child_exists()
+			return
+		super().on_trash(allow_root_deletion)
 
 	def after_insert(self):
 		# A space's root group is scaffolding, not something anyone authored.
@@ -317,14 +377,28 @@ class WikiDocument(NestedSet):
 			return ancestors[-1]
 		return self.parent_wiki_document
 
+	def get_ancestors(self) -> list[str]:
+		memo = self.__dict__.get("_tree_memo")
+		if memo is None:
+			return super().get_ancestors()
+		if "ancestors" not in memo:
+			memo["ancestors"] = super().get_ancestors()
+		return memo["ancestors"]
+
 	def get_wiki_space(self) -> dict | None:
 		"""Get the Wiki Space this document belongs to."""
+		memo = self.__dict__.get("_tree_memo")
+		if memo is not None and "wiki_space" in memo:
+			return memo["wiki_space"]
 		root_group = self.get_root_group()
-		if not root_group:
-			return None
-		return frappe.get_cached_value(
-			"Wiki Space", {"root_group": root_group}, ["name", "space_name", "route"], as_dict=True
+		# get_cached_value can't cache a lookup by filters, so resolve the name and read by it.
+		space_name = root_group and frappe.db.get_value("Wiki Space", {"root_group": root_group}, "name")
+		wiki_space = space_name and frappe.get_cached_value(
+			"Wiki Space", space_name, ["name", "space_name", "route"], as_dict=True
 		)
+		if memo is not None:
+			memo["wiki_space"] = wiki_space or None
+		return wiki_space or None
 
 	def get_space_name(self) -> str | None:
 		return self.wiki_space or (self.get_wiki_space() or {}).get("name")
@@ -336,7 +410,7 @@ class WikiDocument(NestedSet):
 		github_url = self._get_github_edit_url(wiki_space.name)
 		if github_url is not None:
 			return github_url
-		return f"/{APP_ROUTE}/spaces/{wiki_space.name}/page/{self.name}"
+		return f"/{APP_ROUTE}/spaces/{wiki_space.name}/page/{self.name}?edit=1"
 
 	def _get_github_edit_url(self, space_name: str) -> str | None:
 		"""Edit target for a git-synced space: the source file in GitHub's editor.
@@ -353,51 +427,6 @@ class WikiDocument(NestedSet):
 		if not space or not space.git_synced:
 			return None
 		return build_github_edit_url(space.repo_full_name, space.branch, self.source_path)
-
-	# //// Neoffice — added (upstream inlined a bare frappe.get_all in
-	# //// get_web_context). Upstream's query filtered on show_in_switcher alone:
-	# //// no is_published, no access check, no permission gate. On neoservice that
-	# //// listed "NORA Knowledge Base" (is_published=0, public_read=0) and "Aide
-	# //// Neoffice" (is_published=0) to anonymous visitors — the content 404'd, but
-	# //// the names, the routes and, through the space redirect, the slug of each
-	# //// space's first page were handed to the open internet. Same rule as
-	# //// wiki.api.list_public_spaces now: published, then can_read_space().
-	def _spaces_for_switcher(self, current_space: str) -> list[dict]:
-		"""Spaces to offer in the reader's switcher, restricted to what the caller may read."""
-		from wiki.permissions import can_read_space
-
-		spaces = frappe.get_all(
-			"Wiki Space",
-			fields=[
-				"name",
-				"space_name",
-				"route",
-				"is_published",
-				"light_mode_logo",
-				"app_switcher_logo",
-				# //// Neoffice — space_icon, space_color and avatar added with the 3.3.0
-				# //// merge: upstream's switcher mark is resolved through
-				# //// wiki.utils.space_mark(), which reads these three. They are
-				# //// presentation only (an icon name, a colour, a generated-avatar
-				# //// seed), so listing them under ignore_permissions leaks nothing.
-				"space_icon",
-				"space_color",
-				"avatar",
-			],
-			or_filters={"show_in_switcher": 1, "name": current_space},
-			order_by="switcher_order asc, space_name asc",
-			# Safe only because the comprehension below filters every row: the Wiki
-			# Space permission query would otherwise hide rows a guest may read.
-			ignore_permissions=True,
-		)
-		# The space being read stays in the list even when unpublished — an author
-		# previewing a draft space still needs "you are here". A reader never gets
-		# that far: check_space_access() has already 404'd them.
-		return [
-			s
-			for s in spaces
-			if (s.is_published or s.name == current_space) and can_read_space(s.name)
-		]
 
 	def _can_show_edit(self, wiki_space_doc, user=None) -> bool:
 		"""Whether to render the reader's Edit button for the current user.
@@ -440,6 +469,33 @@ class WikiDocument(NestedSet):
 		if _space_accepts_contributions(wiki_space_doc):
 			return True
 		return can_write_space(wiki_space_doc.name, user)
+
+	def get_switcher_spaces(self, current_space: str) -> list[dict]:
+		"""Published spaces the user can read, so the switcher never links to a 404."""
+		from wiki.permissions import _accessible_space_names, _is_manager
+
+		filters = {"is_published": 1}
+		if not _is_manager():
+			filters["name"] = ("in", list(_accessible_space_names()))
+
+		return frappe.get_all(
+			"Wiki Space",
+			fields=[
+				"name",
+				"space_name",
+				"route",
+				"light_mode_logo",
+				# The identity fields the switcher's mark resolves
+				# through wiki.utils.space_mark -- see spec 03.
+				"app_switcher_logo",
+				"space_icon",
+				"space_color",
+				"avatar",
+			],
+			filters=filters,
+			or_filters={"show_in_switcher": 1, "name": current_space},
+			order_by="switcher_order asc, space_name asc",
+		)
 
 	def check_space_access(self, ptype="read", user=None):
 		"""Gate content access by the owning Wiki Space's role configuration.
@@ -535,6 +591,13 @@ class WikiDocument(NestedSet):
 
 		return nested_tree, adjacent_docs
 
+	def get_folder_name(self) -> str | None:
+		"""Title of the folder holding this page; None when it sits directly under the space root."""
+		ancestors = self.get_ancestors()
+		if len(ancestors) < 2:
+			return None
+		return frappe.get_cached_value("Wiki Document", ancestors[0], "title")
+
 	@frappe.whitelist()
 	def get_breadcrumbs(self) -> dict:
 		"""Get the breadcrumb trail for this Wiki Document including space info."""
@@ -571,19 +634,48 @@ class WikiDocument(NestedSet):
 			},
 		}
 
+	def get_rendered_content_and_toc(self) -> tuple[str, list]:
+		# The TOC toggle is applied after the cache lookup, so flipping it needs no invalidation.
+		rendered_content, toc_headings = get_rendered_content(self.name, self.content or "")
+		rendered_content = resolve_wiki_links(rendered_content, self.get_space_name())
+		if not frappe.db.get_single_value("Wiki Settings", "enable_table_of_contents"):
+			toc_headings = []
+		return rendered_content, toc_headings
+
+	@memoize_tree_lookups
+	def get_navigation_data(self) -> dict:
+		"""What client-side navigation swaps into an already rendered page.
+
+		The sidebar tree and space switcher are already on the page, and on a large
+		space they are hundreds of KB, so they stay out of this payload.
+		"""
+		self.check_space_access("read")
+		self.check_published()
+		rendered_content, toc_headings = self.get_rendered_content_and_toc()
+		_, adjacent_docs = self.get_tree_and_navigation()
+		return {
+			"title": self.title,
+			"route": self.route,
+			"rendered_content": rendered_content,
+			"toc_headings": toc_headings,
+			"raw_markdown": self.content or "",
+			"prev_doc": adjacent_docs["prev"],
+			"next_doc": adjacent_docs["next"],
+			"edit_link": self.get_edit_link(),
+			"folder_name": self.get_folder_name(),
+			"last_updated": pretty_date(self.modified),
+			"last_updated_on": self.get_formatted("modified"),
+			"disable_indexing": self.disable_indexing,
+		}
+
+	@memoize_tree_lookups
 	def get_web_context(self) -> dict:
 		"""Get all context needed to render this Wiki Document."""
 		self.check_space_access("read")
 		self.check_published()
 		wiki_space = self.get_wiki_space()
 
-		# Rendered HTML + TOC from the per-document cache (see get_rendered_content).
-		# The TOC toggle is applied here, after the lookup, so it needs no cache
-		# invalidation.
-		rendered_content, toc_headings = get_rendered_content(self.name, self.content or "")
-		rendered_content = resolve_wiki_links(rendered_content, self.get_space_name())
-		if not frappe.db.get_single_value("Wiki Settings", "enable_table_of_contents"):
-			toc_headings = []
+		rendered_content, toc_headings = self.get_rendered_content_and_toc()
 
 		# Ancestor nodes that should be expanded in the sidebar tree on initial render
 		expanded_nodes = set(self.get_ancestors()) if self.lft else set()
@@ -610,6 +702,7 @@ class WikiDocument(NestedSet):
 			"last_updated_on": self.get_formatted("modified"),
 			"hide_chrome": not wiki_space,
 			"can_edit": False,
+			"show_ai_actions": False,
 			"breadcrumbs": None,
 			"disable_indexing": self.disable_indexing,
 		}
@@ -644,6 +737,8 @@ class WikiDocument(NestedSet):
 		if not wiki_space:
 			return context
 
+		from wiki.permissions import can_read_space
+
 		wiki_space_doc = frappe.get_cached_doc("Wiki Space", wiki_space.name)
 		nested_tree, adjacent_docs = self.get_tree_and_navigation()
 
@@ -651,24 +746,31 @@ class WikiDocument(NestedSet):
 			{
 				"wiki_space": wiki_space_doc,
 				"can_edit": self._can_show_edit(wiki_space_doc),
-				# //// Neoffice — routed through _spaces_for_switcher() (see that
-				# //// method). Upstream inlined a bare frappe.get_all here, filtered
-				# //// on show_in_switcher alone: no is_published, no access check.
-				"wiki_spaces_for_switcher": self._spaces_for_switcher(wiki_space["name"]),
+				"show_ai_actions": can_read_space(wiki_space_doc.name, "Guest"),
+				"wiki_spaces_for_switcher": self.get_switcher_spaces(wiki_space["name"]),
 				"navbar_items": process_navbar_items(wiki_space_doc.navbar_items)
 				if wiki_space_doc.navbar_items
 				else [],
 				"favicon": wiki_space_doc.favicon,
 				"nested_tree": nested_tree,
+				"folder_name": self.get_folder_name(),
 				"prev_doc": adjacent_docs["prev"],
 				"next_doc": adjacent_docs["next"],
 				# Escape "<" so user-supplied titles can't close the
 				# <script> element the template embeds this JSON into.
 				"breadcrumbs": json.dumps(self.get_breadcrumb_list(wiki_space)).replace("<", "\\u003c"),
+				"live_reload": self.get_live_reload(wiki_space_doc),
 			}
 		)
 
 		return context
+
+	def get_live_reload(self, wiki_space_doc) -> dict | None:
+		"""In developer mode, a git-synced page reloads itself after each sync, such as a local docs preview."""
+		if not frappe.conf.developer_mode or not wiki_space_doc.git_synced:
+			return None
+		sha = frappe.db.get_value("Wiki Space", wiki_space_doc.name, "last_synced_commit_sha")
+		return {"space": wiki_space_doc.name, "sha": sha}
 
 	def get_og_image_url(self) -> str | None:
 		"""Path to this page's auto-generated OG card, or None when it has none.
@@ -676,17 +778,11 @@ class WikiDocument(NestedSet):
 		Returns a path rather than an absolute URL so MetaTags absolutizes it
 		through get_url() -- that is what keeps it right on custom domains.
 		"""
-		# //// Neoffice — og_images_supported added to this import (upstream imports
-		# //// only _og_context and og_fingerprint); it is the v15 guard below.
-		from wiki.api.og_image import _og_context, og_fingerprint, og_images_supported
+		from wiki.api.og_image import _og_context, cards_enabled, og_fingerprint
 
-		# //// Neoffice — no renderer on Frappe v15 (see wiki/api/og_image.py), so
-		# //// advertise no OG card rather than a URL that cannot be produced.
-		if not og_images_supported():
-			return None
 		if self.is_group or self.is_external_link or not self.is_published or not self.route:
 			return None
-		if not frappe.get_cached_value("Wiki Settings", "Wiki Settings", "auto_generate_meta_images"):
+		if not cards_enabled():
 			return None
 		if not self.get_wiki_space():
 			return None
@@ -875,6 +971,8 @@ class WikiDocumentRenderer(BaseRenderer):
 
 		context["csrf_token"] = csrf_token
 		context["enable_view_tracking"] = frappe.get_website_settings("enable_view_tracking")
+		context["fingerprint_js_url"] = fingerprint_js_url()
+		context["telemetry"] = reader_config()
 
 		html = frappe.render_template("templates/wiki/document.html", context)
 		response = self.build_response(html)
@@ -998,7 +1096,7 @@ def build_nested_wiki_tree(documents: list[str], include_private: bool = True):
 def get_public_wiki_tree(root_group: str, include_private: bool = False) -> list:
 	"""Return the published sidebar tree for a root group, cached in Redis.
 
-	The cache is invalidated on any Wiki Document change (see
+	The cache is invalidated on any change to the space's documents (see
 	clear_wiki_tree_cache), so a hit always reflects the committed tree.
 	"""
 	# //// Neoffice — the cache field and the build depend on include_private.
@@ -1179,18 +1277,36 @@ def first_published_leaf(nodes: list) -> dict | None:
 	return None
 
 
-def clear_wiki_tree_cache():
-	"""Drop all cached sidebar trees.
+def clear_wiki_tree_cache(*spaces: str | None):
+	"""Drop the cached sidebar trees of `spaces`.
 
-	Cleared wholesale rather than per space: a move can pull a subtree from one
-	space into another, staling both trees while the document only knows its
-	new space. Cleared again after commit to close the race where another
-	worker re-caches from pre-commit DB state.
+	A move stales two trees, so callers pass both the old and the new space.
+	Cleared again after commit to close the race where another worker
+	re-caches from pre-commit DB state.
 	"""
 	from wiki.wiki.crawler_cache import clear_crawler_cache
 
-	frappe.cache().delete_value(WIKI_TREE_CACHE_KEY)
-	frappe.db.after_commit.add(lambda: frappe.cache().delete_value(WIKI_TREE_CACHE_KEY))
+	root_groups = [
+		root_group
+		for space in set(spaces)
+		if space and (root_group := frappe.get_cached_value("Wiki Space", space, "root_group"))
+	]
+	if root_groups:
+
+		def clear():
+			# v15's RedisWrapper.hdel takes a single field.
+			for key in (WIKI_TREE_CACHE_KEY, WIKI_FULL_TREE_CACHE_KEY):
+				for root_group in root_groups:
+					frappe.cache().hdel(key, root_group)
+			# //// Neoffice — the staff's tree is a second field of the same hash
+			# //// (get_public_wiki_tree, #2234). Upstream (3.5.0) clears per field
+			# //// instead of dropping the whole key, so without this line the staff
+			# //// kept a stale sidebar after every edit.
+			for root_group in root_groups:
+				frappe.cache().hdel(WIKI_TREE_CACHE_KEY, f"{root_group}{STAFF_TREE_SUFFIX}")
+
+		clear()
+		frappe.db.after_commit.add(clear)
 
 	# llms.txt and sitemap.xml are built from this same tree, so they go stale
 	# at exactly the same moments.
@@ -1201,12 +1317,31 @@ def clear_wiki_tree_cache():
 def get_breadcrumbs(name: str) -> dict:
 	"""Get the breadcrumb trail for a Wiki Document including space info."""
 	doc = frappe.get_cached_doc("Wiki Document", name)
+	doc.check_permission("read")
 	return doc.get_breadcrumbs()
+
+
+@frappe.whitelist(methods=["GET"])
+def get_page_html(name: str) -> dict:
+	"""Rendered HTML and outline for the app's read mode.
+
+	Includes unpublished pages, since space readers see them in the app.
+	The outline ignores the reader's TOC setting, like the editor.
+	"""
+	doc = frappe.get_cached_doc("Wiki Document", name)
+	doc.check_permission("read")
+	html, toc = get_rendered_content(doc.name, doc.content or "")
+	return {
+		"html": resolve_wiki_links(html, doc.get_space_name()),
+		"toc": toc,
+		"modified": doc.modified,
+		"modified_by": doc.modified_by,
+	}
 
 
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
 def get_page_data(route: str) -> dict:
-	"""Returns all data needed to render a page dynamically for client-side navigation."""
+	"""Page data for client-side navigation between pages of an already rendered space."""
 	doc_name = frappe.db.get_value(
 		"Wiki Document", {"route": route, "is_published": 1, "is_external_link": 0}, "name"
 	)
@@ -1214,7 +1349,7 @@ def get_page_data(route: str) -> dict:
 		frappe.throw(frappe._("Page not found"), frappe.DoesNotExistError)
 
 	doc = frappe.get_cached_doc("Wiki Document", doc_name)
-	return doc.get_web_context()
+	return doc.get_navigation_data()
 
 
 @frappe.whitelist(allow_guest=True)  # nosemgrep: frappe-semgrep-rules.rules.security.guest-whitelisted-method
@@ -1228,6 +1363,9 @@ def download_pdf(route: str):
 	doc = frappe.get_cached_doc("Wiki Document", doc_name)
 	doc.check_space_access("read")
 	doc.check_published()
+	space = doc.get_space_name()
+	if space and not frappe.get_cached_value("Wiki Space", space, "allow_pdf_download"):
+		frappe.throw(_("PDF download is turned off for this space"), frappe.PermissionError)
 
 	# Guests can't print by default; we've already authorized them above via check_space_access.
 	frappe.local.flags.ignore_print_permissions = True
@@ -1247,7 +1385,8 @@ def download_pdf(route: str):
 	finally:
 		frappe.local.flags.ignore_print_permissions = False
 
-	frappe.local.response.filename = f"{doc.slug or doc.name}.pdf"
+	# Named after the URL the reader downloaded from. The slug can lag behind a route edited since.
+	frappe.local.response.filename = f"{route.rsplit('/', 1)[-1]}.pdf"
 	frappe.local.response.filecontent = pdf_file
 	frappe.local.response.content_type = "application/pdf"
 	frappe.local.response.type = "download"
@@ -1258,12 +1397,16 @@ def on_wiki_document_update(doc, method):
 	from wiki.api.og_image import enqueue_og_warmup
 	from wiki.frappe_wiki.doctype.wiki_revision.wiki_revision import REVISION_FIELDS
 
-	touch_space_last_edited(stamp_wiki_space(doc))
+	previous = doc.get_doc_before_save()
+	moved = previous and previous.parent_wiki_document != doc.parent_wiki_document
+	space = stamp_wiki_space_subtree(doc.name) if moved else stamp_wiki_space(doc)
+	touch_space_last_edited(space)
 	# A save that changes no snapshotted field would only produce an identical revision.
 	if any(doc.has_value_changed(field) for field in REVISION_FIELDS):
 		_sync_document_to_revision(doc)
 	_clear_stale_website_cache(doc)
-	clear_wiki_tree_cache()
+	# A move also stales the tree of the space the page left.
+	clear_wiki_tree_cache(space, previous and previous.wiki_space)
 	if doc.has_value_changed("content"):
 		clear_wiki_content_cache(doc.name)
 	_drop_from_search_index_on_unpublish(doc)
@@ -1271,14 +1414,14 @@ def on_wiki_document_update(doc, method):
 
 
 def _drop_from_search_index_on_unpublish(doc):
-	from wiki.frappe_wiki.doctype.wiki_document.wiki_sqlite_search import remove_doc_from_index
+	from wiki.frappe_wiki.doctype.wiki_document.wiki_sqlite_search import remove_docs_from_index
 
 	if doc.has_value_changed("is_published") and not doc.is_published:
 		# The index lives in a separate SQLite file, outside this transaction.
 		# Deferring until after commit keeps the row when the save rolls back;
 		# on rollback the callback queue is discarded.
 		docname = doc.name
-		frappe.db.after_commit.add(lambda: remove_doc_from_index(docname))
+		frappe.db.after_commit.add(lambda: remove_docs_from_index([docname]))
 
 
 def stamp_wiki_space(doc):
@@ -1321,12 +1464,81 @@ def stamp_wiki_space_subtree(root_doc_name):
 	return space_name
 
 
+def lock_wiki_tree() -> None:
+	see_latest_rows_after_lock_wait()
+	frappe.db.get_value("DocType", "Wiki Document", "name", for_update=True)
+
+
+def rebuild_space_nested_set(space_name: str) -> None:
+	"""Renumber one space's lft/rgt from parent links, after writes under `defer_wiki_nested_set`.
+
+	Frappe's rebuild_tree renumbers every space in the table. Here only this
+	space is renumbered, and the spaces after it shift by its change in size.
+	"""
+	WikiDocument = frappe.qb.DocType("Wiki Document")
+	root_group = frappe.db.get_value("Wiki Space", space_name, "root_group")
+	# Locks the root row, so a concurrent insert in an earlier space cannot shift this space mid-rebuild.
+	root_lft, root_rgt = frappe.db.get_value("Wiki Document", root_group, ["lft", "rgt"], for_update=True)
+
+	# Pages added or moved in during the bulk write have no lft in range yet, but carry the space stamp.
+	rows = (
+		frappe.qb.from_(WikiDocument)
+		.select(
+			WikiDocument.name,
+			WikiDocument.parent_wiki_document,
+			WikiDocument.old_parent,
+			WikiDocument.sort_order,
+			WikiDocument.lft,
+			WikiDocument.rgt,
+		)
+		.where(WikiDocument.lft.between(root_lft, root_rgt) | (WikiDocument.wiki_space == space_name))
+		.for_update()
+		.run(as_dict=True)
+	)
+	children = {}
+	for row in sorted(rows, key=lambda row: (row.sort_order or 0, row.name)):
+		children.setdefault(row.parent_wiki_document, []).append(row)
+
+	numbers = {}
+	new_root_rgt = _number_subtree(root_group, root_lft, children, numbers)
+
+	updates = {}
+	for row in rows:
+		if row.name not in numbers:
+			continue
+		# update_nsm keeps old_parent equal to the parent; a stale one turns the next save into a move.
+		new = {**numbers[row.name], "old_parent": row.parent_wiki_document or ""}
+		current = {"lft": row.lft, "rgt": row.rgt, "old_parent": row.old_parent or ""}
+		# A page moved in from a later space is about to be shifted, so its current lft is no guide.
+		if row.lft > root_rgt or current != new:
+			updates[row.name] = new
+
+	if shift := new_root_rgt - root_rgt:
+		(
+			frappe.qb.update(WikiDocument)
+			.set(WikiDocument.lft, WikiDocument.lft + shift)
+			.set(WikiDocument.rgt, WikiDocument.rgt + shift)
+			.where(WikiDocument.lft > root_rgt)
+			.run()
+		)
+	frappe.db.bulk_update("Wiki Document", updates, update_modified=False)
+	frappe.clear_document_cache("Wiki Document")
+
+
+def _number_subtree(name: str, left: int, children: dict, numbers: dict) -> int:
+	right = left + 1
+	for child in children.get(name, []):
+		right = _number_subtree(child.name, right, children, numbers) + 1
+	numbers[name] = {"lft": left, "rgt": right}
+	return right
+
+
 def on_wiki_document_trash(doc, method):
 	"""Sync desk deletions to the revision system."""
 	touch_space_last_edited(doc.get("wiki_space"))
 	_sync_document_to_revision(doc)
 	_clear_stale_website_cache(doc, deleted=True)
-	clear_wiki_tree_cache()
+	clear_wiki_tree_cache(doc.get("wiki_space"))
 	clear_wiki_content_cache(doc.name)
 	_drop_generated_og_cards(doc)
 

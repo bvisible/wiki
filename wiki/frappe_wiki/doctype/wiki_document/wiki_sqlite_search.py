@@ -12,6 +12,10 @@ from frappe.search.sqlite_search import (
 	TITLE_PARTIAL_MATCH_BOOST,
 	SQLiteSearch,
 )
+from frappe.utils import create_batch
+
+# Frappe v15 inserts a new row on every index_doc and never drops the old one.
+INDEX_DOC_APPENDS = int(frappe.__version__.split(".", 1)[0]) < 16
 
 
 class WikiSQLiteSearch(SQLiteSearch):
@@ -36,31 +40,6 @@ class WikiSQLiteSearch(SQLiteSearch):
 			"filters": {"is_published": 1, "is_group": 0, "is_external_link": 0},
 		}
 	}
-
-	# //// Neoffice — added: this app's index stays idempotent HERE, not in frappe.
-	# //// `search_fts` has no unique key on doc_id and `update_doc_index` re-indexes
-	# //// on every save of an indexed field, so a document edited n times sat n times
-	# //// in the index: duplicate hits, and a pre-merge row still answering searches
-	# //// after a content-only merge. Our frappe fork carries the same removal in
-	# //// `SQLiteSearch.index_doc`, but that is the framework's chokepoint, every
-	# //// app's indexing goes through it, and this app is the one that needs it.
-	# //// `update_doc_index` instantiates the class registered in the `sqlite_search`
-	# //// hook — this one — so the override is enough, and the app is correct on an
-	# //// unpatched v15 as well (neoffice-maintenance#343).
-	# ////
-	# //// The removal is conditional ON PURPOSE. `prepare_document` returns nothing
-	# //// for a document that is no longer indexable (an unpublished page: the config
-	# //// filters on `is_published`), and that case must NOT drop the row here —
-	# //// removal on unpublish is deferred to the commit by this app's own hook, and
-	# //// a rolled-back save has to keep its row. Removing unconditionally breaks
-	# //// `test_unpublish_index_removal_discarded_on_rollback` on BOTH forks.
-	# ////
-	# //// Drop this once the fleet is on v16, which drains a queue instead.
-	def index_doc(self, doctype, docname):
-		"""Re-indexing replaces the document's row instead of adding one."""
-		if self.prepare_document(frappe.get_doc(doctype, docname)):
-			self.remove_doc(doctype, docname)
-		super().index_doc(doctype, docname)
 
 	# //// Neoffice — the manual's ranking, four measured defects (2026-10-04, « note de crédit » found
 	# //// « Modifier les informations de votre entreprise » before the page about credit notes):
@@ -164,6 +143,19 @@ class WikiSQLiteSearch(SQLiteSearch):
 				prepared["content"] = self._strip_markdown(prepared["content"])
 		return prepared
 
+	# //// Neoffice — the removal is conditional (upstream: `if INDEX_DOC_APPENDS:` alone).
+	# //// `prepare_document` returns nothing for a document that is no longer indexable
+	# //// (an unpublished page: the config filters on `is_published`), and that case must
+	# //// NOT drop the row here: removal on unpublish is deferred to the commit by this
+	# //// app's own hook, and a rolled-back save has to keep its row
+	# //// (`test_unpublish_index_removal_discarded_on_rollback`; the SQLite index is not
+	# //// part of the database transaction). Our frappe fork carries the same removal in
+	# //// `SQLiteSearch.index_doc` (neoffice-maintenance#343). Drop at the v16 move.
+	def index_doc(self, doctype, docname):
+		if INDEX_DOC_APPENDS and self.prepare_document(frappe.get_doc(doctype, docname)):
+			self.remove_doc(doctype, docname)
+		super().index_doc(doctype, docname)
+
 	def _strip_markdown(self, text):
 		"""Convert markdown to plain text for cleaner search indexing"""
 		if not text:
@@ -237,22 +229,37 @@ def enqueue_reindex(docnames: list[str]):
 		)
 
 
-def remove_doc_from_index(docname: str):
-	"""Remove a Wiki Document from the search index immediately.
+def remove_docs_from_index(docnames: list[str]):
+	"""Remove Wiki Documents from the search index immediately.
 
 	The framework's index update path only *queues* a re-index (drained by a
 	5-minute scheduler job, 30 docs per run), so an unpublished page would keep
 	surfacing in search until the queue catches up. Unpublishing must take
-	effect right away, so we delete the row synchronously.
+	effect right away, so we delete the rows synchronously.
 	"""
 	search = WikiSQLiteSearch()
-	if not (search.is_search_enabled() and search.index_exists()):
+	if not (docnames and search.is_search_enabled() and search.index_exists()):
 		return
 
+	doc_ids = [f"Wiki Document:{name}" for name in docnames]
+	connection = search._get_connection()
 	try:
-		search.remove_doc("Wiki Document", docname)
+		# The queue table only exists on Frappe develop.
+		tables = ["search_fts"] + [
+			row[0]
+			for row in connection.execute(
+				"SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'search_index_queue'"
+			)
+		]
+		for batch in create_batch(doc_ids, 500):
+			placeholders = ", ".join("?" * len(batch))
+			for table in tables:
+				connection.execute(f"DELETE FROM {table} WHERE doc_id IN ({placeholders})", batch)
+		connection.commit()
 	except Exception:
 		frappe.log_error(
 			title="Wiki Search Index Removal Error",
-			message=f"Failed to remove Wiki Document {docname} from the search index",
+			message=f"Failed to remove {len(docnames)} Wiki Documents from the search index",
 		)
+	finally:
+		connection.close()

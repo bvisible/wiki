@@ -7,6 +7,7 @@ import router from './router';
 import { initSocket } from './socket';
 import { pinia } from './stores';
 //// Neoffice — useSessionStore no longer imported: it only gated the telemetry (see below).
+import { useUserStore } from './stores/user';
 
 //// Neoffice — trackPageviews import removed: see the telemetry block below.
 
@@ -55,6 +56,10 @@ setConfig('resourceFetcher', frappeRequest);
 applyUiLocale(dayjs, { de, fr, it }, window.lang, document.documentElement);
 
 app.use(pinia);
+
+const userStore = useUserStore();
+if (!userStore.data) userStore.fetch().catch(() => {});
+
 app.use(router);
 app.use(translationPlugin);
 app.use(resourcesPlugin);

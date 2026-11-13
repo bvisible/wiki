@@ -4,6 +4,8 @@
 import frappe
 from frappe.utils import get_system_timezone
 
+from wiki.api import get_user_info
+from wiki.api.og_image import cards_supported
 from wiki.telemetry import capture, default_properties
 from wiki.utils import get_asset_hash
 
@@ -39,12 +41,9 @@ def get_context():
 		frappe.local.flags.redirect_location = _reader_url_for_app_path()
 		raise frappe.Redirect
 
-	# //// Neoffice — upstream calls frappe.local.response_headers.set() directly.
-	# //// That attribute does not exist before Frappe ~15.9x and raised on older
-	# //// instances of the fleet, so read it defensively.
-	response_headers = getattr(frappe.local, "response_headers", None)
-	if response_headers is not None:
-		response_headers.set("X-Robots-Tag", ROBOTS_DIRECTIVE)
+	# Frappe v15 has no response_headers; the robots meta tag in wiki-app.html still applies.
+	if hasattr(frappe.local, "response_headers"):
+		frappe.local.response_headers.set("X-Robots-Tag", ROBOTS_DIRECTIVE)
 	csrf_token = frappe.sessions.get_csrf_token()
 	frappe.db.commit()  # nosemgrep
 	context = frappe._dict()
@@ -136,12 +135,15 @@ def get_boot():
 		{
 			"frappe_version": frappe.__version__,
 			"site_name": frappe.local.site,
+			"lang": frappe.local.lang,
 			"read_only_mode": frappe.flags.read_only,
 			"system_timezone": get_system_timezone(),
 			"asset_hashes": get_asset_hashes(),
+			"meta_images_supported": cards_supported(),
 			"telemetry": default_properties(),
 			# //// Neoffice — added: the language the editor prints dates and numbers in (maintenance#1383).
 			"lang": _catalogue_language(),
+			"user_info": get_user_info(),
 		}
 	)
 

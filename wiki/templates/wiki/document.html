@@ -1,8 +1,5 @@
-{# //// Neoffice — user-facing strings wrapped in _() so they land in the POT
-   and get translated. Upstream ships them hardcoded in English, which left the
-   whole public reader untranslatable. #}
 {% extends "templates/wiki/layout.html" %}
-{% from "templates/wiki/macros/buttons.html" import render_icon, page_actions_dropdown, page_action_item, download_action_item, dropdown_end %}
+{% from "templates/wiki/macros/buttons.html" import render_icon, more_menu, ghost_icon_button, page_action_item, download_action_item %}
 
 {% block title %}
     {{ metatags.title if metatags and metatags.title else doc.title }}
@@ -10,12 +7,12 @@
 
 {% block head %}
 {# //// Neoffice — a space without a favicon of its own shows Neoffice's mark, the desk's icon, not Frappe Wiki's
-   (upstream: the wiki app's favicon.png): the public manual is read by every customer (maintenance#1316). #}
+   (upstream: the wiki app's favicon): the public manual is read by every customer (maintenance#1316). #}
 <link rel="icon" href="{{ favicon or '/assets/neoffice_theme/images/neoffice_icon.png' }}">
 {% endblock %}
 
 {% block content %}
-<div x-data="wikiPage" x-init="$store.navigation.init()" class="flex-1 min-w-0 flex">
+<div x-data="wikiPage" class="flex-1 min-w-0 flex">
     <!-- Main Content Area -->
     <main class="flex-1 min-w-0 px-4 py-6 lg:px-6 lg:py-8 xl:px-12 flex justify-center">
         {# //// Neoffice — neo-wiki-article added. Hook for our reader CSS, which
@@ -43,8 +40,7 @@
                         <template x-if="downloadInProgress">
                             {{ render_icon("loader", "w-4 h-4 animate-spin") }}
                         </template>
-                        {# //// Neoffice — i18n: the same two hardcoded English labels as in macros/buttons.html, which was fixed while this copy was missed. This is the hide_chrome branch (orphan documents), so it renders on a page the space layout never reaches. tojson plus forceescape, not bare quotes, so an apostrophe in a translation cannot break the Alpine expression. #}
-                        <span x-text="downloadInProgress ? {{ _('Preparing…') | tojson | forceescape }} : {{ _('Download') | tojson | forceescape }}"></span>
+                        <span x-text='downloadInProgress ? {{ _("Preparing…") | tojson }} : {{ _("Download") | tojson }}'></span>
                     </button>
                     <button @click="copyMarkdown()"
                             class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm-medium text-[var(--ink-gray-7)] bg-[var(--surface-base)] border border-[var(--outline-gray-2)] rounded-6 hover:bg-[var(--surface-gray-1)] transition-colors duration-200 cursor-pointer">
@@ -54,50 +50,48 @@
                         <template x-if="copied">
                             {{ render_icon("check", "w-4 h-4 text-green-600") }}
                         </template>
-                        {# //// Neoffice — i18n: upstream hardcodes this label in English; _() puts it in the POT so the public reader speaks the client's language. #}
-                        <span x-text="copied ? '{{ _('Copied!') }}' : '{{ _('Copy') }}'"></span>
+                        <span x-text='copied ? {{ _("Copied!") | tojson }} : {{ _("Copy") | tojson }}'></span>
                     </button>
                 </div>
             </div>
             {% else %}
-            <!-- Mobile: Edit above title -->
-            <div class="flex justify-start mb-4 sm:hidden">
-                {{ page_actions_dropdown(edit_href=doc.get_edit_link(), show_edit=can_edit, edit_external=wiki_space.git_synced) }}
-                    {{ download_action_item() }}
+            {#- Folder and page actions share one quiet row, so the title keeps its full width. -#}
+            <div class="flex items-center gap-3 min-h-7 pb-2">
+                <span data-wiki-folder-eyebrow class="text-base-medium text-[var(--ink-gray-6)] truncate" {% if not folder_name %}hidden{% endif %}>{{ folder_name or "" }}</span>
+                <div class="ms-auto flex items-center gap-0.5 -me-1.5" data-testid="page-actions">
                     {% if can_edit %}
-                    {# //// Neoffice — i18n: upstream passes these menu labels to the macro as raw English; _() puts them in the POT. #}
-                    {{ page_action_item(text=_("Copy page"), description=_("Copy page as Markdown for LLMs"), icon="clipboard", click="copyMarkdown(); open = false") }}
+                    <a href="{{ doc.get_edit_link() }}"
+                       {% if wiki_space.git_synced %}target="_blank" rel="noopener"{% endif %}
+                       title="{{ _('Edit page') }}" aria-label="{{ _('Edit page') }}"
+                       class="wiki-edit-link {{ ghost_icon_button }}">
+                        {{ render_icon("pencil") }}
+                    </a>
                     {% endif %}
-                    {# //// Neoffice — i18n: upstream passes these menu labels to the macro as raw English; _() puts them in the POT. #}
-                    {{ page_action_item(text=_("Open in ChatGPT"), description=_("Ask ChatGPT about this page"), icon="openai", href_expr="getAIUrl('openai')", target="_blank") }}
-                    {{ page_action_item(text=_("Open in Claude"), description=_("Ask Claude about this page"), icon="claude", href_expr="getAIUrl('claude')", target="_blank") }}
-                {{ dropdown_end() }}
-            </div>
-            <div class="flex items-center justify-between gap-4">
-                <h1 id="wiki-page-title" class="text-4xl-semibold text-[var(--ink-gray-9)]">{{ doc.title }}</h1>
-
-                {# //// Neoffice — from 1024px up these actions are in the top bar (includes/header.html), where they cost no room: beside the title the split button took a line of the column and pushed the heading around. Between 640 and 1023px there is no top bar (it is `hidden lg:flex`), so the menu stays here. #}
-                <!-- Desktop: Edit beside title -->
-                <div class="hidden sm:block lg:hidden">
-                    {{ page_actions_dropdown(edit_href=doc.get_edit_link(), show_edit=can_edit, edit_external=wiki_space.git_synced) }}
+                    <button @click="copyMarkdown()" title="{{ _('Copy page as Markdown') }}" aria-label="{{ _('Copy page as Markdown') }}" class="{{ ghost_icon_button }}">
+                        <template x-if="!copied">{{ render_icon("copy") }}</template>
+                        <template x-if="copied">{{ render_icon("check", "text-[var(--ink-green-7)]") }}</template>
+                    </button>
+                    {% if wiki_space.allow_pdf_download or show_ai_actions %}
+                    {% call more_menu() %}
+                        {% if wiki_space.allow_pdf_download %}
                         {{ download_action_item() }}
-                        {% if can_edit %}
-                        {# //// Neoffice — i18n: same dropdown as above, desktop copy; upstream labels are raw English. #}
-                        {{ page_action_item(text=_("Copy page"), description=_("Copy page as Markdown for LLMs"), icon="clipboard", click="copyMarkdown(); open = false") }}
                         {% endif %}
-                        {# //// Neoffice — i18n: same dropdown as above, desktop copy; upstream labels are raw English. #}
-                        {{ page_action_item(text=_("Open in ChatGPT"), description=_("Ask ChatGPT about this page"), icon="openai", href_expr="getAIUrl('openai')", target="_blank") }}
-                        {{ page_action_item(text=_("Open in Claude"), description=_("Ask Claude about this page"), icon="claude", href_expr="getAIUrl('claude')", target="_blank") }}
-                    {{ dropdown_end() }}
+                        {% if show_ai_actions %}
+                        {{ page_action_item(text=_("Open in ChatGPT"), description=_("Ask ChatGPT about this page"), icon="openai", href_expr="getAIUrl('openai')", click="capturePageAction('chatgpt')", target="_blank") }}
+                        {{ page_action_item(text=_("Open in Claude"), description=_("Ask Claude about this page"), icon="claude", href_expr="getAIUrl('claude')", click="capturePageAction('claude')", target="_blank") }}
+                        {% endif %}
+                    {% endcall %}
+                    {% endif %}
                 </div>
             </div>
+            <h1 id="wiki-page-title" class="text-4xl-semibold text-[var(--ink-gray-9)]">{{ doc.title }}</h1>
             {% endif %}
         </header>
 
 
         <!-- Page Content -->
         <!-- prose prose-v3 mirrors the SPA editor's EditorContent defaults -->
-        <div class="prose prose-v3 !max-w-none text-[15px] [&>*:first-child]:mt-0" id="wiki-content">
+        <div class="wiki-rendered prose prose-v3 !max-w-none text-[15px] [&>*:first-child]:mt-0" id="wiki-content">
             {{ rendered_content | safe }}
         </div>
 
@@ -115,8 +109,9 @@
                 <a href="/{{ prev_doc.route }}"
                    @click.prevent="$store.navigation.navigateTo({{ prev_doc.route | tojson | forceescape }})"
                    @mouseenter="$store.navigation.prefetch({{ prev_doc.route | tojson | forceescape }})"
+                   @mouseleave="$store.navigation.cancelPrefetch()"
                    class="{{ nav_link_classes }}">
-                    {{ render_icon("arrow-left", "h-4 w-4 shrink-0") }}
+                    {{ render_icon("arrow-left", "h-4 w-4 shrink-0 rtl:-scale-x-100") }}
                     <span class="truncate">{{ prev_doc.title }}</span>
                 </a>
                 {% endif %}
@@ -125,9 +120,10 @@
                 <a href="/{{ next_doc.route }}"
                    @click.prevent="$store.navigation.navigateTo({{ next_doc.route | tojson | forceescape }})"
                    @mouseenter="$store.navigation.prefetch({{ next_doc.route | tojson | forceescape }})"
+                   @mouseleave="$store.navigation.cancelPrefetch()"
                    class="{{ nav_link_classes }}">
                     <span class="truncate">{{ next_doc.title }}</span>
-                    {{ render_icon("arrow-right", "h-4 w-4 shrink-0") }}
+                    {{ render_icon("arrow-right", "h-4 w-4 shrink-0 rtl:-scale-x-100") }}
                 </a>
                 {% endif %}
             </div>
@@ -137,7 +133,6 @@
         <!-- Last Updated & Feedback Widget -->
         <div class="mt-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div id="wiki-last-updated" class="text-sm text-[var(--ink-gray-5)]" title="{{ last_updated_on }}" data-timestamp="{{ last_updated_on }}">
-                {# //// Neoffice — i18n: upstream concatenated the English words with the date; _() with a placeholder lets a translator move the date. #}
                 {{ _("Last updated {0}").format(last_updated) }}
             </div>
             {% if wiki_space and wiki_space.enable_feedback_collection %}
@@ -153,6 +148,25 @@
 </div>
 
 <script>
+    const readerTelemetry = {{ telemetry | tojson }};
+    let readerPulse;
+
+    // Loaded on first use, so a reader who never opens the page actions menu pays nothing.
+    function capturePageAction(action) {
+        if (!readerTelemetry.enabled) return;
+        readerPulse ||= import(readerTelemetry.client_url).then(({ PulseClient }) => new PulseClient({
+            host: readerTelemetry.host,
+            apiKey: readerTelemetry.key,
+            site: readerTelemetry.site,
+            user: readerTelemetry.user,
+            team: readerTelemetry.team,
+            enabled: true,
+        }));
+        readerPulse
+            .then((client) => client.capture('page_action_used', 'wiki', { action, app_version: readerTelemetry.app_version }))
+            .catch(() => { readerPulse = undefined; });
+    }
+
     // Initialize page content store and wikiPage component for reactive updates during navigation
     document.addEventListener('alpine:init', () => {
         Alpine.store('pageContent', {
@@ -164,22 +178,19 @@
             markdown: {{ raw_markdown | tojson }}
         });
 
-        //// Neoffice — the page actions (copy as Markdown, PDF, "open in an AI") live in a
-        //// store instead of in wikiPage. They moved to the top bar (includes/header.html,
-        //// outside wikiPage's x-data scope) so the title row is only the title; the bar and
-        //// the in-article menu shown under 1024px must share ONE state (copied, busy) and
-        //// one implementation. Bodies are upstream's, unchanged.
-        Alpine.store('pageActions', {
+        // Combined component for wiki document page (wikiDocument + tocScrollSpy)
+        Alpine.data('wikiPage', () => ({
+            // wikiDocument properties
             copied: false,
             downloadInProgress: false,
 
-            //// Neoffice — upstream's `get markdown()` is not here: a store is not wikiPage. It stays in
-            //// wikiPage below, with its body unchanged.
+            get markdown() {
+                return this.$store.pageContent?.markdown || '';
+            },
+
             copyMarkdown() {
-                //// Neoffice — a store has no `this.markdown`: read the pageContent store, and return the
-                //// promise so the top bar's button can wait for the copy.
-                const markdown = Alpine.store('pageContent')?.markdown || '';
-                return navigator.clipboard.writeText(markdown).then(() => {
+                navigator.clipboard.writeText(this.markdown).then(() => {
+                    capturePageAction('copy');
                     this.copied = true;
                     setTimeout(() => {
                         this.copied = false;
@@ -212,6 +223,7 @@
                     link.click();
                     link.remove();
                     URL.revokeObjectURL(objectUrl);
+                    capturePageAction('download');
                 } catch (err) {
                     console.error('Failed to download PDF:', err);
                     window.frappe?.show_alert?.({
@@ -234,24 +246,7 @@
                     'perplexity': `https://www.perplexity.ai/search?q=${encodedPrompt}`
                 };
                 return urls[provider] || '#';
-            }
-        });
-
-        // Combined component for wiki document page (wikiDocument + tocScrollSpy)
-        Alpine.data('wikiPage', () => ({
-            // wikiDocument properties — //// Neoffice: delegated to the pageActions store above
-            get copied() { return Alpine.store('pageActions').copied; },
-            get downloadInProgress() { return Alpine.store('pageActions').downloadInProgress; },
-
-            get markdown() {
-                return this.$store.pageContent?.markdown || '';
             },
-
-            //// Neoffice — the actions are the store's (above): wikiPage keeps their names so the in-article
-            //// menu, which calls them from wikiPage's scope, works as upstream's did.
-            copyMarkdown() { return Alpine.store('pageActions').copyMarkdown(); },
-            downloadPage() { return Alpine.store('pageActions').downloadPage(); },
-            getAIUrl(provider) { return Alpine.store('pageActions').getAIUrl(provider); },
 
             // tocScrollSpy properties - works with server-rendered TOC
             headingIds: [],
