@@ -126,8 +126,8 @@
     </div>
     
     {# //// Neoffice — added: the large window a clip opens in when it is clicked (public/js/neoffice-video.js). Server-rendered so that its two labels are translated. #}
-    <div id="video-viewer" data-title="{{ _('Click to enlarge') }}">
-        <button id="video-viewer-close" type="button" aria-label="{{ _('Close') }}">&times;</button>
+    <div id="video-viewer" data-title="{{ _('Click to enlarge') | e }}">
+        <button id="video-viewer-close" type="button" aria-label="{{ _('Close') | e }}">&times;</button>
         <video id="video-viewer-video" controls playsinline></video>
     </div>
 

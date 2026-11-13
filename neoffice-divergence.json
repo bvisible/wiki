@@ -1,6 +1,6 @@
 {
   "_comment": "Inventory of this fork's divergence from frappe/wiki. Regenerate with: python3 scripts/neoffice-divergence.py --update. A dropped entry is a Neoffice change that an upstream merge ate.",
-  "marked_blocks": 287,
+  "marked_blocks": 290,
   "files": {
     ".github/workflows/build-frontend.yml": [
       "wiki-app.html, not wiki.html: wiki v3 renamed the"
@@ -188,6 +188,10 @@
     "wiki/api/test_og_image_warm_up.py": [
       "added file (no upstream equivalent)"
     ],
+    "wiki/api/test_og_satori.py": [
+      "os: the assets check of test_asset_paths_cannot_leave_the_assets_directory.",
+      "only where the app's assets are linked under sites/assets (any bench that ran a"
+    ],
     "wiki/api/wiki_space.py": [
       "allow_guest added (upstream: @frappe.whitelist()). Neoffice wikis",
       "the tree is filtered for the caller. check_permission(\"read\")",
@@ -323,6 +327,7 @@
     ],
     "wiki/templates/wiki/includes/mobile_header.html": [
       "the sheet carried the page tree only. A page of this manual has twenty sections and a phone had no way to",
+      "the second tab; its label escaped, see the note above the tabs. -#}",
       "x-show=\"sheetTab === 'pages'\": the sheet's search and tree belong to the \"Pages\" tab (see the tabs above). -#}",
       "x-show=\"sheetTab === 'pages'\", same as the search above. -#}",
       "the headings of the page (see the tabs above). -#}",
@@ -341,7 +346,8 @@
     ],
     "wiki/templates/wiki/includes/toc.html": [
       "render_icon imported for the #wiki-toc-toggle button at the end of this file. #}",
-      "added: between 1024 and 1499px the \"On this page\" column is not drawn (it would take a quarter of a laptop screen from the"
+      "added: between 1024 and 1499px the \"On this page\" column is not drawn (it would take a quarter of a laptop screen from the",
+      "escaped, see the note above the button. -#}"
     ],
     "wiki/templates/wiki/layout.html": [
       "brand. Upstream falls back to \"Frappe Wiki\"; this reader is",
@@ -371,9 +377,6 @@
     ],
     "wiki/tests/test_editor_chart_empty_state.py": [
       "added file (no upstream equivalent): the editor's empty charts speak the catalogue (maintenance#1383)."
-    ],
-    "wiki/tests/test_editor_language.py": [
-      "added file (no upstream equivalent): the editor boots in its author's language (maintenance#1383)."
     ],
     "wiki/tests/test_editor_page_count.py": [
       "added file (no upstream equivalent): « 1 page », not « 1 cette page » (maintenance#1383)."
@@ -441,8 +444,8 @@
       "a reader never enters the authoring app. /wiki-app is ours;",
       "added (no upstream equivalent). Translates an authoring-app URL",
       "`is_private` only where the legacy column exists (#2232): on",
-      "added: the language the editor prints dates and numbers in (maintenance#1383).",
-      "added. The language wiki.api.get_translations picks the label catalogue by, so that the dates"
+      "no \"lang\" of ours below any more (#1383, removed at 3.5.0): upstream's, above, is",
+      "our _catalogue_language() (#1383) stood here until the 3.5.0 merge; see the note in get_boot()."
     ],
     "wiki/www/wiki_sitemap.py": [
       "added file (no upstream equivalent)"

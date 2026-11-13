@@ -29,10 +29,12 @@
 </aside>
 {#- //// Neoffice — added: between 1024 and 1499px the "On this page" column is not drawn (it would take a quarter of a laptop screen from the
     captures, see neoffice-wiki.css), and a reader who loses it altogether loses the way around a long page. This button, shown only in that range
-    and only when the page has headings, opens the same list as a panel over the page; the aside itself (and its scroll-spy) is unchanged. -#}
+    and only when the page has headings, opens the same list as a panel over the page; the aside itself (and its scroll-spy) is unchanged.
+    Its label is escaped (`| e`) like upstream's: Frappe's Jinja does not autoescape, and a translation is text, never markup. -#}
 <button id="wiki-toc-toggle" type="button" aria-expanded="false" aria-controls="wiki-toc">
     {{ render_icon("list", "shrink-0") }}
-    <span>{{ _("On this page") }}</span>
+    {#- //// Neoffice — escaped, see the note above the button. -#}
+    <span>{{ _("On this page") | e }}</span>
 </button>
 <script>
     (function () {

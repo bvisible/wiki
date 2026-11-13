@@ -3,6 +3,9 @@
 
 import base64
 import io
+
+# //// Neoffice — os: the assets check of test_asset_paths_cannot_leave_the_assets_directory.
+import os
 import subprocess
 import unittest
 from unittest.mock import patch
@@ -149,7 +152,10 @@ class TestSatoriCard(IntegrationTestCase):
 	def test_asset_paths_cannot_leave_the_assets_directory(self):
 		self.assertIsNone(og_satori._read_asset("/assets/../site_config.json"))
 		self.assertIsNone(og_satori._read_asset("/assets/wiki/../../../../etc/passwd"))
-		self.assertTrue(og_satori._read_asset("/assets/wiki/images/frappe-wiki-logo.svg"))
+		# //// Neoffice — only where the app's assets are linked under sites/assets (any bench that ran a
+		# //// build; our CI installs with skip_build, the committed assets are never rebuilt there).
+		if os.path.isdir(os.path.join(frappe.local.sites_path, "assets", "wiki")):
+			self.assertTrue(og_satori._read_asset("/assets/wiki/images/frappe-wiki-logo.svg"))
 
 	def test_node_failure_is_a_failed_card(self):
 		failures = (

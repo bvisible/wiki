@@ -22,7 +22,7 @@
     </nav>
 
     {# //// Neoffice — added: drag handle on the sidebar's right edge (double-click: back to the default width; arrow keys when focused). The tree's titles wrap instead of being cut (neoffice-wiki.css), and this is for whoever wants them on fewer lines. #}
-    <div id="wiki-sidebar-resize" role="separator" aria-orientation="vertical" aria-label="{{ _('Resize the sidebar') }}" tabindex="0" title="{{ _('Drag to resize the sidebar, double-click to reset') }}"></div>
+    <div id="wiki-sidebar-resize" role="separator" aria-orientation="vertical" aria-label="{{ _('Resize the sidebar') | e }}" tabindex="0" title="{{ _('Drag to resize the sidebar, double-click to reset') | e }}"></div>
 </div>
 <script>
     (function () {

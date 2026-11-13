@@ -163,12 +163,14 @@
             //// jump to one (the "On this page" dropdown of the header reads `$root.headings`, which is this component itself, so it
             //// never shows). Two tabs: "Pages" (the tree, as before) and "On this page" (the headings of the page being read, read from
             //// the page when the sheet opens, so it is right after a client-side navigation too). Styles: .neo-sheet-* in
-            //// neoffice-wiki.css (a class that is not in the committed tailwind.css would not exist). -#}
+            //// neoffice-wiki.css (a class that is not in the committed tailwind.css would not exist). The two labels are escaped
+            //// (`| e`) like upstream's: Frappe's Jinja does not autoescape, and a translation is text, never markup. -#}
         <div class="neo-sheet-tabs" x-show="tocItems.length > 0" x-cloak role="tablist">
             <button type="button" role="tab" class="neo-sheet-tab" :class="sheetTab === 'pages' ? 'is-active' : ''"
-                    :aria-selected="sheetTab === 'pages'" @click="sheetTab = 'pages'" data-testid="mobile-tab-pages">{{ _("Pages") }}</button>
+                    :aria-selected="sheetTab === 'pages'" @click="sheetTab = 'pages'" data-testid="mobile-tab-pages">{{ _("Pages") | e }}</button>
+            {#- //// Neoffice — the second tab; its label escaped, see the note above the tabs. -#}
             <button type="button" role="tab" class="neo-sheet-tab" :class="sheetTab === 'toc' ? 'is-active' : ''"
-                    :aria-selected="sheetTab === 'toc'" @click="sheetTab = 'toc'" data-testid="mobile-tab-toc">{{ _("On this page") }}</button>
+                    :aria-selected="sheetTab === 'toc'" @click="sheetTab = 'toc'" data-testid="mobile-tab-toc">{{ _("On this page") | e }}</button>
         </div>
 
         {#- //// Neoffice — x-show="sheetTab === 'pages'": the sheet's search and tree belong to the "Pages" tab (see the tabs above). -#}

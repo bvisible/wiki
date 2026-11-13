@@ -141,24 +141,14 @@ def get_boot():
 			"asset_hashes": get_asset_hashes(),
 			"meta_images_supported": cards_supported(),
 			"telemetry": default_properties(),
-			# //// Neoffice — added: the language the editor prints dates and numbers in (maintenance#1383).
-			"lang": _catalogue_language(),
 			"user_info": get_user_info(),
+			# //// Neoffice — no "lang" of ours below any more (#1383, removed at 3.5.0): upstream's, above, is
+			# //// frappe.local.lang, the language its get_translations follows too, so dates and labels agree.
 		}
 	)
 
 
-# //// Neoffice — added. The language wiki.api.get_translations picks the label catalogue by, so that the dates
-# //// the editor prints (frontend/src/lib/uiLocale.js) agree with its labels: the author's own, the site's for a
-# //// visitor, English for an author who has none (get_translations sends that author no catalogue at all).
-def _catalogue_language() -> str:
-	if frappe.session.user != "Guest":
-		language = frappe.db.get_value("User", frappe.session.user, "language")
-	else:
-		language = frappe.db.get_single_value("System Settings", "language")
-	return language or "en"
-
-
+# //// Neoffice — our _catalogue_language() (#1383) stood here until the 3.5.0 merge; see the note in get_boot().
 def get_asset_hashes() -> dict:
 	"""Content hashes for the app assets the SPA pulls in at runtime.
 
