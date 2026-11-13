@@ -1,6 +1,6 @@
 {
   "_comment": "Inventory of this fork's divergence from frappe/wiki. Regenerate with: python3 scripts/neoffice-divergence.py --update. A dropped entry is a Neoffice change that an upstream merge ate.",
-  "marked_blocks": 305,
+  "marked_blocks": 306,
   "files": {
     ".github/workflows/build-frontend.yml": [
       "wiki-app.html, not wiki.html: wiki v3 renamed the"
@@ -401,6 +401,9 @@
     ],
     "wiki/tests/test_is_private_outside_the_reader.py": [
       "added file (no upstream equivalent)"
+    ],
+    "wiki/tests/test_live_reload.py": [
+      "an anonymous visitor reads a public space only while the master switch"
     ],
     "wiki/tests/test_reader_favicon.py": [
       "added file (no upstream equivalent): the public reader's tab icon (maintenance#1316)."

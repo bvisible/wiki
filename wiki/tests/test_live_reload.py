@@ -11,7 +11,13 @@ class TestReaderLiveReload(WikiTestCase):
 	"""In developer mode, reader pages of git-synced spaces reload after a sync."""
 
 	def setUp(self):
-		self.synced = make_space(git_synced=1, roles=[("Guest", "Read")])
+		# //// Neoffice — an anonymous visitor reads a public space only while the master switch
+		# //// Wiki Settings.enable_public_wiki is on (off by default, off on osiris), and our fork makes a
+		# //// space public through public_read (Wiki Space keeps the Guest row in step with it).
+		public_wiki = patch("wiki.permissions.public_wiki_enabled", return_value=True)
+		public_wiki.start()
+		self.addCleanup(public_wiki.stop)
+		self.synced = make_space(git_synced=1, public_read=1, roles=[("Guest", "Read")])
 		frappe.db.set_value("Wiki Space", self.synced.name, "last_synced_commit_sha", "abc123")
 		self.page = make_document(parent=self.synced.root_group, title="Install")
 		developer_mode = patch.dict(frappe.conf, {"developer_mode": 1})
