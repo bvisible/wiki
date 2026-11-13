@@ -185,11 +185,8 @@ for the reader.
 
 | Hunk | Change | Marker lives on |
 | --- | --- | --- |
-| `wiki/templates/wiki/includes/header.html` — `title=` of the space-switcher button | English string wrapped in `_()` | the `<button type="button">` above |
-| `wiki/templates/wiki/includes/feedback_widget.html` — `placeholder=` of the comment textarea | idem | the `<textarea>` above |
-| `wiki/templates/wiki/includes/mobile_header.html` — `aria-label=` of the floating nav trigger | idem | the `<button @click="toggleSidebar()">` above |
-| `frontend/src/components/tiptap-extensions/ImageNodeView.vue` — `:width` attribute of `<img>` | removed: the width now goes through `:style`, so a resized image scales instead of being letterboxed | the `<img>` tag |
-| `frontend/src/components/tiptap-extensions/ImageNodeView.vue` — `:style` / `@click` of `<img>` | `@click` re-pointed from `selectNode` to `handleImageClick` (select in edit mode, lightbox in read mode) | the `<img>` tag |
+| *(3.5.0 merge)* `header.html` `title=`, `feedback_widget.html` `placeholder=`, `mobile_header.html` `aria-label=` | **gone**: upstream translates these strings itself since 3.4.0 (#827); the files are upstream's | — |
+| *(3.5.0 merge)* `ImageNodeView.vue` `:width` / `:style` / `@click` of `<img>` | **gone**: upstream's 3.4.0 image menu (caption, alignment, drag to resize, dark version) replaces our size buttons and lightbox; the read mode is server HTML with `image-viewer.js` | — |
 | *(3.3.0 merge)* `frontend/src/pages/SpaceDetails.vue` — `:readonly` / `:spaces` of `<SpaceTreePanel>` | **gone**: upstream moved the space state into `stores/space.js` (`isReadonly` there covers git-synced and read-only users, our reader flag sets `canContribute = false`) and the switcher options come from `composables/useSpaceSwitcher.js`, so no attribute is ours any more | — |
 | `wiki/frappe_wiki/doctype/wiki_document/wiki_document.py` canonical address (`_public_url`, `canonical_url` in `get_web_context`) | upstream builds it from the site's `host_name` (the hub's own name) | the manual under its own public host would be declared a copy of a page elsewhere: `wiki_canonical_host` (site_config) wins when set, unset = upstream | the `//// Neoffice` comments on `_public_url` and on the `canonical_url` line |
 | `wiki/templates/wiki/includes/mobile_header.html` — the sheet's two tabs « Pages » / « On this page » (`sheetTab`, `tocItems`, `readHeadings()`, `goToHeading()`) | upstream's sheet holds the page tree only, and its header « On this page » dropdown reads `$root.headings` (which is the component itself) so it never shows: a phone could not jump to a section | the `{#- //// Neoffice` comment above the tabs and the `// //// Neoffice` comments in the component; styles `.neo-sheet-*` in `neoffice-wiki.css` section 9 |
@@ -227,6 +224,8 @@ Each carries a header marker unless noted.
 | `wiki/frappe_wiki/doctype/wiki_revision_item/patches/add_revision_doc_key_index.py` | index on `(revision, doc_key)` |
 | `wiki/public/css/neoffice-wiki.css` | reader styling (wider article, image sizes, captions) |
 | `wiki/public/js/neoffice-images.js` | the reader shows an image between 400 and 1000px wide (a dialog, a panel) at 70% of its real size; loaded from `layout.html` (marked there). Needed because the editor's S/M/L/XL width is not written to the markdown |
+| `frontend/src/components/tiptap-extensions/image-markdown-neoffice.test.js` | our image tests (#1085), next to upstream's `image-markdown.test.js` since 3.5.0 (both sides had added a file of that name) |
+| `wiki/api/test_og_image_warm_up.py` | no OG card is warmed where Frappe has no card renderer (neither Chromium nor satori) |
 | `wiki/public/js/neoffice-video.js` | a click on a clip opens it in a large window over the page (carries the playing position both ways); the browser's full-screen button is taken off the small player; markup of the window in `layout.html` (marked there), styles in `neoffice-wiki.css` section 8, one new msgid `Click to enlarge` |
 | `wiki/frappe_wiki/patches/__init__.py` | **empty on purpose, unmarked** — a package marker, nothing to explain |
 | `wiki/www/wiki-sitemap.xml`, `wiki/www/wiki_sitemap.py` | the sitemap of the public manual (only what a signed-out visitor can read, under `wiki_canonical_host`); the manual's host maps `/sitemap.xml` onto it |
@@ -268,6 +267,25 @@ New divergence that exists only because of Frappe v15 (every one is a bug on v15
 `wiki/patches/update_desktop_icon_link.py` (v16 `icon_type` column), `wiki/telemetry_scan.py`
 (`is_pulse_enabled` is v16), `wiki/api/search.py` (ambiguous `ORDER BY modified`), `wiki/tests/test_telemetry.py`
 (a Guest is redirected by our `wiki_app.py` before the shell). Drop each at the move to v16.
+
+### The 3.5.0 merge (2026-11-13) — what moved in the divergence map
+
+Merge of the tag `v3.5.0` (`b7d60511`; merge-base with our line `04c3cacb` = v3.3.0; 342 upstream
+commits, 33 conflicting files). Full account: Obsidian `Neoffice/03-DevOps/` (note of the 13.11 merge).
+Measured with `fork_markers.py check --base v3.5.0 --head <merge> --upstream-base v3.5.0`: **0**
+unmarked hunk. Baseline re-blessed: 287 marked blocks in 79 files.
+
+| Our change | Before | After the merge |
+| --- | --- | --- |
+| Reader strings in `_()` (header, buttons, feedback, toc, mobile header, sidebar SPA half) | ours, marked line by line | **upstream's** (#827 translates the reader templates) |
+| Page actions in the top bar (`pageActions` store, `wikiHeaderActions`) | `header.html`, `document.html` | **upstream's** quiet row above the title (#925: pencil, copy, `⋯` menu with PDF and AI); our reason (the split button pushed the heading) is gone with it |
+| v15 guards: OG cards, `ORDER BY modified`, `update_desktop_icon_link`, `response_headers`, `requires-python` | ours | **upstream's** (3.4.0 "install and run on Frappe v15"; cards drawn by satori where Chromium is missing) |
+| Published-only space switcher | `_spaces_for_switcher()` | **upstream's** `get_switcher_spaces()` (#861, same rule) |
+| Search index idempotent on v15 | our `index_doc` override | upstream's `index_doc`, made conditional again (a rolled-back save keeps its row) |
+| Staff tree cache field `<root>|with-private` (#2234) | cleared with the whole key | upstream clears per field: `clear_wiki_tree_cache` clears our field too |
+| `get_wiki_tree` filtered for non-writers | ours | upstream's full-tree cache for writers, published-only tree per call for the others |
+| Image class (`img-md`…) kept through a save (#1085) | `<img width class>` for any width or class | `<img class>` only when the image has a class; a width, an alignment or a dark version take upstream's `<picture>`; pre-merge `<img width>` still read; a resize drops a size class (`ImageNodeView.vue`, `sizedWidth`) |
+| Vendored Pele (Mermaid replacement) | — | `wiki/public/js/third_party/pele/` (fleet nginx denies `/vendor/`); Mermaid removed upstream |
 
 ### What the next merge will fight over
 

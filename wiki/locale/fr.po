@@ -5020,3 +5020,543 @@ msgstr "Aucune donnée à afficher"
 msgctxt "after a count"
 msgid "page"
 msgstr "page"
+
+#: frontend/src/components/PageDiff.vue:217
+#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+msgid "1 unchanged block"
+msgstr "1 bloc inchangé"
+
+#: frontend/src/components/PageMetaLine.vue:86
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "1 view in last 30 days"
+msgstr "1 vue au cours des 30 derniers jours"
+
+#: frontend/src/composables/useStartEditing.js:27
+#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+msgid "Add initial content"
+msgstr "Ajouter le contenu initial"
+
+#: frontend/src/components/HistoryPanel.vue:139
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "All pages"
+msgstr "Toutes les pages"
+
+#: frontend/src/components/SpaceSettings/AccessPanel.vue:118
+#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+msgid "Allow PDF Download"
+msgstr "Autoriser le téléchargement PDF"
+
+#. Label of a Check field in DocType 'Wiki Space'
+#: wiki/wiki/doctype/wiki_space/wiki_space.json:265
+msgid "Allow PDF Download?"
+msgstr "Autoriser le téléchargement PDF ?"
+
+#: wiki/api/wiki_space.py:491
+msgid "Another change was just published to this space. Please try again."
+msgstr "Une autre modification vient d'être publiée dans cet espace. Veuillez réessayer."
+
+#: wiki/templates/wiki/includes/feedback_widget.html:44
+msgid "Anything you'd like to add?"
+msgstr "Souhaitez-vous ajouter quelque chose ?"
+
+#: frontend/src/pages/ContributionReview.vue:587
+#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+msgid "Approve & merge"
+msgstr "Approuver et fusionner"
+
+#: frontend/src/pages/ContributionReview.vue:588
+#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+msgid "Approve and merge in one step"
+msgstr "Approuver et fusionner en une seule étape"
+
+#: frontend/src/components/VersionDiff.vue:6
+#: frontend/src/components/VersionDiff.vue:9
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "Back to current version"
+msgstr "Revenir à la version actuelle"
+
+#: frontend/src/components/SpaceModeStrip.vue:137
+msgid "Change request"
+msgstr "Demande de modification"
+
+#: frontend/src/components/ChangeRequestsPanel.vue:10
+#: frontend/src/pages/ContributionReview.vue:468
+#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "Change requests"
+msgstr "Demandes de modification"
+
+#: frontend/src/composables/useSyncState.js:41
+#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+msgid "Changed elsewhere"
+msgstr "Modifié ailleurs"
+
+#: frontend/src/components/SpaceModeStrip.vue:344
+#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+msgid "Changes requested"
+msgstr "Modifications demandées"
+
+#. Label of a Link field in DocType 'Wiki Revision'
+#: wiki/frappe_wiki/doctype/wiki_revision/wiki_revision.json:51
+msgid "Checkpoint Revision"
+msgstr "Révision de point de contrôle"
+
+#: frontend/src/components/ChangeRequestsPanel.vue:14
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "Close change requests"
+msgstr "Fermer les demandes de modification"
+
+#: frontend/src/components/HistoryPanel.vue:14
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "Close version history"
+msgstr "Fermer l'historique des versions"
+
+#: wiki/templates/wiki/document.html:70
+msgid "Copy page as Markdown"
+msgstr "Copier la page en Markdown"
+
+#: frontend/src/components/StartEditingDialog.vue:85
+#: frontend/src/composables/useStartEditing.js:30
+#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+msgid "Could not start editing"
+msgstr "Impossible de commencer la modification"
+
+#: frontend/src/components/HistoryPanel.vue:38
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "Current version"
+msgstr "Version actuelle"
+
+#: frontend/src/pages/ContributionReview.vue:632
+#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+msgid "Decline this review"
+msgstr "Refuser cette relecture"
+
+#: frontend/src/components/SpaceModeStrip.vue:153
+#: frontend/src/components/StartEditingDialog.vue:22
+#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+msgid "Describe the change"
+msgstr "Décrivez la modification"
+
+#: frontend/src/lib/versionHistory.js:18
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "Direct edit"
+msgstr "Modification directe"
+
+#: frontend/src/pages/ContributionReview.vue:212
+#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+msgid "Edit a page and it shows up here."
+msgstr "Modifiez une page et elle apparaîtra ici."
+
+#: wiki/templates/wiki/document.html:65
+msgid "Edit page"
+msgstr "Modifier la page"
+
+#: frontend/src/components/SpaceModeStrip.vue:63
+msgid "Edit title and description"
+msgstr "Modifier le titre et la description"
+
+#: wiki/frappe_wiki/doctype/wiki_change_request/wiki_change_request.py:158
+msgid "Edited after approval. Back in review."
+msgstr "Modifiée après approbation. Revient en relecture."
+
+#: frontend/src/lib/versionHistory.js:11
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "edited in Desk"
+msgstr "modifié dans le bureau"
+
+#: frontend/src/components/PageMetaLine.vue:92
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#, python-brace-format
+msgid "Edited {0}"
+msgstr "Modifié {0}"
+
+#: frontend/src/components/SpaceModeStrip.vue:304
+#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+msgid "Error updating change request"
+msgstr "Erreur lors de la mise à jour de la demande de modification"
+
+#: frontend/src/composables/useTreeDialogs.js:258
+#: frontend/src/composables/useTreeDialogs.js:304
+#: wiki/frappe_wiki/doctype/wiki_document/wiki_document.py:136
+#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+msgid "External links must start with http://, https:// or mailto:"
+msgstr "Les liens externes doivent commencer par http://, https:// ou mailto:"
+
+#: frontend/src/components/SpaceSettings/AccessPanel.vue:360
+#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+msgid "Failed to update the PDF download setting"
+msgstr "Échec de la mise à jour du paramètre de téléchargement PDF"
+
+#: frontend/src/composables/useChangeRequestActions.js:164
+#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+msgid "finishing"
+msgstr "finalisation"
+
+#: frontend/src/lib/versionHistory.js:17
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "First version"
+msgstr "Première version"
+
+#: wiki/wiki/git_sync.py:657
+#, python-brace-format
+msgid "Found {0}. Keep only one sidebar config file."
+msgstr "{0} trouvé. Ne gardez qu'un seul fichier de configuration de la barre latérale."
+
+#: frontend/src/components/SpaceModeStrip.vue:348
+#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+msgid "In review"
+msgstr "En relecture"
+
+#: frontend/src/composables/useDiffView.js:22
+#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+msgid "Inline"
+msgstr "Intégré"
+
+#: frontend/src/components/SpaceSettings/AccessPanel.vue:119
+#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+msgid "Let readers download wiki pages as PDF"
+msgstr "Permettre aux lecteurs de télécharger les pages du wiki en PDF"
+
+#: frontend/src/components/HistoryPanel.vue:39
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "Live now"
+msgstr "En ligne"
+
+#: frontend/src/lib/versionHistory.js:4
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "merged"
+msgstr "fusionné"
+
+#: frontend/src/components/StartEditingDialog.vue:5
+#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+msgid "New change request"
+msgstr "Nouvelle demande de modification"
+
+#: frontend/src/components/SpaceSettings/GitSyncPanel.vue:173
+#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+msgid "No .wiki.yml or .wiki.json in the docs folder — the page tree is inferred from the docs folder."
+msgstr "Aucun fichier .wiki.yml ni .wiki.json dans le dossier docs : l'arborescence des pages est déduite de ce dossier."
+
+#: frontend/src/components/ChangeRequestsPanel.vue:47
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "No change requests with this status"
+msgstr "Aucune demande de modification avec ce statut"
+
+#: frontend/src/components/SpaceModeStrip.vue:365
+#: frontend/src/pages/ContributionReview.vue:211
+#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+msgid "No changes yet"
+msgstr "Aucune modification pour l'instant"
+
+#: frontend/src/components/PageDiff.vue:192
+#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+msgid "No content changes"
+msgstr "Aucune modification du contenu"
+
+#: frontend/src/components/HistoryPanel.vue:60
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "No history yet"
+msgstr "Pas encore d'historique"
+
+#: frontend/src/components/ChangeRequestsPanel.vue:48
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "No open change requests"
+msgstr "Aucune demande de modification ouverte"
+
+#: frontend/src/components/VersionDiff.vue:25
+#: frontend/src/components/VersionDiff.vue:34
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "Open change request"
+msgstr "Ouvrir la demande de modification"
+
+#: frontend/src/components/WikiDocumentPanel.vue:11
+#: frontend/src/components/WikiDocumentPanel.vue:16
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
+msgid "Open live page"
+msgstr "Ouvrir la page en ligne"
+
+#: frontend/src/components/PageMetaLine.vue:12
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "Open page analytics"
+msgstr "Ouvrir les statistiques de la page"
+
+#: frontend/src/components/PageMetaLine.vue:23
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "Open version history"
+msgstr "Ouvrir l'historique des versions"
+
+#: frontend/src/pages/ContributionReview.vue:77
+#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#, python-brace-format
+msgid "opened {0}"
+msgstr "ouvert {0}"
+
+#: frontend/src/components/SpaceSettings/GeneralPanel.vue:184
+#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:1
+#, python-brace-format
+msgid "Pages live under {0}"
+msgstr "Les pages sont en ligne sous {0}"
+
+#: wiki/frappe_wiki/doctype/wiki_document/wiki_document.py:1368
+msgid "PDF download is turned off for this space"
+msgstr "Le téléchargement PDF est désactivé pour cet espace"
+
+#: wiki/wiki/git_sync.py:1158
+msgid "Previewing local docs needs developer mode."
+msgstr "L'aperçu des documents locaux nécessite le mode développeur."
+
+#: frontend/src/pages/ContributionReview.vue:631
+#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+msgid "Reject review"
+msgstr "Rejeter la relecture"
+
+#: frontend/src/components/HistoryPanel.vue:198
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#, python-brace-format
+msgid "renamed from {0}"
+msgstr "renommé depuis {0}"
+
+#: frontend/src/lib/versionHistory.js:16
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "Repository sync"
+msgstr "Synchronisation du dépôt"
+
+#: frontend/src/pages/ContributionReview.vue:577
+#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+msgid "Request changes"
+msgstr "Demander des modifications"
+
+#: frontend/src/pages/ContributionReview.vue:596
+#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+msgid "Review decision"
+msgstr "Décision de relecture"
+
+#: frontend/src/pages/ContributionReview.vue:598
+#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+msgid "Reviewers"
+msgstr "Relecteurs"
+
+#: frontend/src/lib/versionHistory.js:10
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "saved the first version"
+msgstr "a enregistré la première version"
+
+#: frontend/src/pages/ContributionReview.vue:578
+#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+msgid "Send feedback to the author"
+msgstr "Envoyer un retour à l'auteur"
+
+#: frontend/src/components/VersionDiff.vue:50
+#: frontend/src/pages/ContributionReview.vue:191
+#: wiki/public/frontend/assets/ContributionReview-9xsPydID.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "Show changes only"
+msgstr "Afficher uniquement les modifications"
+
+#: frontend/src/components/HistoryPanel.vue:105
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "Show more"
+msgstr "Afficher plus"
+
+#. Description of the 'Allow PDF Download?' (Check) field in DocType 'Wiki
+#. Space'
+#: wiki/wiki/doctype/wiki_space/wiki_space.json:262
+msgid "Show the Download action that saves a page as PDF"
+msgstr "Affiche l'action de téléchargement qui enregistre une page en PDF"
+
+#: frontend/src/composables/useDiffView.js:21
+#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+msgid "Side by side"
+msgstr "Côte à côte"
+
+#: frontend/src/components/SpaceSettings/GitSyncPanel.vue:167
+#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+msgid "Sidebar configuration"
+msgstr "Configuration de la barre latérale"
+
+#. Label of a Data field in DocType 'Wiki Revision'
+#: wiki/frappe_wiki/doctype/wiki_revision/wiki_revision.json:69
+msgid "Source Commit"
+msgstr "Commit source"
+
+#: frontend/src/components/StartEditingDialog.vue:36
+#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+msgid "Start editing"
+msgstr "Commencer la modification"
+
+#: frontend/src/components/ChangeRequestsPanel.vue:28
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#, python-brace-format
+msgid "Status: {0}"
+msgstr "Statut : {0}"
+
+#: frontend/src/components/ChangeRequestsPanel.vue:52
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "Submitted change requests in this space show up here."
+msgstr "Les demandes de modification envoyées dans cet espace apparaîtront ici."
+
+#: frontend/src/lib/versionHistory.js:8
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "synced from Git"
+msgstr "synchronisé depuis Git"
+
+#: frontend/src/lib/versionHistory.js:7
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#, python-brace-format
+msgid "synced from {0}"
+msgstr "synchronisé depuis {0}"
+
+#. Description of the 'Source Commit' (Data) field in DocType 'Wiki Revision'
+#: wiki/frappe_wiki/doctype/wiki_revision/wiki_revision.json:66
+msgid "The commit a git sync applied"
+msgstr "Le commit appliqué par une synchronisation Git"
+
+#. Description of the 'Checkpoint Revision' (Link) field in DocType 'Wiki
+#. Revision'
+#: wiki/frappe_wiki/doctype/wiki_revision/wiki_revision.json:48
+msgid "The full revision an overlay's chain starts from"
+msgstr "La révision complète à partir de laquelle débute la chaîne d'une superposition"
+
+#. Description of the 'Wiki Config' (Code) field in DocType 'Wiki Space'
+#: wiki/wiki/doctype/wiki_space/wiki_space.json:359
+msgid "The most recently loaded sidebar config (.wiki.yml, .wiki.yaml or .wiki.json) from the repo, shown as JSON. Empty when the structure is inferred."
+msgstr "La dernière configuration de barre latérale chargée (.wiki.yml, .wiki.yaml ou .wiki.json) depuis le dépôt, affichée en JSON. Vide lorsque la structure est déduite."
+
+#: wiki/wiki/git_sync.py:1174
+#, python-brace-format
+msgid "The space at /{0} is not git-synced, so a preview cannot replace its pages."
+msgstr "L'espace situé à /{0} n'est pas synchronisé avec Git : un aperçu ne peut donc pas remplacer ses pages."
+
+#: frontend/src/components/CommandPalette.vue:364
+#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/templates/wiki/includes/search_modal.html:62
+msgid "Theme: Dark"
+msgstr "Thème : sombre"
+
+#: frontend/src/components/CommandPalette.vue:372
+#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+#: wiki/templates/wiki/includes/search_modal.html:62
+msgid "Theme: Light"
+msgstr "Thème : clair"
+
+#: frontend/src/composables/useSyncState.js:62
+#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+msgid "This draft was edited in another tab or window. Reload the latest version to get those edits. Any unsaved edits to the same pages here will be replaced."
+msgstr "Ce brouillon a été modifié dans un autre onglet ou une autre fenêtre. Rechargez la dernière version pour récupérer ces modifications. Les modifications non enregistrées sur ces mêmes pages seront remplacées."
+
+#: frontend/src/components/HistoryPanel.vue:138
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "This page"
+msgstr "Cette page"
+
+#: frontend/src/components/VersionDiff.vue:64
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "This version changed nothing on this page."
+msgstr "Cette version n'a rien modifié sur cette page."
+
+#: frontend/src/components/HistoryPanel.vue:191
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "This week"
+msgstr "Cette semaine"
+
+#: frontend/src/components/HistoryPanel.vue:202
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "unpublished"
+msgstr "non publié"
+
+#: frontend/src/components/SpaceModeStrip.vue:279
+#: wiki/public/frontend/assets/index-BmV7z_Rl.js:45
+msgid "Untitled change request"
+msgstr "Demande de modification sans titre"
+
+#: frontend/src/components/HistoryPanel.vue:10
+#: frontend/src/components/WikiDocumentPanel.vue:82
+#: frontend/src/components/WikiDocumentPanel.vue:85
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
+msgid "Version history"
+msgstr "Historique des versions"
+
+#: wiki/api/history.py:75
+#, python-brace-format
+msgid "Version {0} not found"
+msgstr "Version {0} introuvable"
+
+#: frontend/src/components/HistoryPanel.vue:62
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "Versions appear here once a change request is merged."
+msgstr "Les versions apparaissent ici une fois qu'une demande de modification est fusionnée."
+
+#: frontend/src/components/VersionDiff.vue:39
+#: frontend/src/components/VersionDiff.vue:45
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+msgid "View commit"
+msgstr "Voir le commit"
+
+#: frontend/src/components/StartEditingDialog.vue:14
+#: wiki/public/frontend/assets/SpaceDetails-DtEBOVER.js:2
+msgid "What are you changing?"
+msgstr "Que modifiez-vous ?"
+
+#: frontend/src/components/SubmitForReviewButton.vue:40
+#: wiki/public/frontend/assets/SubmitForReviewButton-pQu5XMcP.js:1
+msgid "What did you change?"
+msgstr "Qu'avez-vous modifié ?"
+
+#. Label of a Code field in DocType 'Wiki Space'
+#: wiki/wiki/doctype/wiki_space/wiki_space.json:362
+msgid "Wiki Config"
+msgstr "Configuration du wiki"
+
+#: frontend/src/components/PageDiff.vue:188
+#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#, python-brace-format
+msgid "{0} added"
+msgstr "{0} ajouté(s)"
+
+#: frontend/src/components/PageDiff.vue:189
+#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#, python-brace-format
+msgid "{0} edited"
+msgstr "{0} modifié(s)"
+
+#: wiki/wiki/git_sync.py:109
+#, python-brace-format
+msgid "{0} is not a folder."
+msgstr "{0} n'est pas un dossier."
+
+#: frontend/src/components/PageMetaLine.vue:80
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#, python-brace-format
+msgid "{0} min read"
+msgstr "{0} min de lecture"
+
+#: wiki/wiki/git_sync.py:666
+#, python-brace-format
+msgid "{0} must contain a mapping with a sidebar key."
+msgstr "{0} doit contenir une correspondance avec une clé sidebar."
+
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:16
+#, python-brace-format
+msgid "{0} open on this page, {1} in this space"
+msgstr "{0} ouverte(s) sur cette page, {1} dans cet espace"
+
+#: frontend/src/components/PageDiff.vue:190
+#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#, python-brace-format
+msgid "{0} removed"
+msgstr "{0} supprimé(s)"
+
+#: frontend/src/components/PageDiff.vue:218
+#: wiki/public/frontend/assets/PageDiff-BnxJEDF5.js:2
+#, python-brace-format
+msgid "{0} unchanged blocks"
+msgstr "{0} blocs inchangés"
+
+#: frontend/src/components/PageMetaLine.vue:87
+#: wiki/public/frontend/assets/WikiDocumentPanel-BdLfrz0i.js:2
+#, python-brace-format
+msgid "{0} views in last 30 days"
+msgstr "{0} vues au cours des 30 derniers jours"

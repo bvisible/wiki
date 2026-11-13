@@ -1,6 +1,6 @@
 {
   "_comment": "Inventory of this fork's divergence from frappe/wiki. Regenerate with: python3 scripts/neoffice-divergence.py --update. A dropped entry is a Neoffice change that an upstream merge ate.",
-  "marked_blocks": 296,
+  "marked_blocks": 287,
   "files": {
     ".github/workflows/build-frontend.yml": [
       "wiki-app.html, not wiki.html: wiki v3 renamed the"
@@ -65,19 +65,30 @@
     "frontend/src/components/WikiDocumentPanel.vue": [
       "added button. Server-side PDF of this article",
       "useUserStore is ours again: upstream stopped importing it here, our reader",
-      "createResource added: the reader branch below fetches through a",
       "added. Anonymous visitors and signed-in users without a wiki",
       "readers can't read Wiki Document through frappe.client.get",
       "added. Public PDF export of this article, rendered server-side"
     ],
     "frontend/src/components/tiptap-extensions/ImageNodeView.vue": [
-      "two changes inside this img tag, both listed in",
-      "added. Upstream has no way to resize an image;",
-      "added. Readers need to enlarge screenshots; the",
-      "computed added: imageStyle and currentSize below (image sizing",
-      "everything from here to setCustomWidth() is ours: image size",
-      "styles for the added size controls */",
-      "lightbox styles. Global (not scoped) on purpose: the markup"
+      "withoutImageSizeClass: a width chosen here replaces a size class of the image (#1085).",
+      "sizedWidth(): the size class (img-md…) goes with a width chosen here (#1085).",
+      "sizedWidth(), as in stopResize (#1085).",
+      "added. A hand-written <img class=\"img-md\"> keeps its class through a save"
+    ],
+    "frontend/src/components/tiptap-extensions/image-extension.js": [
+      "imageNodeAttrs: upstream's attributes plus the class of an <img> tag (#1085).",
+      "the class of an image written as an <img> tag (img-md, img-center…),",
+      "imageNodeAttrs: the same attributes, plus the class of an <img> tag (#1085)."
+    ],
+    "frontend/src/components/tiptap-extensions/image-markdown-neoffice.test.js": [
+      "added file (no upstream equivalent)"
+    ],
+    "frontend/src/components/tiptap-extensions/image-markdown.js": [
+      "an <img> tag alone on its line starts an image block too (#1085).",
+      "an image written as an <img> tag (a class, a width), see the end of this",
+      "imageWidth(): a width in pixels or nothing (upstream: the raw attribute). A",
+      "an image that carries a class (a hand-written <img class=\"img-md\">, img-center,",
+      "everything below is ours: reading and writing an image as an <img> tag"
     ],
     "frontend/src/composables/useSpaceSwitcher.js": [
       "added file (no upstream equivalent). The space switcher: the options"
@@ -87,7 +98,7 @@
     ],
     "frontend/src/layouts/MainLayout.vue": [
       "added. Shared Neoffice chrome (ADR-015) in place of the",
-      "upstream's `v-else <LibrarySidebar />` is gone: the library",
+      "upstream's `v-else-if=\"isRouteReady\" <LibrarySidebar />` is gone: the",
       "mounted for a wiki manager only (maintenance#1096). Upstream",
       "added. The shared Neoffice chrome (ADR-015) replaces upstream's library",
       "added. Readers are anonymous visitors AND signed-in users"
@@ -134,7 +145,7 @@
       "added. For a reader, ONE call (get_public_space_info) answers both",
       "watches isReader as well as the space (see the comment above).",
       "watches isReader as well as the space: a reader answers locally below.",
-      "the capabilities endpoint needs a session, and a reader can",
+      "the bootstrap needs a session and the right to read the space",
       "get_public_space_info wraps the same payload as {space, tree}.",
       "a reader's tree comes with the space (see publicInfo above).",
       "added. Spaces to offer in the space switcher. The caller picks the",
@@ -150,9 +161,6 @@
       "added. translate() reads window.translatedMessages at render",
       "returns the resource (upstream discarded it) so"
     ],
-    "pyproject.toml": [
-      "was \">=3.14\" upstream (v3 targets a Python the fleet does not"
-    ],
     "scripts/neoffice-divergence.py": [
       "added file (no upstream equivalent).",
       "` at the time — the marking"
@@ -163,6 +171,8 @@
       "ignore_permissions is safe ONLY because can_read_space()",
       "this used to return every published space to anyone. It fed",
       "added. The two resolvers below are ours and both allow_guest.",
+      "has_legacy_private_column added, for the is_private read below (#2232).",
+      "`is_private` read only where the legacy column exists (#2232):",
       "added. Both resolvers used to climb `parent_wiki_document` in a",
       "this resolver is ours (pretty URLs) and it is allow_guest. It",
       "was `if name:`. Any row matching the route was handed",
@@ -175,26 +185,24 @@
       "filtered too, and un-LIMIT-ed for the same reason as in",
       "same as in resolve_space_slug: filtered, and looped instead of"
     ],
-    "wiki/api/og_image.py": [
-      "guard the frappe.utils.preview import (upstream imports it bare).",
-      "added: lets callers ask whether OG cards can be rendered at all",
-      "bail out explicitly when the renderer is missing (v15), so a",
-      "nothing to warm on a Frappe without the renderer (v15): the"
-    ],
-    "wiki/api/search.py": [
-      "`modified` qualified with its table. The fields above join Wiki Space"
-    ],
     "wiki/api/test_og_image_warm_up.py": [
       "added file (no upstream equivalent)"
     ],
     "wiki/api/wiki_space.py": [
       "allow_guest added (upstream: @frappe.whitelist()). Neoffice wikis",
       "the tree is filtered for the caller. check_permission(\"read\")",
+      "include_drafts passed on, and only the full tree goes to the cache (see above).",
       "include_drafts added (upstream always returns everything). See",
+      "added import, for the is_private filter below (#2232).",
+      "only where the legacy column exists: wiki v3 dropped the",
       "was `filters={\"name\": (\"in\", documents)}`. The caller may",
       "added (no upstream equivalent). Readers without a wiki role —",
       "enforce the space's own access rules. Filtering on",
+      "`is_private` (field and filter) only where the legacy column",
+      "fields and filters built above, is_private only where the column exists (#2232).",
       "added (no upstream equivalent). Same reason as",
+      "`is_private` only where the legacy column exists (#2232): on a",
+      "filters built above, is_private only where the column exists (#2232).",
       "is_published is always 1 given the filter above, but",
       "a published page still belongs to a space; check that space",
       "bounded climb (was a bare `while True`): a cycle in",
@@ -221,9 +229,7 @@
       "public_read: see the note above.",
       "this fork adds a master switch, Wiki Settings.enable_public_wiki",
       "restore the master switch, see setUpClass.",
-      "added test (no upstream equivalent). Upstream's switcher query",
       "added test (no upstream equivalent). Upstream offers the Edit",
-      "generated OG cards need a renderer Frappe v15 does not ship",
       "our process_navbar_items drops a row without a URL instead of",
       "same as test_empty_url_has_no_icon: the row is dropped."
     ],
@@ -231,29 +237,42 @@
       "added file (no upstream equivalent): the manual's search keeps the subject of a question."
     ],
     "wiki/frappe_wiki/doctype/wiki_document/wiki_document.py": [
+      "added: the field suffix of the staff's tree in WIKI_TREE_CACHE_KEY,",
       "see the canonical_url line in get_web_context().",
       "skip items with no URL. Upstream renders every row, and the",
-      "added (upstream inlined a bare frappe.get_all in",
-      "\" (is_published=0) to anonymous visitors — the content 404'd, but",
-      "space_icon, space_color and avatar added with the 3.3.0",
       "docstring reworded (88b1f47). Upstream's text promised the",
       "is_wiki_author added to this import; it is what the guard",
       "Edit is for authors only. Upstream shows it to everyone and",
       "the `if not space: return` that stood here is gone. It let",
+      "`user` added to the signature (upstream takes none), for the",
+      "the legacy per-page `is_private` flag is honoured here. Upstream's",
+      "the tree is the reader's (upstream: one tree for everyone).",
       "the canonical address is built from `wiki_canonical_host` (site_config) when it is set. Upstream always",
-      "routed through _spaces_for_switcher() (see that",
-      "og_images_supported added to this import (upstream imports",
-      "no renderer on Frappe v15 (see wiki/api/og_image.py), so",
+      "include_private added (upstream takes the documents only and",
+      "filters built here for include_private (was inline below).",
+      "was `filters={\"name\": (\"in\", documents)}`; see include_private above.",
+      "include_private added (upstream: one tree per root group, for",
+      "the cache field and the build depend on include_private.",
+      "include_private passed on, and the tree stored under its own field.",
+      "filters built here (were inline below). For a reader who is",
+      "was the inline dict now built above.",
+      "the landing page comes from the reader's tree (upstream: the",
+      "include_private added and passed on to get_public_wiki_tree (#2234).",
+      "was get_public_wiki_tree(root_group): the reader's tree (#2234).",
+      "the staff's tree is a second field of the same hash",
       "pdf_generator added (upstream lets Frappe pick, which"
     ],
     "wiki/frappe_wiki/doctype/wiki_document/wiki_sqlite_search.py": [
       "unicodedata: accents are folded to compare a title with what was typed (see the ranking block below).",
       "the two title boosts are reused by our own _get_title_boost (see the ranking block below).",
-      "added: this app's index stays idempotent HERE, not in frappe.",
       "the manual's ranking, four measured defects (2026-10-04, « note de crédit » found",
-      "the words of a question say nothing either (2026-10-05): « comment rapprocher la banque ? »"
+      "the words of a question say nothing either (2026-10-05): « comment rapprocher la banque ? »",
+      "the removal is conditional (upstream: `if INDEX_DOC_APPENDS:` alone)."
     ],
     "wiki/frappe_wiki/doctype/wiki_revision_item/patches/add_revision_doc_key_index.py": [
+      "added file (no upstream equivalent)."
+    ],
+    "wiki/frappe_wiki/patches/feedback_goes_through_its_endpoint.py": [
       "added file (no upstream equivalent)."
     ],
     "wiki/frappe_wiki/patches/init_public_read_from_guest_role.py": [
@@ -270,10 +289,8 @@
     ],
     "wiki/patches.txt": [
       "patches below are ours; keep them last so an upstream merge",
-      "clears the stale `Wiki Page Patch` Custom DocPerm row that"
-    ],
-    "wiki/patches/update_desktop_icon_link.py": [
-      "skip when the column is absent. `icon_type` belongs to the"
+      "clears the stale `Wiki Page Patch` Custom DocPerm row that",
+      "removes the Guest and All rows of Wiki Feedback copied into Custom DocPerm on existing sites:"
     ],
     "wiki/permissions.py": [
       "added (no upstream equivalent). The line between the two",
@@ -282,6 +299,9 @@
       "anonymous visitors get nothing while the master switch is",
       "the master switch was missing here while can_read_space()",
       "added (no upstream equivalent). Who may read what is not live",
+      "added (no upstream equivalent). Who the reader serves a page",
+      "added (no upstream equivalent). Whether the legacy `is_private`",
+      "added (no upstream equivalent). The pages flagged `is_private`,",
       "added. \"Live\" is what the reader serves: the page is published,",
       "added. The spaces can_write_space() says yes to, in one query,",
       "added. SQL twin of _document_is_live() OR can_see_drafts(), for",
@@ -298,47 +318,10 @@
       "is_pulse_enabled exists on Frappe v16 only. On the v15 our fleet runs,"
     ],
     "wiki/templates/wiki/document.html": [
-      "user-facing strings wrapped in _() so they land in the POT",
       "a space without a favicon of its own shows Neoffice's mark, the desk's icon, not Frappe Wiki's",
-      "neo-wiki-article added. Hook for our reader CSS, which",
-      "i18n: the same two hardcoded English labels as in macros/buttons.html, which was fixed while this copy was missed. This is the hide_chrome branch (orphan documents), so it renders on a page the space layout never reaches. tojson plus forceescape, not bare quotes, so an apostrophe in a translation cannot break the Alpine expression. #}",
-      "i18n: upstream hardcodes this label in English; _() puts it in the POT so the public reader speaks the client's language. #}",
-      "i18n: upstream passes these menu labels to the macro as raw English; _() puts them in the POT. #}",
-      "i18n: upstream passes these menu labels to the macro as raw English; _() puts them in the POT. #}",
-      "from 1024px up these actions are in the top bar (includes/header.html), where they cost no room: beside the title the split button took a line of the column and pushed the heading around. Between 640 and 1023px there is no top bar (it is `hidden lg:flex`), so the menu stays here. #}",
-      "i18n: same dropdown as above, desktop copy; upstream labels are raw English. #}",
-      "i18n: same dropdown as above, desktop copy; upstream labels are raw English. #}",
-      "i18n: upstream concatenated the English words with the date; _() with a placeholder lets a translator move the date. #}",
-      "the page actions (copy as Markdown, PDF, \"open in an AI\") live in a",
-      "upstream's `get markdown()` is not here: a store is not wikiPage. It stays in",
-      "a store has no `this.markdown`: read the pageContent store, and return the",
-      ": delegated to the pageActions store above",
-      "the actions are the store's (above): wikiPage keeps their names so the in-article"
-    ],
-    "wiki/templates/wiki/includes/feedback_widget.html": [
-      "user-facing strings wrapped in _() so they land in the",
-      "i18n: upstream hardcodes this question in English; _() puts it in the POT. #}",
-      "i18n: the aria-label of the fieldset below is read aloud by screen readers, so it is translated too. #}",
-      "i18n on the placeholder attribute of this textarea: upstream",
-      "i18n: upstream hardcodes the submit label in English. #}",
-      "i18n: upstream hardcodes the thank-you in English. #}"
-    ],
-    "wiki/templates/wiki/includes/header.html": [
-      "user-facing strings wrapped in _() so they land in the POT",
-      "was a bare `x-data`: the page actions below (macros/buttons.html) call copyMarkdown(), downloadPage(), getAIUrl() and read `copied` / `downloadInProgress` from the enclosing scope, which is wikiPage on the article but nothing up here. wikiHeaderActions (bottom of this file) hands them on to the shared pageActions store. #}",
-      "i18n on the title attribute of this button: upstream hardcodes",
-      "i18n on the aria-label below: upstream hardcodes it in English. #}",
-      "i18n: upstream hardcodes the search placeholder in English. #}",
-      "added block: the page actions (Edit / Copy, PDF, open in an AI) moved up from the title row, where the split button took a line of the column and pushed the heading around. Same macros as the in-article menu shown under 1024px, so labels, translations and the edit-link refresh on SPA navigation (.wiki-edit-link) are the same code. Only on a document page: other pages have no `doc`. #}",
-      "i18n on the aria-label below: upstream hardcodes it in English. #}",
-      "scope of the top bar. The page actions are implemented once, in the `pageActions` store that document.html registers; this object only forwards to it, so the bar and the in-article menu share one `copied` / `downloadInProgress`. The store does not exist on pages without a document, where the actions are not rendered either, hence the guards. #}"
+      "neo-wiki-article added. Hook for our reader CSS, which"
     ],
     "wiki/templates/wiki/includes/mobile_header.html": [
-      "user-facing strings wrapped in _() so they land in the POT",
-      "i18n: upstream hardcodes this label in English. #}",
-      "i18n on the aria-label of this button: upstream hardcodes it in",
-      "i18n on the title attribute below: upstream hardcodes it in English. #}",
-      "i18n on the aria-label below: upstream hardcodes it in English. #}",
       "the sheet carried the page tree only. A page of this manual has twenty sections and a phone had no way to",
       "x-show=\"sheetTab === 'pages'\": the sheet's search and tree belong to the \"Pages\" tab (see the tabs above). -#}",
       "x-show=\"sheetTab === 'pages'\", same as the search above. -#}",
@@ -354,13 +337,10 @@
       "added: the sidebar's width can be dragged (handle at the end of the sidebar, below) and is remembered per browser. Applied here, before the sidebar paints, so a reload does not flash the default width. 240 to 520px: under 240 the titles wrap to nothing, over 520 the sidebar eats the page. #}",
       "the width is --neo-sidebar-w (set by the script above this block, from the reader's own drag handle at the bottom of it); 18rem stays the fallback, so nothing changes until someone drags. #}",
       "added: drag handle on the sidebar's right edge (double-click: back to the default width; arrow keys when focused). The tree's titles wrap instead of being cut (neoffice-wiki.css), and this is for whoever wants them on fewer lines. #}",
-      "the toggle follows the sidebar's width: it sits at the --neo-sidebar-w variable (18rem stays the fallback), set by the drag handle's script above, no longer at a fixed 18rem. #}",
-      "was the English literal 'Last updated '; translated here so",
-      "i18n: the SPA half of the TOC rebuilt the heading in English after every navigation, while the server-rendered half (includes/toc.html) says \"Sur cette page\". A reader saw the label flip language on the first click in the tree."
+      "the toggle follows the sidebar's width: it sits at the --neo-sidebar-w variable (18rem stays the fallback), set by the drag handle's script above, no longer at a fixed 18rem. #}"
     ],
     "wiki/templates/wiki/includes/toc.html": [
-      "user-facing strings wrapped in _() so they land in the POT",
-      "i18n: upstream hardcodes this heading in English. #}",
+      "render_icon imported for the #wiki-toc-toggle button at the end of this file. #}",
       "added: between 1024 and 1499px the \"On this page\" column is not drawn (it would take a quarter of a laptop screen from the"
     ],
     "wiki/templates/wiki/layout.html": [
@@ -371,14 +351,6 @@
       "see the block marker above: third_party/ rename #}",
       "added: the large window a clip opens in when it is clicked (public/js/neoffice-video.js). Server-rendered so that its two labels are translated. #}",
       "added: images narrower than 1000px (dialogs, panels) are shown at 70% of their size; see the file's header. #}"
-    ],
-    "wiki/templates/wiki/macros/buttons.html": [
-      "user-facing strings wrapped in _() so they land in the POT",
-      "i18n: _() applied to the macro argument (upstream printed",
-      "i18n: both labels of the primary Copy button were hardcoded English, and this is the one a signed-out reader sees (no edit right). tojson + forceescape, as for the Download row below, so an apostrophe in a translation cannot break the Alpine expression. #}",
-      "i18n on the aria-label below: upstream hardcodes it in English. #}",
-      "i18n: both labels were hardcoded English next to an already-translated line; tojson plus forceescape, not bare quotes, so an apostrophe in a translation cannot break the Alpine expression. #}",
-      "i18n: upstream hardcodes the PDF download description in English. #}"
     ],
     "wiki/test_permissions.py": [
       "imported for the draft tests at the end of the class below.",
@@ -406,8 +378,20 @@
     "wiki/tests/test_editor_page_count.py": [
       "added file (no upstream equivalent): « 1 page », not « 1 cette page » (maintenance#1383)."
     ],
+    "wiki/tests/test_feedback_goes_through_its_endpoint.py": [
+      "added file (no upstream equivalent)"
+    ],
+    "wiki/tests/test_is_private_outside_the_reader.py": [
+      "added file (no upstream equivalent)"
+    ],
     "wiki/tests/test_reader_favicon.py": [
       "added file (no upstream equivalent): the public reader's tab icon (maintenance#1316)."
+    ],
+    "wiki/tests/test_reader_private_page.py": [
+      "added file (no upstream equivalent)"
+    ],
+    "wiki/tests/test_reader_tree_private_pages.py": [
+      "added file (no upstream equivalent)"
     ],
     "wiki/tests/test_telemetry.py": [
       "a Guest never gets as far as the app shell here: a private wiki"
@@ -415,6 +399,12 @@
     "wiki/utils.py": [
       "rewritten. Upstream showed the tile to Wiki Manager only,",
       "early return added (WI-00297, ab732fd). Upstream gives the"
+    ],
+    "wiki/wiki/doctype/wiki_feedback/wiki_feedback.py": [
+      "permission-check: ok the public feedback form: one row per call, rate limited, no read or update (#531)",
+      "the row is inserted with ignore_permissions: this endpoint (rate limited, its arguments",
+      "the endpoint is the gate, see above",
+      "the endpoint is the gate, see above"
     ],
     "wiki/wiki/doctype/wiki_page/sqlite_search.py": [
       "TO REVIEW at the next merge: this retry is NOT ours. It comes",
@@ -430,6 +420,15 @@
     "wiki/wiki/doctype/wiki_space/wiki_space.py": [
       "added. \"Public\" upstream means a Guest row buried in the"
     ],
+    "wiki/wiki/llms_txt.py": [
+      "get_private_documents added: private pages leave llms.txt too (#2232).",
+      "was `get_noindex_documents()` alone: a page flagged with the",
+      "was `get_noindex_documents()` alone: the index listed the"
+    ],
+    "wiki/wiki/sitemap.py": [
+      "added import: private pages leave the sitemap too (#2232).",
+      "was `get_noindex_documents()` alone. A page flagged with the"
+    ],
     "wiki/www/wiki-app.html": [
       "brand. Upstream ships \"Frappe Wiki\"; this title is what a"
     ],
@@ -440,8 +439,8 @@
       "added: the SPA shell is served to visitors without an account",
       "no anonymous access while the wiki is private: send them to",
       "a reader never enters the authoring app. /wiki-app is ours;",
-      "upstream calls frappe.local.response_headers.set() directly.",
       "added (no upstream equivalent). Translates an authoring-app URL",
+      "`is_private` only where the legacy column exists (#2232): on",
       "added: the language the editor prints dates and numbers in (maintenance#1383).",
       "added. The language wiki.api.get_translations picks the label catalogue by, so that the dates"
     ],
