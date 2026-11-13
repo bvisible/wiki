@@ -350,6 +350,21 @@
 	line-height: 1.4;
 }
 
+/* //// Neoffice — a captioned image: `![…](…)` + `*caption*` renders as <p><img><em>, and since 3.5.0 the editor's
+ * <picture> form as <p><picture><img></picture><em>. Upstream centres the caption (`img + em`, `picture + em` in
+ * wiki-rendered.css) on the paragraph, which spans the whole text column, while we align the image on the text's left edge
+ * (see `#wiki-content img` above): the caption floated in the middle of the column, away from its image, and our image margin
+ * left a gap above it. The paragraph takes the image's width, so the centred caption sits right under its image. */
+#wiki-content p:has(> img + em),
+#wiki-content p:has(> picture + em) {
+	width: fit-content;
+	max-width: min(100%, var(--neo-text-width, 100ch));
+}
+#wiki-content img:has(+ em),
+#wiki-content picture:has(+ em) > img {
+	margin-bottom: 0;
+}
+
 /* Clear floats left by img-left / img-right so the next block starts below. */
 #wiki-content p::after {
 	content: "";
