@@ -364,6 +364,19 @@
 #wiki-content picture:has(+ em) > img {
 	margin-bottom: 0;
 }
+/* //// Neoffice — an image written as an <img> tag with a class (img-md…, neoffice-maintenance#1085) and its <em> caption is a raw
+ * HTML block: no paragraph around them, so the rule above cannot size one, and the caption ran across the whole column. It keeps
+ * its own width and sits on the image's left edge; under an image centred by its class (img-center, img-full), it is centred too. */
+#wiki-content > img + em {
+	width: fit-content;
+	max-width: min(100%, var(--neo-text-width, 100ch));
+	text-align: left;
+}
+#wiki-content > img.img-center + em,
+#wiki-content > img.img-full + em {
+	margin-inline: auto;
+	text-align: center;
+}
 
 /* Clear floats left by img-left / img-right so the next block starts below. */
 #wiki-content p::after {
