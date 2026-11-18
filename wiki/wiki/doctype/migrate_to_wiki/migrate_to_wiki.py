@@ -166,7 +166,11 @@ class MigrateToWiki(Document):
 		wiki_sidebar_item.update(wiki_sidebar_item_dict)
 		wiki_sidebar_item.save()
 
-	frappe.db.commit()
+	# //// Neoffice — upstream has a `frappe.db.commit()` here, in the class body: it runs when the module is
+	# //// imported, so the first process that loads this controller commits whatever its request or test had
+	# //// written so far. A read of this form by a test persona committed the persona's decor on a copy of
+	# //// production (neoffice-maintenance#2863). Removed: the migration runs from on_update, inside a request
+	# //// that frappe commits at its end.
 
 	def copy_assets(self):
 		shutil.copytree(

@@ -336,3 +336,4 @@ What an upstream merge must not bring back (`scripts/fork_contracts.py` of `bvis
 | Contract | Rule | Pattern | Why |
 | --- | --- | --- | --- |
 | `wiki/wiki/doctype/wiki_feedback/wiki_feedback.json` | absent | `"role": "(Guest\|All)"` | #531: feedback goes through `submit_feedback` only, no visitor or portal account writes into the collection |
+| `wiki/wiki/doctype/migrate_to_wiki/migrate_to_wiki.py` | absent | `^\tfrappe\.db\.commit\(\)` | neoffice-maintenance#2863: a commit in the class body runs when the module is imported and commits the request or the test that loads the controller |
