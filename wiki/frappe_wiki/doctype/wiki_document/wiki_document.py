@@ -1291,19 +1291,36 @@ def clear_wiki_tree_cache(*spaces: str | None):
 		for space in set(spaces)
 		if space and (root_group := frappe.get_cached_value("Wiki Space", space, "root_group"))
 	]
-	if root_groups:
+	# //// Neoffice — every group of these spaces, not only their root (upstream:
+	# //// root_groups alone). A group's address lands on the first page of the
+	# //// group's own tree (get_landing_page_for_route), cached under the group's
+	# //// field, which upstream never drops: a group read while its pages were
+	# //// drafts kept its empty tree, and its address answered 404 after they were
+	# //// published, until Redis was flushed (hub, 19.11). Other spaces keep theirs.
+	named_spaces = [space for space in set(spaces) if space]
+	groups = set(root_groups)
+	if named_spaces:
+		groups.update(
+			frappe.get_all(
+				"Wiki Document",
+				filters={"wiki_space": ["in", named_spaces], "is_group": 1},
+				pluck="name",
+			)
+		)
+	if groups:
 
 		def clear():
 			# v15's RedisWrapper.hdel takes a single field.
 			for key in (WIKI_TREE_CACHE_KEY, WIKI_FULL_TREE_CACHE_KEY):
-				for root_group in root_groups:
-					frappe.cache().hdel(key, root_group)
+				# //// Neoffice — groups (above) in place of root_groups.
+				for group in groups:
+					frappe.cache().hdel(key, group)
 			# //// Neoffice — the staff's tree is a second field of the same hash
 			# //// (get_public_wiki_tree, #2234). Upstream (3.5.0) clears per field
 			# //// instead of dropping the whole key, so without this line the staff
 			# //// kept a stale sidebar after every edit.
-			for root_group in root_groups:
-				frappe.cache().hdel(WIKI_TREE_CACHE_KEY, f"{root_group}{STAFF_TREE_SUFFIX}")
+			for group in groups:
+				frappe.cache().hdel(WIKI_TREE_CACHE_KEY, f"{group}{STAFF_TREE_SUFFIX}")
 
 		clear()
 		frappe.db.after_commit.add(clear)

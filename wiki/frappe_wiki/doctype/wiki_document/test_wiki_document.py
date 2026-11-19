@@ -3312,6 +3312,28 @@ class TestWikiTreeCache(WikiDocumentTestBase):
 		self.assertFalse(self._is_cached(target))
 		self.assertTrue(self._is_cached(other))
 
+	# //// Neoffice — a group read while its only page was a draft kept an empty
+	# //// tree under its own field, and its address answered 404 once the page was
+	# //// published (hub, 19.11): clear_wiki_tree_cache drops every group's tree.
+	def test_a_group_read_before_its_page_was_published_lands_on_it_after(self):
+		root = create_test_wiki_document(self, "TreeCache GL Root", is_group=True)
+		create_test_wiki_space(self, "TreeCache GL Space", "tc-gl-space", root.name)
+		group = create_test_wiki_document(
+			self, "TreeCache GL Group", parent=root.name, is_group=True, slug="tc-gl-group"
+		)
+		page = create_test_wiki_document(
+			self, "TreeCache GL Page", parent=group.name, slug="tc-gl-page", is_published=False
+		)
+		group.reload()
+
+		self.assertIsNone(get_landing_redirect_for_route(group.route))
+
+		page.reload()
+		page.is_published = 1
+		page.save()
+
+		self.assertEqual(get_landing_redirect_for_route(group.route), page.route)
+
 	def test_space_tree_api_is_cached_and_busted_on_save(self):
 		from wiki.api.wiki_space import get_wiki_tree
 		from wiki.frappe_wiki.doctype.wiki_document.wiki_document import WIKI_FULL_TREE_CACHE_KEY
